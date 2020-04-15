@@ -1,5 +1,7 @@
 package app.shynline.torient.torrent.bencoding
 
+import app.shynline.torient.torrent.bencoding.common.BItem
+import app.shynline.torient.torrent.bencoding.common.InvalidBencodedString
 import java.util.*
 
 class BDict(bencoded: String? = null, item: LinkedHashMap<BString, BItem<*>>? = null) :
@@ -19,7 +21,9 @@ class BDict(bencoded: String? = null, item: LinkedHashMap<BString, BItem<*>>? = 
     override fun decode(bencoded: String): LinkedHashMap<BString, BItem<*>> {
         var bc = bencoded.toLowerCase(Locale.ROOT)
         if (bc.first() != 'd')
-            throw InvalidBencodedString("BDict literals should start with d and end with e.")
+            throw InvalidBencodedString(
+                "BDict literals should start with d and end with e."
+            )
         bc = bc.substring(IntRange(1, bc.length - 1))
         val res: LinkedHashMap<BString, BItem<*>> = linkedMapOf()
         var index: Int
@@ -29,7 +33,9 @@ class BDict(bencoded: String? = null, item: LinkedHashMap<BString, BItem<*>>? = 
         var key: BString
         while (bc.first() != 'e') {
             if (!bc.first().isDigit())
-                throw InvalidBencodedString("Invalid Bencoded Dict.")
+                throw InvalidBencodedString(
+                    "Invalid Bencoded Dict."
+                )
             parts = bc.split(":")
             size = parts[0].length + parts[0].toInt() + 1
             sub = bc.substring(IntRange(0, size - 1))
@@ -39,7 +45,9 @@ class BDict(bencoded: String? = null, item: LinkedHashMap<BString, BItem<*>>? = 
                 'i' -> {
                     index = bc.indexOfFirst { it == 'e' }
                     if (index == -1)
-                        throw InvalidBencodedString("Invalid Bencoded Dict.")
+                        throw InvalidBencodedString(
+                            "Invalid Bencoded Dict."
+                        )
                     sub = bc.substring(IntRange(0, index))
                     res[key] = BInteger(bencoded = sub)
                     bc = bc.drop(sub.length)
@@ -56,7 +64,9 @@ class BDict(bencoded: String? = null, item: LinkedHashMap<BString, BItem<*>>? = 
                 }
                 else -> {
                     if (!bc.first().isDigit())
-                        throw InvalidBencodedString("Invalid Bencoded Dict.")
+                        throw InvalidBencodedString(
+                            "Invalid Bencoded Dict."
+                        )
                     parts = bc.split(":")
                     size = parts[0].length + parts[0].toInt() + 1
                     sub = bc.substring(IntRange(0, size - 1))

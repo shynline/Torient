@@ -1,10 +1,14 @@
-package app.shynline.torient.torrent.bencoding
+package app.shynline.torient.torrent.bencoding.common
 
 abstract class BItem<TYPE>(bencoded: String?, item: TYPE?) {
     private var data: TYPE? = null
 
     init {
-        assertJustOneSet("initialize", item, bencoded)
+        assertJustOneSet(
+            "initialize",
+            item,
+            bencoded
+        )
         initialize(bencoded, item)
     }
 

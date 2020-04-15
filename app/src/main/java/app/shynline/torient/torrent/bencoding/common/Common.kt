@@ -1,4 +1,4 @@
-package app.shynline.torient.torrent.bencoding
+package app.shynline.torient.torrent.bencoding.common
 
 fun assertJustOneSet(
     method: String,

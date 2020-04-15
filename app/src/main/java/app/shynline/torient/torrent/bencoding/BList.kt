@@ -1,5 +1,7 @@
 package app.shynline.torient.torrent.bencoding
 
+import app.shynline.torient.torrent.bencoding.common.BItem
+import app.shynline.torient.torrent.bencoding.common.InvalidBencodedString
 import java.util.*
 
 class BList(bencoded: String? = null, item: List<BItem<*>>? = null) :
@@ -18,7 +20,9 @@ class BList(bencoded: String? = null, item: List<BItem<*>>? = null) :
     override fun decode(bencoded: String): List<BItem<*>> {
         var bc = bencoded.toLowerCase(Locale.ROOT)
         if (bc.first() != 'l')
-            throw InvalidBencodedString("BList literals should start with l and end with e.")
+            throw InvalidBencodedString(
+                "BList literals should start with l and end with e."
+            )
         bc = bc.substring(IntRange(1, bc.length - 1))
         val res: MutableList<BItem<*>> = mutableListOf()
         var index: Int
@@ -30,7 +34,9 @@ class BList(bencoded: String? = null, item: List<BItem<*>>? = null) :
                 'i' -> {
                     index = bc.indexOfFirst { it == 'e' }
                     if (index == -1)
-                        throw InvalidBencodedString("Invalid Bencoded List.")
+                        throw InvalidBencodedString(
+                            "Invalid Bencoded List."
+                        )
                     sub = bc.substring(IntRange(0, index))
                     res.add(BInteger(bencoded = sub))
                     bc = bc.drop(sub.length)
@@ -47,7 +53,9 @@ class BList(bencoded: String? = null, item: List<BItem<*>>? = null) :
                 }
                 else -> {
                     if (!bc.first().isDigit())
-                        throw InvalidBencodedString("Invalid Bencoded List.")
+                        throw InvalidBencodedString(
+                            "Invalid Bencoded List."
+                        )
                     parts = bc.split(":")
                     size = parts[0].length + parts[0].toInt() + 1
                     sub = bc.substring(IntRange(0, size - 1))
