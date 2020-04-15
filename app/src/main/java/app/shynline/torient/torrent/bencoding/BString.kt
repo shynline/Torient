@@ -20,4 +20,13 @@ class BString(bencoded: String? = null, item: String? = null) : BItem<String>(be
             )
         return bencoded.split(":")[1]
     }
+
+    override fun toString(short: Boolean, n: Int): String {
+        return buildString {
+            append("\"")
+            append(value())
+            append("\"")
+        }
+    }
+
 }

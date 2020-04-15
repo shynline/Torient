@@ -77,4 +77,35 @@ class BDict(bencoded: String? = null, item: LinkedHashMap<BString, BItem<*>>? = 
         }
         return res
     }
+
+    override fun toString(short: Boolean, n: Int): String {
+        var mShort = short
+        val size = value().size
+        if (size < n + 1)
+            mShort = false
+        return buildString {
+            append("{")
+            value().toList().filterIndexed { index, pair ->
+                !mShort || index == size - 1 || index < n - 1
+            }.forEachIndexed { index, bItem ->
+                append(" ")
+                append(bItem.first.toString(mShort))
+                append(":")
+                append(bItem.second.toString(mShort))
+                if (!mShort) {
+                    if (index < size - 1)
+                        append(",")
+                } else {
+                    if (index < n - 1)
+                        append(",")
+                    if (index == n - 2) {
+                        append(" ... ")
+                        append(",")
+                    }
+                }
+            }
+            append(" }")
+        }
+    }
+
 }

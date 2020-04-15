@@ -66,4 +66,33 @@ class BList(bencoded: String? = null, item: List<BItem<*>>? = null) :
         }
         return res
     }
+
+    override fun toString(short: Boolean, n: Int): String {
+        var mShort = short
+        val size = value().size
+        if (size < n + 1)
+            mShort = false
+        return buildString {
+            append("[")
+            value().filterIndexed { index, bItem ->
+                !mShort || index == size - 1 || index < n - 1
+            }.forEachIndexed { index, bItem ->
+                append(" ")
+                append(bItem.toString(mShort))
+                if (!mShort) {
+                    if (index < size - 1)
+                        append(",")
+                } else {
+                    if (index < n - 1)
+                        append(",")
+                    if (index == n - 2) {
+                        append(" ... ")
+                        append(",")
+                    }
+                }
+            }
+            append(" ]")
+        }
+    }
+
 }

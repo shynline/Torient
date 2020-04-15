@@ -21,4 +21,9 @@ class BInteger(bencoded: String? = null, item: Long? = null) : BItem<Long>(benco
             )
         return bc.substring(IntRange(1, bc.length - 2)).toLong()
     }
+
+    override fun toString(short: Boolean, n: Int): String {
+        return value().toString()
+    }
+
 }

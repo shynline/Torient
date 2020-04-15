@@ -19,6 +19,7 @@ abstract class BItem<TYPE>(bencoded: String?, item: TYPE?) {
     fun value(): TYPE = data!!
     abstract fun encode(): String
     protected abstract fun decode(bencoded: String): TYPE
+    abstract fun toString(short: Boolean = true, n: Int = 3): String
 
     override fun equals(other: Any?): Boolean {
         if (other is BItem<*>)
@@ -29,4 +30,9 @@ abstract class BItem<TYPE>(bencoded: String?, item: TYPE?) {
     override fun hashCode(): Int {
         return data?.hashCode() ?: 0
     }
+
+    override fun toString(): String {
+        return toString(true)
+    }
+
 }
