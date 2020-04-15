@@ -21,4 +21,8 @@ abstract class BItem<TYPE>(bencoded: String?, item: TYPE?) {
             return other.value() == value()
         return false
     }
+
+    override fun hashCode(): Int {
+        return data?.hashCode() ?: 0
+    }
 }
