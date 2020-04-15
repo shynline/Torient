@@ -44,6 +44,18 @@ object BListSamples {
             add(Pair("l4:spam4:eggse", listOf(BString(item = "spam"), BString(item = "eggs"))))
             add(Pair("l0:e", listOf(BString(item = ""))))
             add(Pair("li4ee", listOf(BInteger(item = 4))))
+            add(
+                Pair(
+                    "li4ei0ei-1ei50ei-80ei13ee", listOf(
+                        BInteger(item = 4),
+                        BInteger(item = 0),
+                        BInteger(item = -1),
+                        BInteger(item = 50),
+                        BInteger(item = -80),
+                        BInteger(item = 13)
+                    )
+                )
+            )
             add(Pair("l4:testi-8ee", listOf(BString(item = "test"), BInteger(item = -8))))
             add(
                 Pair(
