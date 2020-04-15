@@ -16,4 +16,9 @@ abstract class BItem<TYPE>(bencoded: String?, item: TYPE?) {
     abstract fun encode(): String
     protected abstract fun decode(bencoded: String): TYPE
 
+    override fun equals(other: Any?): Boolean {
+        if (other is BItem<*>)
+            return other.value() == value()
+        return false
+    }
 }
