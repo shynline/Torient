@@ -17,15 +17,15 @@ class BList(bencoded: String? = null, item: List<BItem<*>>? = null) :
 
     override fun decode(bencoded: String): List<BItem<*>> {
         var bc = bencoded.toLowerCase(Locale.ROOT)
-        if (bc.first() != 'l' || bc.last() != 'e')
+        if (bc.first() != 'l')
             throw InvalidBencodedString("BList literals should start with l and end with e.")
-        bc = bc.substring(IntRange(1, bc.length - 2))
+        bc = bc.substring(IntRange(1, bc.length - 1))
         val res: MutableList<BItem<*>> = mutableListOf()
         var index: Int
         var sub: String
         var parts: List<String>
         var size: Int
-        while (bc.isNotBlank()) {
+        while (bc.first() != 'e') {
             when (bc.first()) {
                 'i' -> {
                     index = bc.indexOfFirst { it == 'e' }
@@ -36,10 +36,14 @@ class BList(bencoded: String? = null, item: List<BItem<*>>? = null) :
                     bc = bc.drop(sub.length)
                 }
                 'l' -> {
-
+                    val bl = BList(bencoded = bc)
+                    res.add(bl)
+                    bc = bc.drop(bl.encode().length)
                 }
                 'd' -> {
-
+                    val bd = BDict(bencoded = bc)
+                    res.add(bd)
+                    bc = bc.drop(bd.encode().length)
                 }
                 else -> {
                     if (!bc.first().isDigit())
