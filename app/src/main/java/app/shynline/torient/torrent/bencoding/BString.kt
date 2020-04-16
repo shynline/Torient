@@ -2,6 +2,7 @@ package app.shynline.torient.torrent.bencoding
 
 import app.shynline.torient.torrent.bencoding.common.BItem
 import app.shynline.torient.torrent.bencoding.common.InvalidBencodedString
+import org.apache.commons.text.StringEscapeUtils
 
 class BString(bencoded: String? = null, item: String? = null) : BItem<String>(bencoded, item) {
 
@@ -18,13 +19,13 @@ class BString(bencoded: String? = null, item: String? = null) : BItem<String>(be
             throw InvalidBencodedString(
                 "There is no \":\" in this BString."
             )
-        return bencoded.split(":")[1]
+        return bencoded.replaceBefore(":", "").removePrefix(":")
     }
 
     override fun toString(short: Boolean, n: Int): String {
         return buildString {
             append("\"")
-            append(value())
+            append(StringEscapeUtils.escapeJava(value()))
             append("\"")
         }
     }
