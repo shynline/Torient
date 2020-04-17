@@ -10,7 +10,7 @@ class BListTest {
         var bi: BList
         BListSamples.data.forEach {
             bi = BList(bencoded = it.first)
-            Truth.assertThat(it.first).matches(bi.encode())
+            Truth.assertThat(it.first).isEqualTo(bi.encode())
         }
     }
 
@@ -19,7 +19,7 @@ class BListTest {
         var bi: BList
         BListSamples.data.forEach {
             bi = BList(item = it.second)
-            Truth.assertThat(it.first).matches(bi.encode())
+            Truth.assertThat(it.first).isEqualTo(bi.encode())
         }
     }
 
@@ -29,7 +29,7 @@ class BListTest {
         BListSamples.data.forEach {
             bi = BList(item = it.second)
             if (it.second.isNotEmpty())
-                Truth.assertThat(it.second).containsAnyIn(bi.value())
+                Truth.assertThat(it.second).containsExactlyElementsIn(bi.value())
             else
                 Truth.assertThat(it.second.size).isEqualTo(bi.value().size)
         }
@@ -41,7 +41,7 @@ class BListTest {
         BListSamples.data.forEach {
             bi = BList(bencoded = it.first)
             if (it.second.isNotEmpty())
-                Truth.assertThat(it.second).containsAnyIn(bi.value())
+                Truth.assertThat(it.second).containsExactlyElementsIn(bi.value())
             else
                 Truth.assertThat(it.second.size).isEqualTo(bi.value().size)
         }

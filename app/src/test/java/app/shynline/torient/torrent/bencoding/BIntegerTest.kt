@@ -12,7 +12,7 @@ class BIntegerTest {
         var bi: BInteger
         BIntegerSamples.data.forEach {
             bi = BInteger(bencoded = it.first)
-            assertThat(it.first).matches(bi.encode())
+            assertThat(it.first).isEqualTo(bi.encode())
         }
     }
 
@@ -21,7 +21,7 @@ class BIntegerTest {
         var bi: BInteger
         BIntegerSamples.data.forEach {
             bi = BInteger(item = it.second)
-            assertThat(it.first).matches(bi.encode())
+            assertThat(it.first).isEqualTo(bi.encode())
         }
     }
 

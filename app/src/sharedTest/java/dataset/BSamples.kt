@@ -8,45 +8,53 @@ import app.shynline.torient.torrent.bencoding.common.BItem
 
 
 object BIntegerSamples {
-    private val _data: MutableList<Pair<String, Long>> = mutableListOf()
-    val data: List<Pair<String, Long>> = _data
+    private val _data: MutableList<Pair<ByteArray, Long>> = mutableListOf()
+    val data: List<Pair<ByteArray, Long>> = _data
 
     init {
         _data.apply {
-            add(Pair("i3e", 3))
-            add(Pair("i-2500e", -2500))
-            add(Pair("i0e", 0))
-            add(Pair("i-18e", -18))
-            add(Pair("i7000e", 7000))
+            add(Pair("i3e".toByteArray(), 3))
+            add(Pair("i-2500e".toByteArray(), -2500))
+            add(Pair("i0e".toByteArray(), 0))
+            add(Pair("i-18e".toByteArray(), -18))
+            add(Pair("i7000e".toByteArray(), 7000))
         }
     }
 }
 
 object BStringSamples {
-    private val _data: MutableList<Pair<String, String>> = mutableListOf()
-    val data: List<Pair<String, String>> = _data
+    private val _data: MutableList<Pair<ByteArray, ByteArray>> = mutableListOf()
+    val data: List<Pair<ByteArray, ByteArray>> = _data
 
     init {
         _data.apply {
-            add(Pair("0:", ""))
-            add(Pair("4:spam", "spam"))
+            add(Pair("0:".toByteArray(), "".toByteArray()))
+            add(Pair("4:spam".toByteArray(), "spam".toByteArray()))
         }
     }
 }
 
 object BListSamples {
-    private val _data: MutableList<Pair<String, List<BItem<*>>>> = mutableListOf()
-    val data: List<Pair<String, List<BItem<*>>>> = _data
+    private val _data: MutableList<Pair<ByteArray, List<BItem<*>>>> = mutableListOf()
+    val data: List<Pair<ByteArray, List<BItem<*>>>> = _data
 
     init {
         _data.apply {
-            add(Pair("le", listOf<BItem<Any>>()))
-            add(Pair("l4:spam4:eggse", listOf(BString(item = "spam"), BString(item = "eggs"))))
-            add(Pair("l0:e", listOf(BString(item = ""))))
-            add(Pair("li4ee", listOf(BInteger(item = 4))))
+            add(Pair("le".toByteArray(), listOf<BItem<Any>>()))
             add(
                 Pair(
-                    "li4ei0ei-1ei50ei-80ei13ee", listOf(
+                    "l4:spam4:eggse".toByteArray(),
+                    listOf(
+                        BString(item = "spam".toByteArray()),
+                        BString(item = "eggs".toByteArray())
+                    )
+                )
+            )
+            add(Pair("l0:e".toByteArray(), listOf(BString(item = "".toByteArray()))))
+            add(Pair("li4ee".toByteArray(), listOf(BInteger(item = 4))))
+            add(
+                Pair(
+                    "li4ei0ei-1ei50ei-80ei13ee".toByteArray(), listOf(
                         BInteger(item = 4),
                         BInteger(item = 0),
                         BInteger(item = -1),
@@ -56,29 +64,41 @@ object BListSamples {
                     )
                 )
             )
-            add(Pair("l4:testi-8ee", listOf(BString(item = "test"), BInteger(item = -8))))
             add(
                 Pair(
-                    "l7:torrentl5:inneri3eee",
+                    "l4:testi-8ee".toByteArray(),
+                    listOf(BString(item = "test".toByteArray()), BInteger(item = -8))
+                )
+            )
+            add(
+                Pair(
+                    "l7:torrentl5:inneri3eee".toByteArray(),
                     listOf(
-                        BString(item = "torrent"),
-                        BList(item = listOf(BString(item = "inner"), BInteger(item = 3)))
+                        BString(item = "torrent".toByteArray()),
+                        BList(
+                            item = listOf(
+                                BString(item = "inner".toByteArray()),
+                                BInteger(item = 3)
+                            )
+                        )
                     )
                 )
             )
             add(
                 Pair(
-                    "li4e2:god3:cow3:moo4:spam4:eggsee",
+                    "li4e2:god3:cow3:moo4:spam4:eggsee".toByteArray(),
                     listOf(
                         BInteger(item = 4),
-                        BString(item = "go"),
+                        BString(item = "go".toByteArray()),
                         BDict(
                             item = linkedMapOf(
                                 Pair(
-                                    BString(item = "cow"), BString(item = "moo")
+                                    BString(item = "cow".toByteArray()),
+                                    BString(item = "moo".toByteArray())
                                 ),
                                 Pair(
-                                    BString(item = "spam"), BString(item = "eggs")
+                                    BString(item = "spam".toByteArray()),
+                                    BString(item = "eggs".toByteArray())
                                 )
                             )
                         )
@@ -90,75 +110,102 @@ object BListSamples {
 }
 
 object BDictSamples {
-    private val _data: MutableList<Pair<String, LinkedHashMap<BString, BItem<*>>>> = mutableListOf()
-    val data: List<Pair<String, LinkedHashMap<BString, BItem<*>>>> = _data
+    private val _data: MutableList<Pair<ByteArray, LinkedHashMap<BString, BItem<*>>>> =
+        mutableListOf()
+    val data: List<Pair<ByteArray, LinkedHashMap<BString, BItem<*>>>> = _data
 
     init {
         _data.apply {
             add(
                 Pair(
-                    "de",
+                    "de".toByteArray(),
                     linkedMapOf()
                 )
             )
             add(
                 Pair(
-                    "d3:cow3:moo4:spam4:eggse",
-                    linkedMapOf(
-                        Pair(BString(item = "cow"), BString(item = "moo")),
-                        Pair(BString(item = "spam"), BString(item = "eggs"))
-                    )
-                ) as Pair<String, LinkedHashMap<BString, BItem<*>>>
-            )
-            add(
-                Pair(
-                    "d4:spaml1:a1:bee",
+                    "d3:cow3:moo4:spam4:eggse".toByteArray(),
                     linkedMapOf(
                         Pair(
-                            BString(item = "spam"),
-                            BList(item = listOf(BString(item = "a"), BString(item = "b")))
+                            BString(item = "cow".toByteArray()),
+                            BString(item = "moo".toByteArray())
+                        ),
+                        Pair(
+                            BString(item = "spam".toByteArray()),
+                            BString(item = "eggs".toByteArray())
                         )
                     )
-                ) as Pair<String, LinkedHashMap<BString, BItem<*>>>
+                ) as Pair<ByteArray, LinkedHashMap<BString, BItem<*>>>
             )
             add(
                 Pair(
-                    "d9:publisher3:bob17:publisher-webpage15:www.example.com18:publisher.location4:home2:soi4ee",
+                    "d4:spaml1:a1:bee".toByteArray(),
                     linkedMapOf(
-                        Pair(BString(item = "publisher"), BString(item = "bob")),
                         Pair(
-                            BString(item = "publisher-webpage"),
-                            BString(item = "www.example.com")
-                        ),
-                        Pair(BString(item = "publisher.location"), BString(item = "home")),
-                        Pair(BString(item = "so"), BInteger(item = 4))
-                    )
-                ) as Pair<String, LinkedHashMap<BString, BItem<*>>>
-            )
-            add(
-                Pair(
-                    "d2:soi4e4:dictdee",
-                    linkedMapOf(
-                        Pair(BString(item = "so"), BInteger(item = 4)),
-                        Pair(BString(item = "dict"), BDict(item = linkedMapOf()))
-                    )
-                ) as Pair<String, LinkedHashMap<BString, BItem<*>>>
-            )
-            add(
-                Pair(
-                    "d2:so4:test4:dictd3:cow3:moo4:spam4:eggsee",
-                    linkedMapOf(
-                        Pair(BString(item = "so"), BString(item = "test")),
-                        Pair(
-                            BString(item = "dict"), BDict(
-                                item = linkedMapOf(
-                                    Pair(BString(item = "cow"), BString(item = "moo")),
-                                    Pair(BString(item = "spam"), BString(item = "eggs"))
+                            BString(item = "spam".toByteArray()),
+                            BList(
+                                item = listOf(
+                                    BString(item = "a".toByteArray()),
+                                    BString(item = "b".toByteArray())
                                 )
                             )
                         )
                     )
-                ) as Pair<String, LinkedHashMap<BString, BItem<*>>>
+                ) as Pair<ByteArray, LinkedHashMap<BString, BItem<*>>>
+            )
+            add(
+                Pair(
+                    "d9:publisher3:bob17:publisher-webpage15:www.example.com18:publisher.location4:home2:soi4ee".toByteArray(),
+                    linkedMapOf(
+                        Pair(
+                            BString(item = "publisher".toByteArray()),
+                            BString(item = "bob".toByteArray())
+                        ),
+                        Pair(
+                            BString(item = "publisher-webpage".toByteArray()),
+                            BString(item = "www.example.com".toByteArray())
+                        ),
+                        Pair(
+                            BString(item = "publisher.location".toByteArray()),
+                            BString(item = "home".toByteArray())
+                        ),
+                        Pair(BString(item = "so".toByteArray()), BInteger(item = 4))
+                    )
+                ) as Pair<ByteArray, LinkedHashMap<BString, BItem<*>>>
+            )
+            add(
+                Pair(
+                    "d2:soi4e4:dictdee".toByteArray(),
+                    linkedMapOf(
+                        Pair(BString(item = "so".toByteArray()), BInteger(item = 4)),
+                        Pair(BString(item = "dict".toByteArray()), BDict(item = linkedMapOf()))
+                    )
+                ) as Pair<ByteArray, LinkedHashMap<BString, BItem<*>>>
+            )
+            add(
+                Pair(
+                    "d2:so4:test4:dictd3:cow3:moo4:spam4:eggsee".toByteArray(),
+                    linkedMapOf(
+                        Pair(
+                            BString(item = "so".toByteArray()),
+                            BString(item = "test".toByteArray())
+                        ),
+                        Pair(
+                            BString(item = "dict".toByteArray()), BDict(
+                                item = linkedMapOf(
+                                    Pair(
+                                        BString(item = "cow".toByteArray()),
+                                        BString(item = "moo".toByteArray())
+                                    ),
+                                    Pair(
+                                        BString(item = "spam".toByteArray()),
+                                        BString(item = "eggs".toByteArray())
+                                    )
+                                )
+                            )
+                        )
+                    )
+                ) as Pair<ByteArray, LinkedHashMap<BString, BItem<*>>>
             )
         }
     }

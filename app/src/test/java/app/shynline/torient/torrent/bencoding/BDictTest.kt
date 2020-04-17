@@ -1,6 +1,6 @@
 package app.shynline.torient.torrent.bencoding
 
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import dataset.BDictSamples
 import org.junit.Test
 
@@ -10,7 +10,7 @@ class BDictTest {
         var bi: BDict
         BDictSamples.data.forEach {
             bi = BDict(bencoded = it.first)
-            Truth.assertThat(it.first).matches(bi.encode())
+            assertThat(it.first).isEqualTo(bi.encode())
         }
     }
 
@@ -19,7 +19,7 @@ class BDictTest {
         var bi: BDict
         BDictSamples.data.forEach {
             bi = BDict(item = it.second)
-            Truth.assertThat(it.first).matches(bi.encode())
+            assertThat(it.first).isEqualTo(bi.encode())
         }
     }
 
@@ -29,9 +29,9 @@ class BDictTest {
         BDictSamples.data.forEach {
             bi = BDict(item = it.second)
             if (it.second.isNotEmpty())
-                Truth.assertThat(it.second).containsExactlyEntriesIn(bi.value())
+                assertThat(it.second).containsExactlyEntriesIn(bi.value())
             else
-                Truth.assertThat(it.second.size).isEqualTo(bi.value().size)
+                assertThat(it.second.size).isEqualTo(bi.value().size)
         }
     }
 
@@ -40,10 +40,10 @@ class BDictTest {
         var bi: BDict
         BDictSamples.data.forEach {
             bi = BDict(bencoded = it.first)
-            if (it.second.isNotEmpty())
-                Truth.assertThat(it.second).containsExactlyEntriesIn(bi.value())
-            else
-                Truth.assertThat(it.second.size).isEqualTo(bi.value().size)
+            if (it.second.isNotEmpty()) {
+                assertThat(it.second).containsExactlyEntriesIn(bi.value())
+            } else
+                assertThat(it.second.size).isEqualTo(bi.value().size)
         }
     }
 }

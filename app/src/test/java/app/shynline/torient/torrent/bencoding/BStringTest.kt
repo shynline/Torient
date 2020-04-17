@@ -10,7 +10,7 @@ class BStringTest {
         var bi: BString
         BStringSamples.data.forEach {
             bi = BString(bencoded = it.first)
-            Truth.assertThat(it.first).matches(bi.encode())
+            Truth.assertThat(it.first).isEqualTo(bi.encode())
         }
     }
 
@@ -19,7 +19,7 @@ class BStringTest {
         var bi: BString
         BStringSamples.data.forEach {
             bi = BString(item = it.second)
-            Truth.assertThat(it.first).matches(bi.encode())
+            Truth.assertThat(it.first).isEqualTo(bi.encode())
         }
     }
 
