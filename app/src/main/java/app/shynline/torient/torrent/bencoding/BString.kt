@@ -1,33 +1,41 @@
 package app.shynline.torient.torrent.bencoding
 
 import app.shynline.torient.torrent.bencoding.common.BItem
+import app.shynline.torient.torrent.bencoding.common.Chars
 import app.shynline.torient.torrent.bencoding.common.InvalidBencodedString
-import org.apache.commons.text.StringEscapeUtils
+import java.lang.Exception
+import java.net.URLEncoder
 
-class BString(bencoded: String? = null, item: String? = null) : BItem<String>(bencoded, item) {
+class BString(bencoded: ByteArray? = null, item: ByteArray? = null) :
+    BItem<ByteArray>(bencoded, item) {
 
-    override fun encode(): String {
-        return buildString {
-            append(value().length)
-            append(":")
-            append(value())
-        }
+    override fun encode(): ByteArray {
+        val prefix = value().size.toString() + ":"
+        return prefix.toByteArray() + value()
     }
 
-    override fun decode(bencoded: String): String {
-        if (bencoded.indexOfFirst { it == ':' } == -1)
+    override fun decode(bencoded: ByteArray): ByteArray {
+        val index = bencoded.indexOfFirst {
+            it == Chars.separator
+        }
+        try {
+            val num = String(bencoded.asList().subList(0, index).toByteArray()).toInt()
+            if (num == 0)
+                return ByteArray(0)
+            return bencoded.asList().subList(index + 1, index + 1 + num).toByteArray()
+        } catch (e: Exception) {
             throw InvalidBencodedString(
                 "There is no \":\" in this BString."
             )
-        return bencoded.replaceBefore(":", "").removePrefix(":")
+        }
+    }
+
+    fun toPureString(): String {
+        return String(value())
     }
 
     override fun toString(short: Boolean, n: Int): String {
-        return buildString {
-            append("\"")
-            append(StringEscapeUtils.escapeJava(value()))
-            append("\"")
-        }
+        return URLEncoder.encode(String(value(), Charsets.ISO_8859_1), Charsets.ISO_8859_1.name())
     }
 
 }

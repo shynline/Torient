@@ -1,77 +1,73 @@
 package app.shynline.torient.torrent.bencoding
 
 import app.shynline.torient.torrent.bencoding.common.BItem
+import app.shynline.torient.torrent.bencoding.common.Chars
 import app.shynline.torient.torrent.bencoding.common.InvalidBencodedString
+import java.io.BufferedInputStream
+import java.io.InputStream
 import java.util.*
 
-class BDict(bencoded: String? = null, item: LinkedHashMap<BString, BItem<*>>? = null) :
+class BDict(bencoded: ByteArray? = null, item: LinkedHashMap<BString, BItem<*>>? = null) :
     BItem<LinkedHashMap<BString, BItem<*>>>(bencoded, item) {
 
-    override fun encode(): String {
-        return buildString {
-            append("d")
-            value().forEach {
-                append(it.key.encode())
-                append(it.value.encode())
-            }
-            append("e")
+    override fun encode(): ByteArray {
+        var res = "d".toByteArray()
+        value().forEach {
+            res += it.key.encode()
+            res += it.value.encode()
         }
+        res += "e".toByteArray()
+        return res
     }
 
-    override fun decode(bencoded: String): LinkedHashMap<BString, BItem<*>> {
-        var bc = bencoded.toLowerCase(Locale.ROOT)
-        if (bc.first() != 'd')
+    override fun decode(bencoded: ByteArray): LinkedHashMap<BString, BItem<*>> {
+        var bc = bencoded.copyOf()
+        if (bc[0] != Chars.d)
             throw InvalidBencodedString(
                 "BDict literals should start with d and end with e."
             )
-        bc = bc.substring(IntRange(1, bc.length - 1))
+        bc = bc.copyOfRange(1, bc.size)
         val res: LinkedHashMap<BString, BItem<*>> = linkedMapOf()
         var index: Int
-        var sub: String
-        var parts: List<String>
-        var size: Int
+        var sub: ByteArray
         var key: BString
-        while (bc.first() != 'e') {
-            if (!bc.first().isDigit())
+        var str: BString
+        while (bc[0] != Chars.e) {
+            if (!bc[0].toChar().isDigit())
                 throw InvalidBencodedString(
                     "Invalid Bencoded Dict."
                 )
-            parts = bc.split(":")
-            size = parts[0].length + parts[0].toInt() + 1
-            sub = bc.substring(IntRange(0, size - 1))
-            key = BString(bencoded = sub)
-            bc = bc.drop(size)
-            when (bc.first()) {
-                'i' -> {
-                    index = bc.indexOfFirst { it == 'e' }
+            key = BString(bencoded = bc)
+            bc = bc.copyOfRange(key.encode().size, bc.size)
+            when (bc[0]) {
+                Chars.i -> {
+                    index = bc.indexOfFirst { it == Chars.e }
                     if (index == -1)
                         throw InvalidBencodedString(
                             "Invalid Bencoded Dict."
                         )
-                    sub = bc.substring(IntRange(0, index))
+                    sub = bc.toList().subList(0, index + 1).toByteArray()
                     res[key] = BInteger(bencoded = sub)
-                    bc = bc.drop(sub.length)
+                    bc = bc.copyOfRange(sub.size, bc.size)
                 }
-                'l' -> {
+                Chars.l -> {
                     val bl = BList(bencoded = bc)
                     res[key] = bl
-                    bc = bc.drop(bl.encode().length)
+                    bc = bc.copyOfRange(bl.encode().size, bc.size)
                 }
-                'd' -> {
+                Chars.d -> {
                     val bd = BDict(bencoded = bc)
                     res[key] = bd
-                    bc = bc.drop(bd.encode().length)
+                    bc = bc.copyOfRange(bd.encode().size, bc.size)
                 }
                 else -> {
-                    if (!bc.first().isDigit())
+                    if (!bc[0].toChar().isDigit())
                         throw InvalidBencodedString(
                             "Invalid Bencoded Dict."
                         )
-                    parts = bc.split(":")
-                    size = parts[0].length + parts[0].toInt() + 1
-                    sub = bc.substring(IntRange(0, size - 1))
-                    res[key] = BString(bencoded = sub)
-                    bc = bc.drop(size)
+                    str = BString(bencoded = bc)
+                    res[key] = str
+                    bc = bc.copyOfRange(str.encode().size, bc.size)
                 }
             }
         }
@@ -108,4 +104,11 @@ class BDict(bencoded: String? = null, item: LinkedHashMap<BString, BItem<*>>? = 
         }
     }
 
+    companion object {
+        fun fromInputStream(inputStream: InputStream): BDict {
+            return BDict(bencoded = BufferedInputStream(inputStream).use { s ->
+                s.readBytes()
+            })
+        }
+    }
 }

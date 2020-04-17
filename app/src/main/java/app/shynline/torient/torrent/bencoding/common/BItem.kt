@@ -1,6 +1,9 @@
 package app.shynline.torient.torrent.bencoding.common
 
-abstract class BItem<TYPE>(bencoded: String?, item: TYPE?) {
+import app.shynline.torient.torrent.bencoding.BDict
+import app.shynline.torient.torrent.bencoding.BString
+
+abstract class BItem<TYPE>(bencoded: ByteArray?, item: TYPE?) {
     private var data: TYPE? = null
 
     init {
@@ -12,23 +15,23 @@ abstract class BItem<TYPE>(bencoded: String?, item: TYPE?) {
         initialize(bencoded, item)
     }
 
-    private fun initialize(bencoded: String?, item: TYPE?) {
+    private fun initialize(bencoded: ByteArray?, item: TYPE?) {
         data = item ?: decode(bencoded!!)
     }
 
     fun value(): TYPE = data!!
-    abstract fun encode(): String
-    protected abstract fun decode(bencoded: String): TYPE
+    abstract fun encode(): ByteArray
+    protected abstract fun decode(bencoded: ByteArray): TYPE
     abstract fun toString(short: Boolean = true, n: Int = 3): String
 
     override fun equals(other: Any?): Boolean {
         if (other is BItem<*>)
-            return other.value() == value()
+            return other.encode().contentEquals(encode())
         return false
     }
 
     override fun hashCode(): Int {
-        return data?.hashCode() ?: 0
+        return encode().toList().hashCode()
     }
 
     override fun toString(): String {
