@@ -1,32 +1,14 @@
 package app.shynline.torient.torrent.bencoding
 
 import app.shynline.torient.torrent.bencoding.common.BItem
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonAdapter
-import com.squareup.moshi.JsonClass
-import com.squareup.moshi.Moshi
 
-@JsonClass(generateAdapter = true)
 data class MetaData(
-    @Json(name = "announce")
     var announce: String? = null,
-
-    @Json(name = "announce-list")
-    var announceList: List<List<String>>? = null,
-
-    @Json(name = "creation date")
-    var creationDate: String? = null,
-
-    @Json(name = "comment")
+    var announceList: MutableList<List<String>>? = null,
+    var creationDate: Long? = null,
     var comment: String? = null,
-
-    @Json(name = "created by")
     var createdBy: String? = null,
-
-    @Json(name = "encoding")
     var encoding: String? = null,
-
-    @Json(name = "info")
     var info: Info? = null
 ) {
 
@@ -34,40 +16,79 @@ data class MetaData(
         val dict: LinkedHashMap<BString, BItem<*>> = linkedMapOf()
 
         //announce
-        announce?.let { dict[BString(item = "announce")] = BString(item = it) }
+        announce?.let {
+            dict[BString(item = "announce".toByteArray())] = BString(item = it.toByteArray())
+        }
 
         //announce-list
         announceList?.map { inner ->
             BList(item = inner.map {
-                BString(item = it)
+                BString(item = it.toByteArray())
             })
         }.let {
-            dict[BString(item = "announce-list")] = BList(item = it)
+            dict[BString(item = "announce-list".toByteArray())] = BList(item = it)
         }
 
         //creation date
-        creationDate?.let { dict[BString(item = "creation date")] = BString(item = it) }
+        creationDate?.let {
+            dict[BString(item = "creation date".toByteArray())] =
+                BString(item = it.toString().toByteArray())
+        }
 
         //comment
-        comment?.let { dict[BString(item = "comment")] = BString(item = it) }
+        comment?.let {
+            dict[BString(item = "comment".toByteArray())] = BString(item = it.toByteArray())
+        }
 
         //created by
-        createdBy?.let { dict[BString(item = "created by")] = BString(item = it) }
+        createdBy?.let {
+            dict[BString(item = "created by".toByteArray())] = BString(item = it.toByteArray())
+        }
 
         //encoding
-        encoding?.let { dict[BString(item = "encoding")] = BString(item = it) }
+        encoding?.let {
+            dict[BString(item = "encoding".toByteArray())] = BString(item = it.toByteArray())
+        }
 
         //info
-        info?.let { dict[BString(item = "info")] = it.toBenCoding() }
+        info?.let { dict[BString(item = "info".toByteArray())] = it.toBenCoding() }
         return BDict(item = dict)
     }
 
     companion object {
         fun fromBenCoding(bDict: BDict): MetaData {
-            val moshi = Moshi.Builder().build()
-            val jsonAdapter: JsonAdapter<MetaData> =
-                moshi.adapter(MetaData::class.java)
-            return jsonAdapter.fromJson(bDict.toString(false))!!
+            val metaData = MetaData()
+            bDict.value().forEach {
+                when (it.key.toPureString()) {
+                    "announce" -> {
+                        metaData.announce = (it.value as BString).toPureString()
+                    }
+                    "announce-list" -> {
+                        metaData.announceList = mutableListOf()
+                        (it.value as BList).value().forEach { items ->
+                            metaData.announceList!!.add((items as BList).value().map { item ->
+                                (item as BString).toPureString()
+                            })
+                        }
+                    }
+                    "creation date" -> {
+                        metaData.creationDate = (it.value as BInteger).value()
+                    }
+                    "comment" -> {
+                        metaData.comment = (it.value as BString).toPureString()
+                    }
+                    "created by" -> {
+                        metaData.createdBy = (it.value as BString).toPureString()
+                    }
+                    "encoding" -> {
+                        metaData.encoding = (it.value as BString).toPureString()
+                    }
+                    "info" -> {
+                        metaData.info = Info.fromBendCoding(it.value as BDict)
+                    }
+                }
+            }
+            return metaData
         }
     }
 }
