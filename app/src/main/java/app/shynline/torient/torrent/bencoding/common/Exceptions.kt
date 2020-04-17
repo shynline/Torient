@@ -1,3 +1,3 @@
 package app.shynline.torient.torrent.bencoding.common
 
-class InvalidBencodedString(str: String? = null) : Exception(str)
+class InvalidBencodedException(str: String? = null) : Exception(str)

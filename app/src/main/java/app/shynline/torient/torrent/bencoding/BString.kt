@@ -2,8 +2,7 @@ package app.shynline.torient.torrent.bencoding
 
 import app.shynline.torient.torrent.bencoding.common.BItem
 import app.shynline.torient.torrent.bencoding.common.Chars
-import app.shynline.torient.torrent.bencoding.common.InvalidBencodedString
-import java.lang.Exception
+import app.shynline.torient.torrent.bencoding.common.InvalidBencodedException
 import java.net.URLEncoder
 
 class BString(bencoded: ByteArray? = null, item: ByteArray? = null) :
@@ -24,7 +23,7 @@ class BString(bencoded: ByteArray? = null, item: ByteArray? = null) :
                 return ByteArray(0)
             return bencoded.asList().subList(index + 1, index + 1 + num).toByteArray()
         } catch (e: Exception) {
-            throw InvalidBencodedString(
+            throw InvalidBencodedException(
                 "There is no \":\" in this BString."
             )
         }

@@ -2,8 +2,7 @@ package app.shynline.torient.torrent.bencoding
 
 import app.shynline.torient.torrent.bencoding.common.BItem
 import app.shynline.torient.torrent.bencoding.common.Chars
-import app.shynline.torient.torrent.bencoding.common.InvalidBencodedString
-import java.util.*
+import app.shynline.torient.torrent.bencoding.common.InvalidBencodedException
 
 class BInteger(bencoded: ByteArray? = null, item: Long? = null) : BItem<Long>(bencoded, item) {
     override fun encode(): ByteArray {
@@ -16,7 +15,7 @@ class BInteger(bencoded: ByteArray? = null, item: Long? = null) : BItem<Long>(be
 
     override fun decode(bencoded: ByteArray): Long {
         if (bencoded[0] != Chars.i)
-            throw InvalidBencodedString(
+            throw InvalidBencodedException(
                 "BInteger literals should start with i and end with e."
             )
         val index = bencoded.indexOfFirst {

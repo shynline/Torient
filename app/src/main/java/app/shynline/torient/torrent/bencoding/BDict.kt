@@ -2,7 +2,7 @@ package app.shynline.torient.torrent.bencoding
 
 import app.shynline.torient.torrent.bencoding.common.BItem
 import app.shynline.torient.torrent.bencoding.common.Chars
-import app.shynline.torient.torrent.bencoding.common.InvalidBencodedString
+import app.shynline.torient.torrent.bencoding.common.InvalidBencodedException
 import java.io.BufferedInputStream
 import java.io.InputStream
 import java.util.*
@@ -23,7 +23,7 @@ class BDict(bencoded: ByteArray? = null, item: LinkedHashMap<BString, BItem<*>>?
     override fun decode(bencoded: ByteArray): LinkedHashMap<BString, BItem<*>> {
         var bc = bencoded.copyOf()
         if (bc[0] != Chars.d)
-            throw InvalidBencodedString(
+            throw InvalidBencodedException(
                 "BDict literals should start with d and end with e."
             )
         bc = bc.copyOfRange(1, bc.size)
@@ -34,7 +34,7 @@ class BDict(bencoded: ByteArray? = null, item: LinkedHashMap<BString, BItem<*>>?
         var str: BString
         while (bc[0] != Chars.e) {
             if (!bc[0].toChar().isDigit())
-                throw InvalidBencodedString(
+                throw InvalidBencodedException(
                     "Invalid Bencoded Dict."
                 )
             key = BString(bencoded = bc)
@@ -43,7 +43,7 @@ class BDict(bencoded: ByteArray? = null, item: LinkedHashMap<BString, BItem<*>>?
                 Chars.i -> {
                     index = bc.indexOfFirst { it == Chars.e }
                     if (index == -1)
-                        throw InvalidBencodedString(
+                        throw InvalidBencodedException(
                             "Invalid Bencoded Dict."
                         )
                     sub = bc.toList().subList(0, index + 1).toByteArray()
@@ -62,7 +62,7 @@ class BDict(bencoded: ByteArray? = null, item: LinkedHashMap<BString, BItem<*>>?
                 }
                 else -> {
                     if (!bc[0].toChar().isDigit())
-                        throw InvalidBencodedString(
+                        throw InvalidBencodedException(
                             "Invalid Bencoded Dict."
                         )
                     str = BString(bencoded = bc)

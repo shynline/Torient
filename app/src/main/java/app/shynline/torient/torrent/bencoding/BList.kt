@@ -2,7 +2,7 @@ package app.shynline.torient.torrent.bencoding
 
 import app.shynline.torient.torrent.bencoding.common.BItem
 import app.shynline.torient.torrent.bencoding.common.Chars
-import app.shynline.torient.torrent.bencoding.common.InvalidBencodedString
+import app.shynline.torient.torrent.bencoding.common.InvalidBencodedException
 
 class BList(bencoded: ByteArray? = null, item: List<BItem<*>>? = null) :
     BItem<List<BItem<*>>>(bencoded, item) {
@@ -19,7 +19,7 @@ class BList(bencoded: ByteArray? = null, item: List<BItem<*>>? = null) :
     override fun decode(bencoded: ByteArray): List<BItem<*>> {
         var bc = bencoded.copyOf()
         if (bc[0] != Chars.l)
-            throw InvalidBencodedString(
+            throw InvalidBencodedException(
                 "BList literals should start with l and end with e."
             )
         bc = bc.copyOfRange(1, bc.size)
@@ -31,7 +31,7 @@ class BList(bencoded: ByteArray? = null, item: List<BItem<*>>? = null) :
                 Chars.i -> {
                     index = bc.indexOfFirst { it == Chars.e }
                     if (index == -1)
-                        throw InvalidBencodedString(
+                        throw InvalidBencodedException(
                             "Invalid Bencoded List."
                         )
                     sub = bc.toList().subList(0, index + 1).toByteArray()
@@ -50,7 +50,7 @@ class BList(bencoded: ByteArray? = null, item: List<BItem<*>>? = null) :
                 }
                 else -> {
                     if (!bc[0].toChar().isDigit())
-                        throw InvalidBencodedString(
+                        throw InvalidBencodedException(
                             "Invalid Bencoded List."
                         )
                     val str = BString(bencoded = bc)
