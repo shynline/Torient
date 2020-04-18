@@ -6,14 +6,14 @@ import app.shynline.torient.torrent.message.BaseMessage
 import java.io.IOException
 import java.nio.ByteBuffer
 
-abstract class BaseHttpMessage(
+abstract class BaseHTTPMessage(
     type: Type,
     data: ByteBuffer?
 ) : BaseMessage(type, data) {
 
     companion object {
         @Throws(IOException::class, MessageValidationException::class)
-        fun parse(data: ByteBuffer): BaseHttpMessage? {
+        fun parse(data: ByteBuffer): BaseHTTPMessage? {
             data.rewind()
             val dataBA = ByteArray(data.remaining())
             data.get(dataBA)
