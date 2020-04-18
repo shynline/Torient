@@ -16,7 +16,7 @@ import java.net.URLEncoder
 import java.nio.ByteBuffer
 
 
-class HTTPAnnounceRequestMessage constructor(
+class HTTPAnnounceRequestMessage private constructor(
     data: ByteBuffer,
     private val infoHash: ByteArray,
     val peer: Peer,
