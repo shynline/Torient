@@ -1,6 +1,8 @@
 package app.shynline.torient.torrent.bencoding.common
 
 import app.shynline.torient.torrent.bencoding.BDict
+import app.shynline.torient.torrent.bencoding.BInteger
+import app.shynline.torient.torrent.bencoding.BList
 import app.shynline.torient.torrent.bencoding.BString
 
 abstract class BItem<TYPE>(bencoded: ByteArray?, item: TYPE?) {
@@ -37,5 +39,13 @@ abstract class BItem<TYPE>(bencoded: ByteArray?, item: TYPE?) {
     override fun toString(): String {
         return toString(true)
     }
+
+    fun getBString() = this as BString
+
+    fun getBList() = this as BList
+
+    fun getBInteger() = this as BInteger
+
+    fun getBDict() = this as BDict
 
 }
