@@ -6,7 +6,7 @@ import app.shynline.torient.torrent.exts.toHexString
 import java.security.MessageDigest
 
 
-open class Torrent(
+open class Torrent internal constructor(
     val metaData: MetaData,
     val seed: Boolean
 ) {
