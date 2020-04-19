@@ -1,6 +1,7 @@
 package app.shynline.torient.torrent.bencoding
 
 import app.shynline.torient.torrent.bencoding.common.BItem
+import java.security.MessageDigest
 
 data class MetaData(
     var announce: String? = null,
@@ -18,6 +19,15 @@ data class MetaData(
                 field = toBenCoding()
             return field
         }
+
+    val infoHash: ByteArray by lazy { calculateInfoHash() }
+
+    private fun calculateInfoHash(): ByteArray {
+        val md = MessageDigest.getInstance("SHA-1")
+        md.reset()
+        md.update((bDict!!["info"] as BDict).encode())
+        return md.digest()
+    }
 
     private fun toBenCoding(): BDict {
         val dict: LinkedHashMap<BString, BItem<*>> = linkedMapOf()
