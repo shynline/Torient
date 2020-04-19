@@ -53,17 +53,14 @@ class HTTPAnnounceResponseMessage private constructor(
                 throw MessageValidationException("Could not decode tracker message!")
             }
             return try {
-                val peers = parsePeers(decoded.value()[BString(item = "peers".toByteArray())]!!)
-                val completeKey = BString(item = "complete".toByteArray())
-                val inCompleteKey = BString(item = "incomplete".toByteArray())
+                val peers = parsePeers(decoded["peers"]!!)
                 HTTPAnnounceResponseMessage(
                     data,
-                    (decoded.value()[BString(item = "interval".toByteArray())] as BInteger).value()
-                        .toInt(),
-                    if (decoded.value().containsKey(completeKey))
-                        (decoded.value()[completeKey] as BInteger).value().toInt() else 0,
-                    if (decoded.value().containsKey(inCompleteKey))
-                        (decoded.value()[inCompleteKey] as BInteger).value().toInt() else 0,
+                    (decoded["interval"] as BInteger).value().toInt(),
+                    if (decoded.containsKey("complete"))
+                        (decoded["complete"] as BInteger).value().toInt() else 0,
+                    if (decoded.containsKey("incomplete"))
+                        (decoded["incomplete"] as BInteger).value().toInt() else 0,
                     peers
                 )
             } catch (e: InvalidBencodedException) {
@@ -79,19 +76,15 @@ class HTTPAnnounceResponseMessage private constructor(
                 return bItem.value().map {
                     bd = it as BDict
                     Peer(
-                        (bd.value()[BString(item = "ip".toByteArray())] as BString).toPureString(),
-                        (bd.value()[BString(item = "port".toByteArray())] as BInteger).value()
-                            .toInt(),
-                        (bd.value()[BString(item = "peer id".toByteArray())] as BString).value()
+                        (bd["ip"] as BString).toPureString(),
+                        (bd["port"] as BInteger).value().toInt(),
+                        (bd["peer id"] as BString).value()
                     )
                 }
             }
             val data = (bItem as BString).value()
             if (data.size % 6 != 0) {
-                throw InvalidBencodedException(
-                    "Invalid peers " +
-                            "binary information string!"
-                )
+                throw InvalidBencodedException("Invalid peers binary information string!")
             }
 
             val result: MutableList<Peer> = LinkedList<Peer>()
@@ -125,10 +118,9 @@ class HTTPAnnounceResponseMessage private constructor(
             peers: List<Peer>
         ): HTTPAnnounceResponseMessage? {
             val response: LinkedHashMap<BString, BItem<*>> = linkedMapOf()
-            response[BString(item = "interval".toByteArray())] = BInteger(item = interval.toLong())
-            response[BString(item = "complete".toByteArray())] = BInteger(item = complete.toLong())
-            response[BString(item = "incomplete".toByteArray())] =
-                BInteger(item = incomplete.toLong())
+            response[BString(item = "interval")] = BInteger(item = interval.toLong())
+            response[BString(item = "complete")] = BInteger(item = complete.toLong())
+            response[BString(item = "incomplete")] = BInteger(item = incomplete.toLong())
 
             val data = ByteBuffer.allocate(peers.size * 6)
             for (peer in peers) {
@@ -139,7 +131,7 @@ class HTTPAnnounceResponseMessage private constructor(
                 data.put(ip)
                 data.putShort(peer.getPort().toShort())
             }
-            response[BString(item = "peers".toByteArray())] = BString(item = data.array())
+            response[BString(item = "peers")] = BString(item = data.array())
             return HTTPAnnounceResponseMessage(
                 ByteBuffer.wrap(BDict(item = response).encode()),
                 interval, complete, incomplete, peers

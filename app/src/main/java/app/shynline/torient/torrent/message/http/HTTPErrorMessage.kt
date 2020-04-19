@@ -34,8 +34,7 @@ class HTTPErrorMessage private constructor(
             return try {
                 HTTPErrorMessage(
                     data,
-                    (decoded.value()[BString(item = "failure reason".toByteArray())] as BString)
-                        .toPureString()
+                    (decoded["failure reason"] as BString).toPureString()
                 )
             } catch (e: InvalidBencodedException) {
                 throw MessageValidationException("Invalid tracker error message!", e)
@@ -53,11 +52,10 @@ class HTTPErrorMessage private constructor(
         fun create(
             reason: String?
         ): HTTPErrorMessage? {
-            val params: LinkedHashMap<BString, BItem<*>> = linkedMapOf()
-            params[BString(item = "failure reason".toByteArray())] =
-                BString(item = (reason ?: "").toByteArray())
+            val response: LinkedHashMap<BString, BItem<*>> = linkedMapOf()
+            response[BString(item = "failure reason")] = BString(item = (reason ?: ""))
             return HTTPErrorMessage(
-                ByteBuffer.wrap(BDict(item = params).encode()),
+                ByteBuffer.wrap(BDict(item = response).encode()),
                 reason!!
             )
         }

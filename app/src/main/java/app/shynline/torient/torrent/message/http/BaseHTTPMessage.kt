@@ -1,7 +1,6 @@
 package app.shynline.torient.torrent.message.http
 
 import app.shynline.torient.torrent.bencoding.BDict
-import app.shynline.torient.torrent.bencoding.BString
 import app.shynline.torient.torrent.message.BaseMessage
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -23,13 +22,13 @@ abstract class BaseHTTPMessage(
                 throw MessageValidationException("Could not decode tracker message!")
             }
             return when {
-                decoded.value().containsKey(BString(item = "info_hash".toByteArray())) -> {
+                decoded.containsKey("info_hash") -> {
                     HTTPAnnounceRequestMessage.parse(data)
                 }
-                decoded.value().containsKey(BString(item = "peers".toByteArray())) -> {
+                decoded.containsKey("peers") -> {
                     HTTPAnnounceResponseMessage.parse(data)
                 }
-                decoded.value().containsKey(BString(item = "failure reason".toByteArray())) -> {
+                decoded.containsKey("failure reason") -> {
                     HTTPErrorMessage.parse(data)
                 }
                 else -> throw MessageValidationException("Unknown HTTP tracker message!")

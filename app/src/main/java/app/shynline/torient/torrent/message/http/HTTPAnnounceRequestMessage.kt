@@ -138,67 +138,29 @@ class HTTPAnnounceRequestMessage private constructor(
             } catch (e: Exception) {
                 throw MessageValidationException("Could not decode tracker message!")
             }
-            if (!decoded.value().containsKey(BString(item = "info_hash".toByteArray()))) {
+            if (!decoded.containsKey("info_hash")) {
                 throw MessageValidationException(ErrorMessage.Reason.MISSING_HASH.message)
             }
-            if (!decoded.value().containsKey(BString(item = "peer_id".toByteArray()))) {
+            if (!decoded.containsKey("peer_id")) {
                 throw MessageValidationException(ErrorMessage.Reason.MISSING_PEER_ID.message)
             }
-            if (!decoded.value().containsKey(BString(item = "port".toByteArray()))) {
+            if (!decoded.containsKey("port")) {
                 throw MessageValidationException(ErrorMessage.Reason.MISSING_PORT.message)
             }
             return try {
-                var infoHash: ByteArray? = null
-                var peerId: ByteArray? = null
-                var port = 0
-                var uploaded = 0L
-                var downloaded = 0L
-                var left = -1L
-                var compact = false
-                var noPeerId = false
-                var numWant: Int = AnnounceRequestMessage.DEFAULT_NUM_WANT
-                var ip: String? = null
-                var event: RequestEvent = RequestEvent.NONE
-                decoded.value().forEach {
-                    when (it.key.toPureString()) {
-                        "info_hash" -> {
-                            infoHash = (it.value as BString).value()
-                        }
-                        "peer_id" -> {
-                            peerId = (it.value as BString).value()
-                        }
-                        "port" -> {
-                            port = (it.value as BInteger).value().toInt()
-                        }
-                        "uploaded" -> {
-                            uploaded = (it.value as BInteger).value()
-                        }
-                        "downloaded" -> {
-                            downloaded = (it.value as BInteger).value()
-                        }
-                        "left" -> {
-                            left = (it.value as BInteger).value()
-                        }
-                        "compact" -> {
-                            compact = (it.value as BInteger).value() != 0L
-                        }
-                        "no_peer_id" -> {
-                            noPeerId = (it.value as BInteger).value() != 0L
-                        }
-                        "numwant" -> {
-                            numWant = (it.value as BInteger).value().toInt()
-                        }
-                        "ip" -> {
-                            ip = (it.value as BString).toPureString()
-                        }
-                        "event" -> {
-                            event = RequestEvent.getByName((it.value as BString).toPureString())!!
-                        }
-
-                    }
-                }
+                val infoHash = (decoded["info_hash"] as BString).value()
+                val peerId = (decoded["peer_id"] as BString).value()
+                val port = (decoded["port"] as BInteger).value().toInt()
+                val uploaded = (decoded["uploaded"] as BInteger).value()
+                val downloaded = (decoded["downloaded"] as BInteger).value()
+                val left = (decoded["left"] as BInteger).value()
+                val compact = (decoded["compact"] as BInteger).value() != 0L
+                val noPeerId = (decoded["no_peer_id"] as BInteger).value() != 0L
+                val numWant = (decoded["numwant"] as BInteger).value().toInt()
+                val ip = (decoded["ip"] as BString).toPureString()
+                val event = RequestEvent.getByName((decoded["event"] as BString).toPureString())!!
                 HTTPAnnounceRequestMessage(
-                    data, infoHash!!,
+                    data, infoHash,
                     Peer(ip, port, peerId),
                     uploaded, downloaded, left, compact, noPeerId,
                     event, numWant
@@ -229,26 +191,26 @@ class HTTPAnnounceRequestMessage private constructor(
             numWant: Int
         ): HTTPAnnounceRequestMessage? {
             val params: LinkedHashMap<BString, BItem<*>> = linkedMapOf()
-            params[BString(item = "info_hash".toByteArray())] = BString(item = infoHash)
+            params[BString(item = "info_hash")] = BString(item = infoHash)
             peerId?.let {
-                params[BString(item = "peer_id".toByteArray())] = BString(item = it)
+                params[BString(item = "peer_id")] = BString(item = it)
             }
-            params[BString(item = "port".toByteArray())] = BInteger(item = port.toLong())
-            params[BString(item = "uploaded".toByteArray())] = BInteger(item = uploaded)
-            params[BString(item = "downloaded".toByteArray())] = BInteger(item = downloaded)
-            params[BString(item = "left".toByteArray())] = BInteger(item = left)
-            params[BString(item = "compact".toByteArray())] = BInteger(item = if (compact) 1 else 0)
-            params[BString(item = "no_peer_id".toByteArray())] =
+            params[BString(item = "port")] = BInteger(item = port.toLong())
+            params[BString(item = "uploaded")] = BInteger(item = uploaded)
+            params[BString(item = "downloaded")] = BInteger(item = downloaded)
+            params[BString(item = "left")] = BInteger(item = left)
+            params[BString(item = "compact")] = BInteger(item = if (compact) 1 else 0)
+            params[BString(item = "no_peer_id")] =
                 BInteger(item = if (noPeerId) 1 else 0)
             event?.let {
-                params[BString(item = "event".toByteArray())] =
-                    BString(item = event.getEventName().toByteArray())
+                params[BString(item = "event")] =
+                    BString(item = event.getEventName())
             }
             ip?.let {
-                params[BString(item = "ip".toByteArray())] = BString(item = it.toByteArray())
+                params[BString(item = "ip")] = BString(item = it)
             }
             if (numWant != AnnounceRequestMessage.DEFAULT_NUM_WANT) {
-                params[BString(item = "numwant".toByteArray())] = BInteger(item = numWant.toLong())
+                params[BString(item = "numwant")] = BInteger(item = numWant.toLong())
             }
             return HTTPAnnounceRequestMessage(
                 ByteBuffer.wrap(BDict(item = params).encode()),
