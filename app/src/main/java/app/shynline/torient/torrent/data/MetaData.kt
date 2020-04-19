@@ -12,7 +12,14 @@ data class MetaData(
     var info: Info? = null
 ) {
 
-    fun toBenCoding(): BDict {
+    var bDict: BDict? = null
+        get() {
+            if (field == null)
+                field = toBenCoding()
+            return field
+        }
+
+    private fun toBenCoding(): BDict {
         val dict: LinkedHashMap<BString, BItem<*>> = linkedMapOf()
 
         //announce
@@ -58,6 +65,7 @@ data class MetaData(
     companion object {
         fun fromBenCoding(bDict: BDict): MetaData {
             val metaData = MetaData()
+            metaData.bDict = bDict
             bDict.value().forEach {
                 when (it.key.toPureString()) {
                     "announce" -> {
