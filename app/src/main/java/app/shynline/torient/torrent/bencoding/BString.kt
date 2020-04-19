@@ -8,6 +8,9 @@ import java.net.URLEncoder
 class BString(bencoded: ByteArray? = null, item: ByteArray? = null) :
     BItem<ByteArray>(bencoded, item) {
 
+    constructor(item: String) :
+            this(bencoded = null, item = item.toByteArray())
+
     override fun encode(): ByteArray {
         val prefix = value().size.toString() + ":"
         return prefix.toByteArray() + value()

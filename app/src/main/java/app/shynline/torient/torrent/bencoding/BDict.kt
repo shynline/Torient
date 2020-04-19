@@ -104,6 +104,14 @@ class BDict(bencoded: ByteArray? = null, item: LinkedHashMap<BString, BItem<*>>?
         }
     }
 
+    operator fun get(key: String): BItem<*>? {
+        return value()[BString(key)]
+    }
+
+    fun containsKey(key: String): Boolean {
+        return value().containsKey(BString(key))
+    }
+
     companion object {
         fun fromInputStream(inputStream: InputStream): BDict {
             return BDict(bencoded = BufferedInputStream(inputStream).use { s ->
