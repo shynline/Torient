@@ -148,16 +148,16 @@ class HTTPAnnounceRequestMessage private constructor(
                 throw MessageValidationException(ErrorMessage.Reason.MISSING_PORT.message)
             }
             return try {
-                val infoHash = (decoded["info_hash"] as BString).value()
-                val peerId = (decoded["peer_id"] as BString).value()
-                val port = (decoded["port"] as BInteger).value().toInt()
-                val uploaded = (decoded["uploaded"] as BInteger).value()
-                val downloaded = (decoded["downloaded"] as BInteger).value()
-                val left = (decoded["left"] as BInteger).value()
-                val compact = (decoded["compact"] as BInteger).value() != 0L
-                val noPeerId = (decoded["no_peer_id"] as BInteger).value() != 0L
-                val numWant = (decoded["numwant"] as BInteger).value().toInt()
-                val ip = (decoded["ip"] as BString).toPureString()
+                val infoHash = decoded["info_hash"]!!.getBString().value()
+                val peerId = decoded["peer_id"]!!.getBString().value()
+                val port = decoded["port"]!!.getBInteger().value().toInt()
+                val uploaded = decoded["uploaded"]!!.getBInteger().value()
+                val downloaded = decoded["downloaded"]!!.getBInteger().value()
+                val left = decoded["left"]!!.getBInteger().value()
+                val compact = decoded["compact"]!!.getBInteger().value() != 0L
+                val noPeerId = decoded["no_peer_id"]!!.getBInteger().value() != 0L
+                val numWant = decoded["numwant"]!!.getBInteger().value().toInt()
+                val ip = decoded["ip"]!!.getBString().toPureString()
                 val event = RequestEvent.getByName((decoded["event"] as BString).toPureString())!!
                 HTTPAnnounceRequestMessage(
                     data, infoHash,

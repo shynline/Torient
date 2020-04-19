@@ -34,7 +34,7 @@ class HTTPErrorMessage private constructor(
             return try {
                 HTTPErrorMessage(
                     data,
-                    (decoded["failure reason"] as BString).toPureString()
+                    decoded["failure reason"]!!.getBString().toPureString()
                 )
             } catch (e: InvalidBencodedException) {
                 throw MessageValidationException("Invalid tracker error message!", e)

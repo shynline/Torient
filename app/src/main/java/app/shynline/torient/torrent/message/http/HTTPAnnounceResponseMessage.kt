@@ -56,11 +56,11 @@ class HTTPAnnounceResponseMessage private constructor(
                 val peers = parsePeers(decoded["peers"]!!)
                 HTTPAnnounceResponseMessage(
                     data,
-                    (decoded["interval"] as BInteger).value().toInt(),
+                    decoded["interval"]!!.getBInteger().value().toInt(),
                     if (decoded.containsKey("complete"))
-                        (decoded["complete"] as BInteger).value().toInt() else 0,
+                        decoded["complete"]!!.getBInteger().value().toInt() else 0,
                     if (decoded.containsKey("incomplete"))
-                        (decoded["incomplete"] as BInteger).value().toInt() else 0,
+                        decoded["incomplete"]!!.getBInteger().value().toInt() else 0,
                     peers
                 )
             } catch (e: InvalidBencodedException) {
@@ -76,9 +76,9 @@ class HTTPAnnounceResponseMessage private constructor(
                 return bItem.value().map {
                     bd = it as BDict
                     Peer(
-                        (bd["ip"] as BString).toPureString(),
-                        (bd["port"] as BInteger).value().toInt(),
-                        (bd["peer id"] as BString).value()
+                        bd["ip"]!!.getBString().toPureString(),
+                        bd["port"]!!.getBInteger().value().toInt(),
+                        bd["peer id"]!!.getBString().value()
                     )
                 }
             }
