@@ -1,21 +1,26 @@
 package app.shynline.torient.torrent
 
+import app.shynline.torient.torrent.exts.toHexString
 import java.net.InetSocketAddress
 
-class Peer(var address: InetSocketAddress, val peerId: ByteArray? = null) {
-    constructor(ip: String?, port: Int, peerId: ByteArray? = null)
-            : this(InetSocketAddress(ip, port), peerId)
+open class Peer(
+    private val ip: String?,
+    private val port: Int,
+    val peerId: ByteArray? = null
+) {
+    constructor(address: InetSocketAddress, peerId: ByteArray? = null)
+            : this(address.hostName, address.port, peerId)
 
     fun getRawIp(): ByteArray? {
-        return this.address.address.address
+        return ip?.toByteArray(Charsets.ISO_8859_1)
     }
 
     fun getPort(): Int {
-        return address.port
+        return port
     }
 
     fun getIp(): String? {
-        return address.address.hostAddress
+        return ip
     }
 
 
@@ -28,15 +33,20 @@ class Peer(var address: InetSocketAddress, val peerId: ByteArray? = null) {
             } else if (peerId != null || other.peerId != null) {
                 return false
             }
-            return other.address.hostName == address.hostName && other.address.port == address.port
+            return other.getIp() == getIp() && other.getPort() == getPort()
         }
         return false
     }
 
+
+    override fun toString(): String {
+        return "Peer(ip=\"${getIp()}\" port=${getPort()} id=${peerId?.toHexString()})"
+    }
+
     override fun hashCode(): Int {
-        var result = address.hashCode()
+        var result = ip?.hashCode() ?: 0
+        result = 31 * result + port
         result = 31 * result + (peerId?.contentHashCode() ?: 0)
         return result
     }
-
 }
