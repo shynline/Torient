@@ -1,9 +1,7 @@
 package app.shynline.torient.torrent
 
-import app.shynline.torient.torrent.bencoding.BString
 import app.shynline.torient.torrent.bencoding.MetaData
 import app.shynline.torient.torrent.exts.toHexString
-import java.security.MessageDigest
 
 
 open class Torrent internal constructor(
@@ -15,9 +13,14 @@ open class Torrent internal constructor(
     val infoHash: ByteArray
     val size: Long
 
+    var complete = 0
+        protected set
+    var inComplete = 0
+        protected set
+
 
     init {
-        infoHash = calculateInfoHash()
+        infoHash = metaData.infoHash
         infoHashHex = infoHash.toHexString()
 
         var lSize = metaData.info!!.pieceLength
@@ -41,13 +44,6 @@ open class Torrent internal constructor(
         get() {
             return metaData.createdBy!!
         }
-
-    private fun calculateInfoHash(): ByteArray {
-        val md = MessageDigest.getInstance("SHA-1")
-        md.reset()
-        md.update((metaData.bDict!!["info"] as BString).encode())
-        return md.digest()
-    }
 
 
     companion object {
