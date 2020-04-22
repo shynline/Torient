@@ -6,11 +6,11 @@ abstract class BaseObservableViewMvc<LISTENER> : ObservableViewMvc<LISTENER> {
 
     private val listeners: MutableSet<LISTENER> = hashSetOf()
 
-    override fun registerListener(listener: LISTENER) {
+    final override fun registerListener(listener: LISTENER) {
         listeners.add(listener)
     }
 
-    override fun unRegisterListener(listener: LISTENER) {
+    final override fun unRegisterListener(listener: LISTENER) {
         listeners.remove(listener)
     }
 
