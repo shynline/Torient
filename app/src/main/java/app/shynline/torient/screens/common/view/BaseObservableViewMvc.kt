@@ -2,7 +2,7 @@ package app.shynline.torient.screens.common.view
 
 import java.util.*
 
-abstract class BaseObservableViewMvc<LISTENER> : ObservableViewMvc<LISTENER> {
+abstract class BaseObservableViewMvc<LISTENER> : BaseViewMvc(), ObservableViewMvc<LISTENER> {
 
     private val listeners: MutableSet<LISTENER> = hashSetOf()
 
