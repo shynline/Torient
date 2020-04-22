@@ -5,13 +5,13 @@ import android.view.View
 import androidx.annotation.StringRes
 
 abstract class BaseViewMvc : ViewMvc {
-    private lateinit var mRootView: View
+    private lateinit var rootView: View
     override fun getRootView(): View {
-        return mRootView
+        return rootView
     }
 
     protected fun setRootView(rootView: View) {
-        mRootView = rootView
+        this.rootView = rootView
     }
 
     protected fun <T : View> findViewById(id: Int): T {
@@ -21,6 +21,6 @@ abstract class BaseViewMvc : ViewMvc {
     protected fun getString(@StringRes id: Int) = getContext().getString(id)
 
     protected fun getContext(): Context {
-        return mRootView.context
+        return rootView.context
     }
 }
