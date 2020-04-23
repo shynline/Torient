@@ -1,4 +1,4 @@
-package app.shynline.torient
+package app.shynline.torient.common
 
 import android.app.Application
 import app.shynline.torient.common.di.mainModule
