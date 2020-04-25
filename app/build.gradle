@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: "androidx.navigation.safeargs.kotlin"
 
 android {
     compileSdkVersion 29
@@ -66,6 +67,7 @@ dependencies {
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    implementation "com.google.android.material:material:1.1.0"
 
     // Truth
     testImplementation 'com.google.truth:truth:1.0.1'
@@ -95,11 +97,21 @@ dependencies {
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.2'
 
 
-    def nav_version = "2.3.0-alpha05"
     // Kotlin
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
 
     // Testing Navigation
     androidTestImplementation "androidx.navigation:navigation-testing:$nav_version"
+
+
+    implementation "androidx.recyclerview:recyclerview:1.1.0"
+
+    // Fast Adapter
+    implementation "com.mikepenz:fastadapter:$fastadapter"
+    implementation "com.mikepenz:fastadapter-extensions-expandable:$fastadapter"
+    implementation "com.mikepenz:fastadapter-extensions-utils:$fastadapter"
+    implementation "com.mikepenz:fastadapter-extensions-drag:$fastadapter"
+    implementation "com.mikepenz:fastadapter-extensions-scroll:$fastadapter"
+
 }
