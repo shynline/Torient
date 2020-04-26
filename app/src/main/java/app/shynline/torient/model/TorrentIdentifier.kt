@@ -1,4 +1,4 @@
-package app.shynline.torient.scheme
+package app.shynline.torient.model
 
 import com.frostwire.jlibtorrent.TorrentInfo
 

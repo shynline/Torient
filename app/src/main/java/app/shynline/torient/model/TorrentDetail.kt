@@ -1,4 +1,4 @@
-package app.shynline.torient.scheme
+package app.shynline.torient.model
 
 import com.frostwire.jlibtorrent.TorrentInfo
 
@@ -7,7 +7,8 @@ data class TorrentDetail(
     val name: String,
     val author: String,
     val comment: String,
-    val totalSize: Long
+    val totalSize: Long,
+    val torrentFile: TorrentFile
 ) {
 
     companion object {
@@ -17,7 +18,8 @@ data class TorrentDetail(
                 torrentInfo.name(),
                 torrentInfo.creator(),
                 torrentInfo.comment(),
-                torrentInfo.totalSize()
+                torrentInfo.totalSize(),
+                TorrentFile.from(torrentInfo)
             )
         }
     }
