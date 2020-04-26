@@ -1,4 +1,4 @@
-package app.shynline.torient.screens.newtorrent
+package app.shynline.torient.screens.newtorrent.items
 
 import android.view.View
 import android.widget.TextView
@@ -17,7 +17,10 @@ class HeaderItem(
         get() = R.id.fastadapter_header_item_id
 
     override fun getViewHolder(v: View): ViewHolder {
-        return ViewHolder(v, torrentDetail)
+        return ViewHolder(
+            v,
+            torrentDetail
+        )
     }
 
     class ViewHolder(view: View, private val torrentDetail: TorrentDetail) :

@@ -1,4 +1,4 @@
-package app.shynline.torient.screens.newtorrent
+package app.shynline.torient.screens.newtorrent.items
 
 import android.view.View
 import android.widget.TextView
@@ -15,7 +15,9 @@ class FolderItem(private val torrentFile: TorrentFile) :
         get() = R.id.fastadapter_folder_item_id
 
     override fun getViewHolder(v: View): ViewHolder {
-        return ViewHolder(v)
+        return ViewHolder(
+            v
+        )
     }
 
 

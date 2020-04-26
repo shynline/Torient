@@ -8,6 +8,9 @@ import app.shynline.torient.R
 import app.shynline.torient.model.TorrentDetail
 import app.shynline.torient.model.TorrentFile
 import app.shynline.torient.screens.common.view.BaseObservableViewMvc
+import app.shynline.torient.screens.newtorrent.items.FileItem
+import app.shynline.torient.screens.newtorrent.items.FolderItem
+import app.shynline.torient.screens.newtorrent.items.HeaderItem
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.GenericItem
 import com.mikepenz.fastadapter.ISubItem
@@ -46,19 +49,26 @@ class NewTorrentViewMvcImpl(
 
     private fun parseTorrentFile(torrentFile: TorrentFile): ISubItem<*> {
         if (torrentFile.isFolder) {
-            val folder = FolderItem(torrentFile).apply { this.identifier = fileIdentifier++ }
+            val folder = FolderItem(
+                torrentFile
+            ).apply { this.identifier = fileIdentifier++ }
             torrentFile.files!!.forEach {
                 folder.subItems.add(parseTorrentFile(it))
             }
             return folder
         }
-        return FileItem(torrentFile).apply { this.identifier = fileIdentifier++ }
+        return FileItem(torrentFile)
+            .apply { this.identifier = fileIdentifier++ }
 
     }
 
     override fun showTorrent(torrentDetail: TorrentDetail) {
         headerItemAdapter.clear()
-        headerItemAdapter.add(HeaderItem(torrentDetail))
+        headerItemAdapter.add(
+            HeaderItem(
+                torrentDetail
+            )
+        )
         fileIdentifier = 0L
         fastItemAdapter.add(parseTorrentFile(torrentDetail.torrentFile))
     }
