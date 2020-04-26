@@ -5,6 +5,19 @@
     app:startDestination="@id/torrent_list_fragment">
     <fragment
         android:id="@+id/torrent_list_fragment"
-        android:name="app.shynline.torient.screens.torrentslist.TorrentsListFragment" />
+        android:name="app.shynline.torient.screens.torrentslist.TorrentsListFragment">
+        <action
+            android:id="@+id/action_torrent_list_fragment_to_newTorrentFragment"
+            app:destination="@id/newTorrentFragment" />
+    </fragment>
+    <dialog
+        android:id="@+id/newTorrentFragment"
+        android:name="app.shynline.torient.screens.newtorrent.NewTorrentFragment"
+        android:label="NewTorrentFragment">
+        <argument
+            android:name="infoHash"
+            app:argType="string"
+            app:nullable="true" />
+    </dialog>
 
 </navigation>

@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Torient</string>
+    <string name="creator">Creator:</string>
+    <string name="comment">Comment:</string>
+    <string name="infohash">Infohash:</string>
+    <string name="size">Size:</string>
 </resources>
