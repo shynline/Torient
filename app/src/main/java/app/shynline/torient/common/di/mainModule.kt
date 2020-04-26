@@ -2,6 +2,8 @@ package app.shynline.torient.common.di
 
 import app.shynline.torient.common.di.viewfactory.ViewMvcFactory
 import app.shynline.torient.common.di.viewfactory.ViewMvcFactoryImpl
+import app.shynline.torient.screens.newtorrent.NewTorrentController
+import app.shynline.torient.screens.newtorrent.NewTorrentFragment
 import app.shynline.torient.screens.torrentslist.TorrentsListController
 import app.shynline.torient.screens.torrentslist.TorrentsListFragment
 import app.shynline.torient.torrent.torrent.Torrent
@@ -15,7 +17,12 @@ val mainModule = module {
     }
     scope<TorrentsListFragment> {
         scoped {
-            TorrentsListController()
+            TorrentsListController(get(), get())
+        }
+    }
+    scope<NewTorrentFragment> {
+        scoped {
+            NewTorrentController(get())
         }
     }
     single<Torrent> {
