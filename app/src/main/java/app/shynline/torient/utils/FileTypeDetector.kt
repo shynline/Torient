@@ -13,7 +13,8 @@ enum class FileType {
     IMAGE,
     PRESENTATION,
     SPREADSHEET,
-    VIDEO
+    VIDEO,
+    DIR
 }
 
 object FileTypeDetector {
