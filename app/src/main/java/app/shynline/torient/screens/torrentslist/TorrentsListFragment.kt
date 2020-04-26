@@ -6,8 +6,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
 import app.shynline.torient.common.di.viewfactory.ViewMvcFactory
 import app.shynline.torient.screens.common.BaseFragment
+import app.shynline.torient.screens.common.navigationhelper.PageNavigationHelper
 import app.shynline.torient.screens.common.requesthelper.FragmentRequestHelperImpl
 import org.koin.android.ext.android.inject
 import org.koin.androidx.scope.lifecycleScope
@@ -16,7 +18,6 @@ import java.io.BufferedInputStream
 const val REQUEST_ID_OPEN_TORRENT_FILE = 100
 
 class TorrentsListFragment : BaseFragment() {
-
     private val viewMvcFactory by inject<ViewMvcFactory>()
     private val controller by lifecycleScope.inject<TorrentsListController>()
 
@@ -30,7 +31,8 @@ class TorrentsListFragment : BaseFragment() {
             viewMvc,
             FragmentRequestHelperImpl(
                 this
-            )
+            ),
+            PageNavigationHelper(findNavController())
         )
         return viewMvc.getRootView()
     }
@@ -45,6 +47,10 @@ class TorrentsListFragment : BaseFragment() {
         controller.onStop()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        controller.unbind()
+    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_ID_OPEN_TORRENT_FILE && resultCode == Activity.RESULT_OK) {
