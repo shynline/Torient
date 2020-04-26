@@ -1,5 +1,7 @@
 package app.shynline.torient.model
 
+import app.shynline.torient.utils.FileType
+import app.shynline.torient.utils.FileTypeDetector
 import com.frostwire.jlibtorrent.TorrentInfo
 
 data class TorrentFile(
@@ -9,6 +11,11 @@ data class TorrentFile(
     var index: Int = -1,
     var files: MutableList<TorrentFile>? = null
 ) {
+    val fileType by lazy {
+        if (isFolder)
+            return@lazy FileType.DIR
+        FileTypeDetector.getType(name)
+    }
     companion object {
         fun from(torrentInfo: TorrentInfo): TorrentFile {
             var fileTree: TorrentFile? = null
