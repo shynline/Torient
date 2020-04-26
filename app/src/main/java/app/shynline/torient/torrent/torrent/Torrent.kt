@@ -1,7 +1,7 @@
 package app.shynline.torient.torrent.torrent
 
-import app.shynline.torient.scheme.TorrentDetail
-import app.shynline.torient.scheme.TorrentIdentifier
+import app.shynline.torient.model.TorrentDetail
+import app.shynline.torient.model.TorrentIdentifier
 
 interface Torrent {
     fun getTorrentIdentifier(data: ByteArray): TorrentIdentifier

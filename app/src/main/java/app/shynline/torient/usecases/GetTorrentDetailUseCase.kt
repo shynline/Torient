@@ -1,7 +1,7 @@
 package app.shynline.torient.usecases
 
-import app.shynline.torient.scheme.TorrentDetail
-import app.shynline.torient.scheme.TorrentIdentifier
+import app.shynline.torient.model.TorrentDetail
+import app.shynline.torient.model.TorrentIdentifier
 import app.shynline.torient.torrent.torrent.Torrent
 
 class GetTorrentDetailUseCase(

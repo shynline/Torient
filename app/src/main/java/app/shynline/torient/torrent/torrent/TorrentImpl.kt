@@ -5,8 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
-import app.shynline.torient.scheme.TorrentDetail
-import app.shynline.torient.scheme.TorrentIdentifier
+import app.shynline.torient.model.TorrentDetail
+import app.shynline.torient.model.TorrentIdentifier
 import app.shynline.torient.torrent.service.TorientService
 
 import com.frostwire.jlibtorrent.TorrentInfo
