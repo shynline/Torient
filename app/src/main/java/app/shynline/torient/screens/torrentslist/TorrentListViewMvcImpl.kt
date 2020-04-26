@@ -12,8 +12,11 @@ class TorrentListViewMvcImpl(
 ) : BaseObservableViewMvc<TorrentListViewMvc.Listener>(), TorrentListViewMvc {
 
     private val addTorrentFileBtn: Button
+
     init {
-        inflater.inflate(R.layout.fragment_torrent_list_view, parent, false)
+        setRootView(
+            inflater.inflate(R.layout.fragment_torrent_list_view, parent, false)
+        )
         addTorrentFileBtn = findViewById(R.id.addTorrentFile)
         addTorrentFileBtn.setOnClickListener {
             getListeners().forEach {
