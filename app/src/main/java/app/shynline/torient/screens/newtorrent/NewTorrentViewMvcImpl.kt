@@ -47,18 +47,22 @@ class NewTorrentViewMvcImpl(
         fileTreeRV.adapter = adapter
     }
 
-    private fun parseTorrentFile(torrentFile: TorrentFile): ISubItem<*> {
+    private fun parseTorrentFile(torrentFile: TorrentFile, level: Int = 0): ISubItem<*> {
         if (torrentFile.isFolder) {
-            val folder = FolderItem(
-                torrentFile
-            ).apply { this.identifier = fileIdentifier++ }
+            val folder = FolderItem(torrentFile).apply {
+                this.identifier = fileIdentifier++
+                this.level = level
+            }
             torrentFile.files!!.forEach {
-                folder.subItems.add(parseTorrentFile(it))
+                folder.subItems.add(parseTorrentFile(it, level + 1))
             }
             return folder
         }
         return FileItem(torrentFile)
-            .apply { this.identifier = fileIdentifier++ }
+            .apply {
+                this.identifier = fileIdentifier++
+                this.level = level
+            }
 
     }
 
