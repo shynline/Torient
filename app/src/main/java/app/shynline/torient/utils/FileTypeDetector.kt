@@ -37,7 +37,7 @@ object FileTypeDetector {
     private val font = listOf("otf", "ttf")
     private val image = listOf(
         "bmp", "gif", "ico", "jpeg"
-        , "png", "psd", "tiff"
+        , "png", "psd", "tiff", "jpg"
     )
     private val presentation = listOf("odp", "ppt", "pptx")
     private val spreadsheet = listOf(
