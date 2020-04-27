@@ -70,8 +70,8 @@ dependencies {
     implementation "com.google.android.material:material:1.1.0"
 
     // Truth
-    testImplementation 'com.google.truth:truth:1.0.1'
-    androidTestImplementation 'com.google.truth:truth:1.0.1'
+    testImplementation "com.google.truth:truth:$google_truth"
+    androidTestImplementation "com.google.truth:truth:$google_truth"
 
 
     // Coroutines
@@ -89,9 +89,6 @@ dependencies {
     // Koin AndroidX Fragment features
     implementation "org.koin:koin-androidx-fragment:$koin_version"
 
-    // Moshi
-    implementation "com.squareup.moshi:moshi:1.9.2"
-    kapt "com.squareup.moshi:moshi-kotlin-codegen:1.9.2"
 
     // Leak canary
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.2'
@@ -113,5 +110,15 @@ dependencies {
     implementation "com.mikepenz:fastadapter-extensions-utils:$fastadapter"
     implementation "com.mikepenz:fastadapter-extensions-drag:$fastadapter"
     implementation "com.mikepenz:fastadapter-extensions-scroll:$fastadapter"
+
+
+    // Room
+    implementation "androidx.room:room-runtime:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+    // optional - Kotlin Extensions and Coroutines support for Room
+    implementation "androidx.room:room-ktx:$room_version"
+    // Test helpers
+    testImplementation "androidx.room:room-testing:$room_version"
+
 
 }
