@@ -8,7 +8,8 @@ data class TorrentDetail(
     val author: String,
     val comment: String,
     val totalSize: Long,
-    val torrentFile: TorrentFile
+    val torrentFile: TorrentFile,
+    val magnet: String
 ) {
 
     companion object {
@@ -19,7 +20,8 @@ data class TorrentDetail(
                 torrentInfo.creator(),
                 torrentInfo.comment(),
                 torrentInfo.totalSize(),
-                TorrentFile.from(torrentInfo)
+                TorrentFile.from(torrentInfo),
+                torrentInfo.makeMagnetUri()
             )
         }
     }
