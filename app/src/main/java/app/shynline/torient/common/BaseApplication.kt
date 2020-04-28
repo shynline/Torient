@@ -1,6 +1,7 @@
 package app.shynline.torient.common
 
 import android.app.Application
+import app.shynline.torient.common.di.databaseModule
 import app.shynline.torient.common.di.mainModule
 import app.shynline.torient.common.di.useCaseModule
 import org.koin.android.ext.koin.androidContext
@@ -15,7 +16,7 @@ class BaseApplication : Application() {
         startKoin {
             androidLogger(Level.DEBUG)
             androidContext(this@BaseApplication)
-            modules(mainModule, useCaseModule)
+            modules(mainModule, useCaseModule, databaseModule)
         }
     }
 }

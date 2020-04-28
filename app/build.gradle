@@ -55,6 +55,22 @@ android {
         jvmTarget = '1.8'
     }
 
+    defaultConfig {
+        // used by Room, to test migrations
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation":
+                                     "$projectDir/schemas".toString()]
+            }
+        }
+    }
+
+    // used by Room, to test migrations
+    sourceSets {
+        androidTest.assets.srcDirs +=
+                files("$projectDir/schemas".toString())
+    }
+
 
 }
 
@@ -120,5 +136,5 @@ dependencies {
     // Test helpers
     testImplementation "androidx.room:room-testing:$room_version"
 
-
+    implementation 'androidx.documentfile:documentfile:1.0.1'
 }
