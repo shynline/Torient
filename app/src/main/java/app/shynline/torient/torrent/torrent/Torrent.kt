@@ -1,16 +1,30 @@
 package app.shynline.torient.torrent.torrent
 
+import app.shynline.torient.common.observable.Observable
 import app.shynline.torient.model.TorrentDetail
+import app.shynline.torient.model.TorrentEvent
 import app.shynline.torient.model.TorrentIdentifier
-import app.shynline.torient.model.TorrentStats
-import app.shynline.torient.torrent.service.Observable
 
-interface Torrent : Observable<Torrent.Listener> {
+interface Torrent :
+    Observable<Torrent.Listener> {
     interface Listener {
-        fun onStatReceived(torrentStats: TorrentStats)
+        fun onStatReceived(torrentEvent: TorrentEvent)
     }
-    fun getTorrentIdentifier(data: ByteArray): TorrentIdentifier
-    fun getTorrentDetail(infoHash: String): TorrentDetail?
-    fun getTorrentDetail(identifier: TorrentIdentifier): TorrentDetail?
-    fun downloadTorrent(magnet: String)
+
+    suspend fun getTorrentDetail(data: ByteArray?): TorrentDetail?
+    suspend fun getTorrentDetail(identifier: TorrentIdentifier): TorrentDetail?
+    suspend fun getTorrentDetail(magnet: String): TorrentDetail?
+    suspend fun addTorrent(magnet: String)
+    suspend fun addTorrent(identifier: TorrentIdentifier)
+    suspend fun resumeTorrent(infoHash: String)
+    suspend fun pauseTorrent(infoHash: String)
+
+    /**
+     * remove a torrent from service
+     *
+     * @param infoHash the torrent's infoHash
+     * @return false if such infoHash doesn't exist (probably already removed) otherwise true
+     */
+    suspend fun removeTorrent(infoHash: String): Boolean
+
 }

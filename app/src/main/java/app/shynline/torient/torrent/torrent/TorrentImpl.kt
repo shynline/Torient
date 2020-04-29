@@ -5,66 +5,79 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
+import app.shynline.torient.common.downloadDir
+import app.shynline.torient.common.observable.Observable
 import app.shynline.torient.model.TorrentDetail
 import app.shynline.torient.model.TorrentIdentifier
-import app.shynline.torient.model.TorrentStats
-import app.shynline.torient.torrent.service.BaseObservable
-import app.shynline.torient.torrent.service.Observable
 import app.shynline.torient.torrent.service.TorientService
-
+import com.frostwire.jlibtorrent.SessionManager
 import com.frostwire.jlibtorrent.TorrentInfo
-import com.frostwire.jlibtorrent.alerts.ListenSucceededAlert
-import com.frostwire.jlibtorrent.alerts.StatsAlert
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
-
-class TorrentImpl(private val context: Context) : BaseObservable<Torrent.Listener>(),
-    ServiceConnection, Torrent,
-    TorrentController, TorientService.Listener, Observable<Torrent.Listener> {
+class TorrentImpl(private val context: Context) : BaseTorrent(),
+    ServiceConnection,
+    TorrentController,
+    Observable<Torrent.Listener> {
+    private val session: SessionManager = SessionManager()
+    private var isActivityRunning = false
     private var service: TorientService? = null
     private val intent: Intent = Intent(context, TorientService::class.java)
-    private val downloadRequestQueue: HashSet<String> = hashSetOf()
 
-    private val torrentsInfo: MutableMap<String, TorrentInfo> = hashMapOf()
+    private val torrentsInfo: MutableMap<String, TorrentDetail> = hashMapOf()
+
+    init {
+        session.start()
+    }
 
     override fun onActivityStart() {
-        // hide service notification if exist
-        // bind to service
-        bindService()
-        // app should decide to start service and downloading base on database info on torrents
-
-        //temp
-        context.startService(intent)
-
+        isActivityRunning = true
+        handleServiceState()
     }
 
     override fun onActivityStop() {
-        // show service notification if it's downloading
-        // unbind service
-        unbindService()
-        // stop service if not downloading
+        isActivityRunning = false
+        handleServiceState()
+    }
 
-        //temp
-        service?.stopSession()
-        context.stopService(intent)
+    private fun handleServiceState() = GlobalScope.launch {
+        if (isActivityRunning) {
+            if (service != null) {
+                service!!.background()
+            } else {
+                if (!session.isRunning) {
+                    session.start()
+                }
+            }
+        } else {
+            if (torrentsHandles.isEmpty()) {
+                session.stop() //blocking
+                unbindService()
+                context.stopService(intent)
+            } else {
+                if (service != null) {
+                    service!!.foreground()
+                } else {
+                    bindService()
+                    context.startService(intent)
+                }
+            }
+        }
     }
 
     override fun onServiceDisconnected(name: ComponentName?) {
         service = null
     }
 
-
     override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
         this.service = (service as? TorientService.TorientBinder)?.service
-        this.service?.registerListener(this)
-        this.service?.startSession()
-        downloadRequestQueue.forEach {
-            downloadTorrent(it)
-        }
+        handleServiceState()
     }
 
     private fun unbindService() {
         if (service != null) {
-            service!!.unRegisterListener(this)
+
             context.unbindService(this)
             service = null
         }
@@ -76,48 +89,58 @@ class TorrentImpl(private val context: Context) : BaseObservable<Torrent.Listene
         }
     }
 
-    private fun makeServiceForeground() {
+    ///////////////////////////////////////////////////////////////
+    // Torrent interface impl
 
+    override suspend fun addTorrent(identifier: TorrentIdentifier) {
+        addTorrent(identifier.magnet)
     }
 
-    override fun downloadTorrent(magnet: String) {
-        if (service != null) {
-            service!!.downloadTorrent(magnet)
-        } else {
-            downloadRequestQueue.add(magnet)
+    override suspend fun addTorrent(magnet: String) {
+        session.download(magnet, context.downloadDir)
+    }
+
+
+    override suspend fun getTorrentDetail(identifier: TorrentIdentifier): TorrentDetail? {
+        if (torrentsInfo.containsKey(identifier.infoHash)) {
+            return torrentsInfo[identifier.infoHash]
         }
+        return getTorrentDetail(identifier.magnet)
     }
 
+    override suspend fun getTorrentDetail(magnet: String): TorrentDetail? {
+        // Waiting for at most 10 seconds to find at least 10 dht nodes if doesn't exist
+        var times = 0
+        while (dhtNodes < 10 && times < 10) {
+            delay(1000)
+            times += 1
+        }
+        val bytes: ByteArray? = session.fetchMagnet(magnet, 30)
+        return getTorrentDetail(bytes)
+    }
 
-    override fun getTorrentIdentifier(data: ByteArray): TorrentIdentifier {
+    override suspend fun getTorrentDetail(data: ByteArray?): TorrentDetail? {
         val torrentInfo = TorrentInfo(data)
-        val identifier = TorrentIdentifier.from(torrentInfo)
-        torrentsInfo[identifier.infoHash] = torrentInfo
-        return identifier
+        val torrentDetail = TorrentDetail.from(torrentInfo)
+        torrentsInfo[torrentDetail.infoHash] = torrentDetail
+        return torrentDetail
     }
 
-    override fun getTorrentDetail(infoHash: String): TorrentDetail? {
-        torrentsInfo[infoHash]?.let {
-            return TorrentDetail.from(it)
+    override suspend fun resumeTorrent(infoHash: String) {
+        torrentsHandles[infoHash]?.resume()
+    }
+
+    override suspend fun pauseTorrent(infoHash: String) {
+        torrentsHandles[infoHash]?.pause()
+    }
+
+
+    override suspend fun removeTorrent(infoHash: String): Boolean {
+        if (torrentsHandles.containsKey(infoHash)) {
+            session.remove(torrentsHandles[infoHash]!!)
+            return true
         }
-        return null
+        return false
     }
 
-    override fun getTorrentDetail(identifier: TorrentIdentifier): TorrentDetail? {
-        return getTorrentDetail(identifier.infoHash)
-    }
-
-
-    override fun onAlertStats(alert: StatsAlert) {
-        val stat = TorrentStats(
-            alert.handle().infoHash().toHex()
-        )
-        getListeners().forEach {
-            it.onStatReceived(stat)
-        }
-    }
-
-    override fun onAlertListenSucceeded(alert: ListenSucceededAlert) {
-
-    }
 }

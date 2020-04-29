@@ -1,12 +1,12 @@
 package app.shynline.torient.torrent.torrent
 
-import app.shynline.torient.model.TorrentStats
+import app.shynline.torient.model.TorrentEvent
 
 class SubscriptionMediator(
     private val torrent: Torrent
 ) : Torrent.Listener {
     interface Listener {
-        fun onStatReceived(torrentStats: TorrentStats)
+        fun onStatReceived(torrentEvent: TorrentEvent)
     }
 
     private val listeners: MutableMap<Listener, MutableList<String>> = hashMapOf()
@@ -36,10 +36,10 @@ class SubscriptionMediator(
         listeners[listener]?.remove(torrent)
     }
 
-    override fun onStatReceived(torrentStats: TorrentStats) {
+    override fun onStatReceived(torrentEvent: TorrentEvent) {
         listeners.forEach {
-            if (it.value.contains(torrentStats.infoHash)) {
-                it.key.onStatReceived(torrentStats)
+            if (it.value.contains(torrentEvent.infoHash)) {
+                it.key.onStatReceived(torrentEvent)
             }
         }
     }
