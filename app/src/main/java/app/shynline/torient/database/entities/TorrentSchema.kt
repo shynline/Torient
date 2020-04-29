@@ -3,6 +3,7 @@ package app.shynline.torient.database.entities
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import app.shynline.torient.model.TorrentIdentifier
 
 @Entity(tableName = "torrent")
 data class TorrentSchema(
@@ -10,5 +11,12 @@ data class TorrentSchema(
     @ColumnInfo(name = "info_hash")
     var infoHash: String,
     @ColumnInfo(name = "magnet")
-    var magnet: String? = null
-)
+    var magnet: String
+) {
+    fun toIdentifier(): TorrentIdentifier {
+        return TorrentIdentifier(
+            infoHash,
+            magnet
+        )
+    }
+}

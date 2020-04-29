@@ -11,6 +11,12 @@ data class TorrentDetail(
     val torrentFile: TorrentFile,
     val magnet: String
 ) {
+    fun toIdentifier(): TorrentIdentifier {
+        return TorrentIdentifier(
+            infoHash,
+            magnet
+        )
+    }
 
     companion object {
         fun from(torrentInfo: TorrentInfo): TorrentDetail {
