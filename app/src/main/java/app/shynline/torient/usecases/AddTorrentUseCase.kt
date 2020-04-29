@@ -5,7 +5,7 @@ import app.shynline.torient.torrent.torrent.Torrent
 class AddTorrentUseCase(
     private val torrent: Torrent
 ) {
-    fun execute(magnet: String) {
-        torrent.downloadTorrent(magnet)
+    suspend fun execute(magnet: String) {
+        torrent.addTorrent(magnet)
     }
 }

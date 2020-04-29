@@ -8,8 +8,15 @@ class GetTorrentDetailUseCase(
     private val torrent: Torrent
 ) {
 
-    fun execute(infoHash: String? = null, identifier: TorrentIdentifier? = null): TorrentDetail? {
+    suspend fun execute(
+        infoHash: String? = null,
+        identifier: TorrentIdentifier? = null,
+        torrentFile: ByteArray? = null
+    ): TorrentDetail? {
         infoHash?.let {
+            return torrent.getTorrentDetail(it)
+        }
+        torrentFile?.let {
             return torrent.getTorrentDetail(it)
         }
         return torrent.getTorrentDetail(identifier!!)
