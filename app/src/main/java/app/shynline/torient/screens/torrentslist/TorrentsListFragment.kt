@@ -11,11 +11,11 @@ import app.shynline.torient.common.di.viewfactory.ViewMvcFactory
 import app.shynline.torient.screens.common.BaseFragment
 import app.shynline.torient.screens.common.navigationhelper.PageNavigationHelper
 import app.shynline.torient.screens.common.requesthelper.FragmentRequestHelperImpl
+import app.shynline.torient.screens.common.requesthelper.REQUEST_ID_OPEN_TORRENT_FILE
 import org.koin.android.ext.android.inject
 import org.koin.androidx.scope.lifecycleScope
 import java.io.BufferedInputStream
 
-const val REQUEST_ID_OPEN_TORRENT_FILE = 100
 
 class TorrentsListFragment : BaseFragment() {
     private val viewMvcFactory by inject<ViewMvcFactory>()
@@ -63,7 +63,6 @@ class TorrentsListFragment : BaseFragment() {
                     }
                 }
             }
-
         }
     }
 
