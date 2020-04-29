@@ -9,6 +9,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import app.shynline.torient.common.di.viewfactory.ViewMvcFactory
 import app.shynline.torient.screens.common.navigationhelper.PageNavigationHelper
+import app.shynline.torient.screens.common.requesthelper.FragmentRequestHelperImpl
 import org.koin.android.ext.android.inject
 import org.koin.androidx.scope.lifecycleScope
 
@@ -21,6 +22,7 @@ class NewTorrentFragment : DialogFragment() {
     private lateinit var infoHash: String
     private var width = 0
     private var height = 0
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +44,10 @@ class NewTorrentFragment : DialogFragment() {
             height = (it.heightPixels * 0.8f).toInt()
         }
         val viewMvc = viewMvcFactory.getNewTorrentViewMvc(inflater, container)
-        controller.bind(viewMvc, PageNavigationHelper(findNavController()))
+        controller.bind(
+            viewMvc, PageNavigationHelper(findNavController()),
+            FragmentRequestHelperImpl(this)
+        )
         controller.showTorrent(infoHash)
         return viewMvc.getRootView()
     }
@@ -66,5 +71,4 @@ class NewTorrentFragment : DialogFragment() {
         super.onDestroyView()
         controller.unbind()
     }
-
 }

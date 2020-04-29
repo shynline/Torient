@@ -5,7 +5,7 @@ import app.shynline.torient.screens.common.view.ObservableViewMvc
 
 interface NewTorrentViewMvc : ObservableViewMvc<NewTorrentViewMvc.Listener> {
     interface Listener {
-
+        fun downloadTorrent()
     }
 
     fun showTorrent(torrentDetail: TorrentDetail)

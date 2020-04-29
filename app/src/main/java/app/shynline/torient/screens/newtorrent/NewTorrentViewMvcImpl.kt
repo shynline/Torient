@@ -2,6 +2,7 @@ package app.shynline.torient.screens.newtorrent
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Button
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import app.shynline.torient.R
@@ -29,6 +30,7 @@ class NewTorrentViewMvcImpl(
     private val fastItemAdapter: GenericFastItemAdapter
     private val expandableExtension: ExpandableExtension<GenericItem>
     private val headerItemAdapter: ItemAdapter<HeaderItem>
+    private val downloadButton: Button
 
     companion object {
         private var fileIdentifier = 0L
@@ -38,6 +40,7 @@ class NewTorrentViewMvcImpl(
         setRootView(
             inflater.inflate(R.layout.fragment_new_torrent, parent, false)
         )
+        downloadButton = findViewById(R.id.downloadBtn)
         fileTreeRV = findViewById(R.id.recyclerView)
         fastItemAdapter = FastItemAdapter()
         headerItemAdapter = ItemAdapter()
@@ -45,6 +48,12 @@ class NewTorrentViewMvcImpl(
         expandableExtension = adapter.getExpandableExtension()
         fileTreeRV.layoutManager = LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false)
         fileTreeRV.adapter = adapter
+
+        downloadButton.setOnClickListener {
+            getListeners().forEach {
+                it.downloadTorrent()
+            }
+        }
     }
 
     private fun parseTorrentFile(torrentFile: TorrentFile, level: Int = 0): ISubItem<*> {
