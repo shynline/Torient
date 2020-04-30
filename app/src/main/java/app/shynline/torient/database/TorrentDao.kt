@@ -21,4 +21,7 @@ interface TorrentDao {
 
     @Query("DELETE FROM torrent")
     fun deleteAllTorrents()
+
+    @Query("SELECT state from torrent WHERE info_hash= :infoHash")
+    fun getTorrentState(infoHash: String): TorrentState
 }
