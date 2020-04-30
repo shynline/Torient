@@ -1,5 +1,7 @@
 package app.shynline.torient.model
 
+import app.shynline.torient.database.TorrentState
+import app.shynline.torient.torrent.torrent.ManageState
 import com.frostwire.jlibtorrent.TorrentInfo
 
 data class TorrentDetail(
@@ -11,6 +13,8 @@ data class TorrentDetail(
     val torrentFile: TorrentFile,
     val magnet: String
 ) {
+    var serviceState: ManageState? = null
+    var state: TorrentState = TorrentState.PAUSED
     fun toIdentifier(): TorrentIdentifier {
         return TorrentIdentifier(
             infoHash,
