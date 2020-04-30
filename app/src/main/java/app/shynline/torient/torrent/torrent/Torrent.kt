@@ -14,10 +14,12 @@ interface Torrent :
     suspend fun getTorrentDetail(data: ByteArray?): TorrentDetail?
     suspend fun getTorrentDetail(identifier: TorrentIdentifier): TorrentDetail?
     suspend fun getTorrentDetail(magnet: String): TorrentDetail?
-    suspend fun addTorrent(magnet: String)
+    suspend fun getTorrentDetailFromInfoHash(infoHash: String): TorrentDetail?
     suspend fun addTorrent(identifier: TorrentIdentifier)
-    suspend fun resumeTorrent(infoHash: String)
-    suspend fun pauseTorrent(infoHash: String)
+    suspend fun resumeTorrent(infoHash: String): Boolean
+    suspend fun pauseTorrent(infoHash: String): Boolean
+    suspend fun getManagedTorrentState(infoHash: String): ManageState?
+    suspend fun getAllManagedTorrentStats(): Map<String, ManageState>
 
     /**
      * remove a torrent from service

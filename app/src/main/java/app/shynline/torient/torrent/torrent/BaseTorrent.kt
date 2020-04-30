@@ -1,10 +1,7 @@
 package app.shynline.torient.torrent.torrent
 
 import app.shynline.torient.common.observable.BaseObservable
-import app.shynline.torient.model.AddTorrentEvent
-import app.shynline.torient.model.TorrentFinishedEvent
-import app.shynline.torient.model.TorrentPausedEvent
-import app.shynline.torient.model.TorrentResumedEvent
+import app.shynline.torient.model.*
 import com.frostwire.jlibtorrent.AlertListener
 import com.frostwire.jlibtorrent.TorrentHandle
 import com.frostwire.jlibtorrent.alerts.*
@@ -12,6 +9,15 @@ import com.frostwire.jlibtorrent.alerts.*
 abstract class BaseTorrent : BaseObservable<Torrent.Listener>(), Torrent, AlertListener {
     protected var dhtNodes = 0
     protected val torrentsHandles: MutableMap<String, TorrentHandle> = hashMapOf()
+    protected val managedTorrents: MutableMap<String, ManageState> = hashMapOf()
+
+    override suspend fun getManagedTorrentState(infoHash: String): ManageState? {
+        return managedTorrents[infoHash]
+    }
+
+    override suspend fun getAllManagedTorrentStats(): Map<String, ManageState> {
+        return managedTorrents.toMap()
+    }
 
     private fun onAlertStats(statsAlert: StatsAlert) {
         // It's going to be deprecated
@@ -23,6 +29,7 @@ abstract class BaseTorrent : BaseObservable<Torrent.Listener>(), Torrent, AlertL
 
     private fun onAlertAddTorrentAlert(addTorrentAlert: AddTorrentAlert) {
         val infoHash = addTorrentAlert.params().infoHash().toHex()
+        managedTorrents[infoHash] = ManageState.ADDED
         val succeed = !addTorrentAlert.error().isError
         if (succeed) {
             torrentsHandles[infoHash] = addTorrentAlert.handle()
@@ -42,11 +49,14 @@ abstract class BaseTorrent : BaseObservable<Torrent.Listener>(), Torrent, AlertL
 
     private fun onAlertTorrentFinished(torrentFinishedAlert: TorrentFinishedAlert) {
         val infoHash = torrentFinishedAlert.handle().infoHash().toHex()
+        managedTorrents[infoHash] = ManageState.FINISHED
         getListeners().forEach { it.onStatReceived(TorrentFinishedEvent(infoHash)) }
     }
 
     private fun onAlertTorrentRemoved(torrentRemovedAlert: TorrentRemovedAlert) {
-        TODO()
+        val infoHash = torrentRemovedAlert.infoHash().toHex()
+        managedTorrents.remove(infoHash)
+        getListeners().forEach { it.onStatReceived(TorrentRemovedEvent(infoHash)) }
     }
 
     private fun onAlertTorrentDeleted(torrentDeletedAlert: TorrentDeletedAlert) {
@@ -55,11 +65,13 @@ abstract class BaseTorrent : BaseObservable<Torrent.Listener>(), Torrent, AlertL
 
     private fun onAlertTorrentPaused(torrentPausedAlert: TorrentPausedAlert) {
         val infoHash = torrentPausedAlert.handle().infoHash().toHex()
+        managedTorrents[infoHash] = ManageState.PAUSED
         getListeners().forEach { it.onStatReceived(TorrentPausedEvent(infoHash)) }
     }
 
     private fun onAlertTorrentResumed(torrentResumedAlert: TorrentResumedAlert) {
         val infoHash = torrentResumedAlert.handle().infoHash().toHex()
+        managedTorrents[infoHash] = ManageState.RESUMED
         getListeners().forEach { it.onStatReceived(TorrentResumedEvent(infoHash)) }
     }
 
