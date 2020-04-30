@@ -11,3 +11,11 @@ val Context.downloadDir: File
             file.mkdir()
         return file
     }
+
+val Context.torrentDir: File
+    get() {
+        val file = File(filesDir, Config.baseTorrentDir)
+        if (!file.exists())
+            file.mkdir()
+        return file
+    }
