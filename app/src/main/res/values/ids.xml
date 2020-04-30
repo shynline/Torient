@@ -3,4 +3,5 @@
     <item name="fastadapter_folder_item_id" type="id" />
     <item name="fastadapter_file_item_id" type="id" />
     <item name="fastadapter_header_item_id" type="id" />
+    <item name="fastadapter_torrent_item_id" type="id" />
 </resources>
