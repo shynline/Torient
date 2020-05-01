@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Progressbar" parent="AppTheme">
+        <item name="progressView_colorBackground">@android:color/black</item>
+        <item name="progressView_colorProgress">@color/colorPrimary</item>
+        <item name="progressView_labelColorInner">@android:color/white</item>
+        <item name="progressView_labelColorOuter">@android:color/white</item>
+    </style>
+</resources>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="file_tree_row_height" type="dimen">48dp</item>
-    <item name="torrent_row_height" type="dimen">56dp</item>
+    <item name="torrent_row_height" type="dimen">80dp</item>
 </resources>
