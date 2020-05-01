@@ -1,7 +1,6 @@
 package app.shynline.torient.common.di
 
-import app.shynline.torient.usecases.AddTorrentUseCase
-import app.shynline.torient.usecases.GetTorrentDetailUseCase
+import app.shynline.torient.usecases.*
 import org.koin.dsl.module
 
 val useCaseModule = module {
@@ -10,5 +9,17 @@ val useCaseModule = module {
     }
     single {
         AddTorrentUseCase(get())
+    }
+    single {
+        ResumeTorrentUseCase(get())
+    }
+    single {
+        GetAllManagedTorrentStatesUseCase(get())
+    }
+    single {
+        RemoveTorrentUseCase(get())
+    }
+    single {
+        PauseTorrentUserCase(get())
     }
 }
