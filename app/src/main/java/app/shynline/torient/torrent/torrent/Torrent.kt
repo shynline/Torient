@@ -2,8 +2,8 @@ package app.shynline.torient.torrent.torrent
 
 import app.shynline.torient.common.observable.Observable
 import app.shynline.torient.model.TorrentDetail
-import app.shynline.torient.model.TorrentEvent
 import app.shynline.torient.model.TorrentIdentifier
+import app.shynline.torient.torrent.TorrentEvent
 
 interface Torrent :
     Observable<Torrent.Listener> {
@@ -22,10 +22,10 @@ interface Torrent :
     suspend fun getAllManagedTorrentStats(): Map<String, ManageState>
 
     /**
-     * remove a torrent from service
+     * Remove a torrent from service and cache
      *
-     * @param infoHash the torrent's infoHash
-     * @return false if such infoHash doesn't exist (probably already removed) otherwise true
+     * @param infoHash
+     * @return true if there is any torrent to be removed false otherwise
      */
     suspend fun removeTorrent(infoHash: String): Boolean
 
