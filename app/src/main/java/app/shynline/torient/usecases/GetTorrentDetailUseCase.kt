@@ -14,7 +14,7 @@ class GetTorrentDetailUseCase(
         torrentFile: ByteArray? = null
     ): TorrentDetail? {
         infoHash?.let {
-            return torrent.getTorrentDetail(it)
+            return torrent.getTorrentDetailFromInfoHash(it)
         }
         torrentFile?.let {
             return torrent.getTorrentDetail(it)
