@@ -1,6 +1,6 @@
-package app.shynline.torient.torrent.torrent
+package app.shynline.torient.torrent
 
-import app.shynline.torient.model.TorrentEvent
+import app.shynline.torient.torrent.torrent.Torrent
 
 class SubscriptionMediator(
     private val torrent: Torrent
