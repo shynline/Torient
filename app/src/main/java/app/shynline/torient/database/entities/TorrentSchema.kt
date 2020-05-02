@@ -14,7 +14,11 @@ data class TorrentSchema(
     @ColumnInfo(name = "magnet")
     var magnet: String,
     @ColumnInfo(name = "state")
-    var state: TorrentState
+    var state: TorrentState,
+    @ColumnInfo(name = "is_finished")
+    var isFinished: Boolean = false,
+    @ColumnInfo(name = "progress")
+    var progress: Float = 0f
 ) {
     fun toIdentifier(): TorrentIdentifier {
         return TorrentIdentifier(
