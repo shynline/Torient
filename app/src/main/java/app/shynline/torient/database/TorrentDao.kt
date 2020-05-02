@@ -24,4 +24,13 @@ interface TorrentDao {
 
     @Query("SELECT state from torrent WHERE info_hash= :infoHash")
     fun getTorrentState(infoHash: String): TorrentState
+
+    @Query("UPDATE torrent SET state = :state WHERE info_hash = :infoHash")
+    fun setTorrentState(infoHash: String, state: TorrentState)
+
+    @Query("UPDATE torrent SET is_finished = :finished WHERE info_hash = :infoHash")
+    fun setTorrentFinished(infoHash: String, finished: Boolean)
+
+    @Query("UPDATE torrent SET progress = :progress WHERE info_hash = :infoHash")
+    fun setTorrentProgress(infoHash: String, progress: Float)
 }
