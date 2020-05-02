@@ -11,10 +11,16 @@ data class TorrentDetail(
     val comment: String,
     val totalSize: Long,
     val torrentFile: TorrentFile,
-    val magnet: String
+    val magnet: String,
+    val hexHash: Long
 ) {
-    var serviceState: ManageState? = null
+    var serviceState: ManageState = ManageState.UNKNOWN
+
     var state: TorrentState = TorrentState.PAUSED
+    var progress = 0f
+    var downloadRate = 0
+    var uploadRate = 0
+    var finished = false
     fun toIdentifier(): TorrentIdentifier {
         return TorrentIdentifier(
             infoHash,
@@ -31,7 +37,8 @@ data class TorrentDetail(
                 torrentInfo.comment(),
                 torrentInfo.totalSize(),
                 TorrentFile.from(torrentInfo),
-                torrentInfo.makeMagnetUri()
+                torrentInfo.makeMagnetUri(),
+                torrentInfo.infoHash().toHex().hashCode().toLong()
             )
         }
     }
