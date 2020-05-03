@@ -1,7 +1,7 @@
 package app.shynline.torient.database.datasource
 
 import app.shynline.torient.database.TorrentDao
-import app.shynline.torient.database.TorrentState
+import app.shynline.torient.database.TorrentUserState
 import app.shynline.torient.database.entities.TorrentSchema
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -23,14 +23,14 @@ class TorrentDataSourceImpl(
         torrentDao.insertTorrent(torrentSchema)
     }
 
-    override suspend fun getTorrentState(infoHash: String): TorrentState =
+    override suspend fun getTorrentState(infoHash: String): TorrentUserState =
         withContext(ioDispatcher) {
             return@withContext torrentDao.getTorrentState(infoHash)
         }
 
-    override suspend fun setTorrentState(infoHash: String, state: TorrentState) =
+    override suspend fun setTorrentState(infoHash: String, userState: TorrentUserState) =
         withContext(ioDispatcher) {
-            return@withContext torrentDao.setTorrentState(infoHash, state)
+            return@withContext torrentDao.setTorrentState(infoHash, userState)
         }
 
     override suspend fun setTorrentFinished(infoHash: String, finished: Boolean) =

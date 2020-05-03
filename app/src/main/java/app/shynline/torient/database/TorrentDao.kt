@@ -23,10 +23,10 @@ interface TorrentDao {
     fun deleteAllTorrents()
 
     @Query("SELECT state from torrent WHERE info_hash= :infoHash")
-    fun getTorrentState(infoHash: String): TorrentState
+    fun getTorrentState(infoHash: String): TorrentUserState
 
-    @Query("UPDATE torrent SET state = :state WHERE info_hash = :infoHash")
-    fun setTorrentState(infoHash: String, state: TorrentState)
+    @Query("UPDATE torrent SET state = :userState WHERE info_hash = :infoHash")
+    fun setTorrentState(infoHash: String, userState: TorrentUserState)
 
     @Query("UPDATE torrent SET is_finished = :finished WHERE info_hash = :infoHash")
     fun setTorrentFinished(infoHash: String, finished: Boolean)
