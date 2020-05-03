@@ -3,7 +3,7 @@ package app.shynline.torient.database.entities
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import app.shynline.torient.database.TorrentState
+import app.shynline.torient.database.TorrentUserState
 import app.shynline.torient.model.TorrentIdentifier
 
 @Entity(tableName = "torrent")
@@ -14,7 +14,7 @@ data class TorrentSchema(
     @ColumnInfo(name = "magnet")
     var magnet: String,
     @ColumnInfo(name = "state")
-    var state: TorrentState,
+    var userState: TorrentUserState,
     @ColumnInfo(name = "is_finished")
     var isFinished: Boolean = false,
     @ColumnInfo(name = "progress")
