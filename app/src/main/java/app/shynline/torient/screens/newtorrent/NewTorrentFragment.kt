@@ -54,6 +54,7 @@ class NewTorrentFragment : DialogFragment() {
 
     override fun onResume() {
         dialog!!.window!!.setLayout(width, height)
+        dialog!!.window!!.setBackgroundDrawableResource(android.R.color.transparent)
         super.onResume()
     }
 
@@ -70,5 +71,10 @@ class NewTorrentFragment : DialogFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         controller.unbind()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        controller.onDestroy()
     }
 }

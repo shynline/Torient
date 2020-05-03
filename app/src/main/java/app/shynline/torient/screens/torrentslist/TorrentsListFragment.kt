@@ -52,6 +52,11 @@ class TorrentsListFragment : BaseFragment() {
         controller.unbind()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        controller.onDestroy()
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_ID_OPEN_TORRENT_FILE && resultCode == Activity.RESULT_OK) {
             // The result data contains a URI for the document or directory that

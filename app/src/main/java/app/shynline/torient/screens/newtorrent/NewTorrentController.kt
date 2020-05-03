@@ -1,6 +1,7 @@
 package app.shynline.torient.screens.newtorrent
 
-import app.shynline.torient.database.TorrentDao
+import app.shynline.torient.database.TorrentUserState
+import app.shynline.torient.database.datasource.TorrentDataSource
 import app.shynline.torient.database.entities.TorrentSchema
 import app.shynline.torient.model.TorrentDetail
 import app.shynline.torient.screens.common.BaseController
@@ -11,7 +12,7 @@ import kotlinx.coroutines.launch
 
 class NewTorrentController(
     private val getTorrentDetailUseCase: GetTorrentDetailUseCase,
-    private val torrentDao: TorrentDao
+    private val torrentDataSource: TorrentDataSource
 ) : BaseController(), NewTorrentViewMvc.Listener {
     private var viewMvc: NewTorrentViewMvc? = null
     private var pageNavigationHelper: PageNavigationHelper? = null
@@ -44,13 +45,33 @@ class NewTorrentController(
 
     override fun onStop() {
         viewMvc!!.unRegisterListener(this)
-        super.onStop()
     }
 
     override fun downloadTorrent() {
         controllerScope.launch {
             currentTorrent?.let {
-                torrentDao.insertTorrent(TorrentSchema(it.infoHash, it.magnet))
+                torrentDataSource.insertTorrent(
+                    TorrentSchema(
+                        it.infoHash,
+                        it.magnet,
+                        TorrentUserState.ACTIVE
+                    )
+                )
+            }
+            close()
+        }
+    }
+
+    override fun addTorrent() {
+        controllerScope.launch {
+            currentTorrent?.let {
+                torrentDataSource.insertTorrent(
+                    TorrentSchema(
+                        it.infoHash,
+                        it.magnet,
+                        TorrentUserState.PAUSED
+                    )
+                )
             }
             close()
         }

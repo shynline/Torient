@@ -6,9 +6,10 @@ import app.shynline.torient.screens.newtorrent.NewTorrentController
 import app.shynline.torient.screens.newtorrent.NewTorrentFragment
 import app.shynline.torient.screens.torrentslist.TorrentsListController
 import app.shynline.torient.screens.torrentslist.TorrentsListFragment
-import app.shynline.torient.torrent.torrent.SubscriptionMediator
+import app.shynline.torient.torrent.SubscriptionMediator
 import app.shynline.torient.torrent.torrent.Torrent
 import app.shynline.torient.torrent.torrent.TorrentImpl
+import kotlinx.coroutines.Dispatchers
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -18,7 +19,7 @@ val mainModule = module {
     }
     scope<TorrentsListFragment> {
         scoped {
-            TorrentsListController(get(), get(), get(), get())
+            TorrentsListController(get(), get(), get(), get(), get(), get())
         }
     }
     scope<NewTorrentFragment> {
@@ -27,9 +28,12 @@ val mainModule = module {
         }
     }
     single<Torrent> {
-        TorrentImpl(androidContext())
+        TorrentImpl(androidContext(), get())
     }
     single {
         SubscriptionMediator(get())
+    }
+    single {
+        Dispatchers.IO
     }
 }

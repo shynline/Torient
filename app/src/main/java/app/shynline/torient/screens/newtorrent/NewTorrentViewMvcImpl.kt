@@ -31,6 +31,7 @@ class NewTorrentViewMvcImpl(
     private val expandableExtension: ExpandableExtension<GenericItem>
     private val headerItemAdapter: ItemAdapter<HeaderItem>
     private val downloadButton: Button
+    private val addButton: Button
 
     companion object {
         private var fileIdentifier = 0L
@@ -41,6 +42,7 @@ class NewTorrentViewMvcImpl(
             inflater.inflate(R.layout.fragment_new_torrent, parent, false)
         )
         downloadButton = findViewById(R.id.downloadBtn)
+        addButton = findViewById(R.id.addBtn)
         fileTreeRV = findViewById(R.id.recyclerView)
         fastItemAdapter = FastItemAdapter()
         headerItemAdapter = ItemAdapter()
@@ -52,6 +54,11 @@ class NewTorrentViewMvcImpl(
         downloadButton.setOnClickListener {
             getListeners().forEach {
                 it.downloadTorrent()
+            }
+        }
+        addButton.setOnClickListener {
+            getListeners().forEach {
+                it.addTorrent()
             }
         }
     }
