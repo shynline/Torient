@@ -1,7 +1,8 @@
 package app.shynline.torient.model
 
-import app.shynline.torient.database.TorrentState
+import app.shynline.torient.database.TorrentUserState
 import app.shynline.torient.torrent.torrent.ManageState
+import app.shynline.torient.torrent.torrent.TorrentDownloadingState
 import com.frostwire.jlibtorrent.TorrentInfo
 
 data class TorrentDetail(
@@ -15,8 +16,8 @@ data class TorrentDetail(
     val hexHash: Long
 ) {
     var serviceState: ManageState = ManageState.UNKNOWN
-
-    var state: TorrentState = TorrentState.PAUSED
+    var userState: TorrentUserState = TorrentUserState.PAUSED
+    var downloadingState: TorrentDownloadingState = TorrentDownloadingState.UNKNOWN
     var progress = 0f
     var downloadRate = 0
     var uploadRate = 0
