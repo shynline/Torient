@@ -16,8 +16,6 @@ interface Torrent :
     suspend fun getTorrentDetail(magnet: String): TorrentDetail?
     suspend fun getTorrentDetailFromInfoHash(infoHash: String): TorrentDetail?
     suspend fun addTorrent(identifier: TorrentIdentifier)
-    suspend fun resumeTorrent(infoHash: String): Boolean
-    suspend fun pauseTorrent(infoHash: String): Boolean
     suspend fun getManagedTorrentState(infoHash: String): ManageState?
     suspend fun getAllManagedTorrentStats(): Map<String, ManageState>
 

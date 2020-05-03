@@ -4,6 +4,5 @@ enum class ManageState {
     UNKNOWN,
     ADDED,
     FINISHED,
-    PAUSED,
     RESUMED
 }

@@ -12,6 +12,7 @@ import app.shynline.torient.model.TorrentDetail
 import app.shynline.torient.model.TorrentIdentifier
 import app.shynline.torient.torrent.service.TorientService
 import com.frostwire.jlibtorrent.SessionManager
+import com.frostwire.jlibtorrent.Sha1Hash
 import com.frostwire.jlibtorrent.TorrentInfo
 import kotlinx.coroutines.*
 import java.io.BufferedInputStream
@@ -25,7 +26,7 @@ class TorrentImpl(
     ServiceConnection,
     TorrentController,
     Observable<Torrent.Listener> {
-    private val session: SessionManager = SessionManager()
+    private val session: SessionManager = SessionManager(false)
     private var isActivityRunning = false
     private var service: TorientService? = null
     private val intent: Intent = Intent(context, TorientService::class.java)
@@ -53,11 +54,12 @@ class TorrentImpl(
                 service!!.background()
             } else {
                 if (!session.isRunning) {
+                    session.addListener(this@TorrentImpl)
                     session.start()
                 }
             }
         } else {
-            if (torrentsHandles.isEmpty()) {
+            if (managedTorrents.isEmpty()) {
                 session.stop() //blocking
                 session.removeListener(this@TorrentImpl)
                 unbindService()
@@ -84,7 +86,6 @@ class TorrentImpl(
 
     private fun unbindService() {
         if (service != null) {
-
             context.unbindService(this)
             service = null
         }
@@ -107,6 +108,10 @@ class TorrentImpl(
      */
     override suspend fun addTorrent(identifier: TorrentIdentifier) {
         managedTorrents[identifier.infoHash] = ManageState.UNKNOWN
+        readTorrentFileFromCache(identifier.infoHash)?.let {
+            session.download(getTorrentInfo(it), context.downloadDir)
+            return
+        }
         session.download(identifier.magnet, context.downloadDir)
     }
 
@@ -140,13 +145,17 @@ class TorrentImpl(
         if (torrentsDetails.containsKey(infoHash)) {
             return torrentsDetails[infoHash]
         }
+        return getTorrentDetail(readTorrentFileFromCache(infoHash))
+    }
+
+    private fun readTorrentFileFromCache(infoHash: String): ByteArray? {
         // Load torrent from file directory if exists
         val file = File(context.torrentDir, "$infoHash.torrent")
         if (file.exists()) {
             // If the torrent file exists we read it
             // and parse it
             BufferedInputStream(file.inputStream()).use {
-                return getTorrentDetail(it.readBytes())
+                return it.readBytes()
             }
         }
         return null
@@ -170,6 +179,10 @@ class TorrentImpl(
             return@withContext getTorrentDetail(bytes)
         }
 
+    private suspend fun getTorrentInfo(data: ByteArray): TorrentInfo {
+        return TorrentInfo(data)
+    }
+
     /**
      * Parse a torrent file data to a TorrentDetail
      *
@@ -181,10 +194,11 @@ class TorrentImpl(
             if (data == null)
                 return@withContext null
             // Decode the byteArray
-            val torrentInfo = TorrentInfo(data)
+            val torrentInfo = getTorrentInfo(data)
             // Create the torrentDetail
             val torrentDetail = TorrentDetail.from(torrentInfo)
-            torrentDetail.serviceState = managedTorrents[torrentDetail.infoHash]
+            torrentDetail.serviceState =
+                managedTorrents[torrentDetail.infoHash] ?: ManageState.UNKNOWN
             // Cache it in memory
             torrentsDetails[torrentDetail.infoHash] = torrentDetail
 
@@ -203,70 +217,10 @@ class TorrentImpl(
                     // Which is not a big deal I guess
                 }
             }
-
             return@withContext torrentDetail
         }
 
-    /**
-     * Send a request to resume downloading
-     *
-     * @param infoHash
-     * @return true if there is a valid handler and false otherwise
-     */
-    override suspend fun resumeTorrent(infoHash: String): Boolean {
-        if (ensureHandlerIsValid(infoHash)) {
-            torrentsHandles[infoHash]!!.resume()
-            return true
-        }
-        return false
-    }
 
-    /**
-     * Handlers might get to invalid state
-     * before any request view handlers we have to make sure the handler is valid
-     * this method automatically remove the old handler and
-     * tries to add the torrent again to retrieve a new one
-     *
-     * @param infoHash
-     * @return true if handler is valid and false if not
-     */
-    private suspend fun ensureHandlerIsValid(infoHash: String): Boolean {
-        if (torrentsHandles.containsKey(infoHash)) {
-            // Handler exists
-            if (torrentsHandles[infoHash]!!.isValid) {
-                return true
-            } else {
-                managedTorrents.remove(infoHash)
-                // Remove torrent from the service
-                session.remove(torrentsHandles[infoHash])
-                // Remove it from our cache
-                torrentsHandles.remove(infoHash)
-                // Retrieve the torrent detail with info hash
-                getTorrentDetailFromInfoHash(infoHash)?.let {
-                    // We add the torrent but getting handler is asynchronous so
-                    // we still have to return false
-                    addTorrent(it.toIdentifier())
-                }
-                return false
-            }
-        }
-        // There is no handler we assume it's invalid
-        return false
-    }
-
-    /**
-     * Send a request to pause a torrent
-     *
-     * @param infoHash
-     * @return true if handler is valid and request has been made false otherwise
-     */
-    override suspend fun pauseTorrent(infoHash: String): Boolean {
-        if (ensureHandlerIsValid(infoHash)) {
-            torrentsHandles[infoHash]!!.pause()
-            return true
-        }
-        return false
-    }
 
 
     /**
@@ -277,9 +231,8 @@ class TorrentImpl(
      */
     override suspend fun removeTorrent(infoHash: String): Boolean {
         managedTorrents.remove(infoHash)
-        if (torrentsHandles.containsKey(infoHash)) {
-            session.remove(torrentsHandles[infoHash]!!)
-            torrentsHandles.remove(infoHash)
+        session.find(Sha1Hash(infoHash))?.let {
+            session.remove(it)
             return true
         }
         return false
