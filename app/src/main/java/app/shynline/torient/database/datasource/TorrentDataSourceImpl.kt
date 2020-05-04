@@ -4,8 +4,9 @@ import app.shynline.torient.database.TorrentDao
 import app.shynline.torient.database.TorrentUserState
 import app.shynline.torient.database.entities.TorrentSchema
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.withContext
 
 class TorrentDataSourceImpl(
@@ -14,9 +15,19 @@ class TorrentDataSourceImpl(
 ) : TorrentDataSource {
 
 
-    @ExperimentalCoroutinesApi
+    @FlowPreview
     override suspend fun getTorrents(): Flow<List<TorrentSchema>> = withContext(ioDispatcher) {
-        return@withContext torrentDao.getTorrents()
+        return@withContext torrentDao.getTorrents().distinctUntilChanged { old, new ->
+            val o = old.map { it.infoHash }.toMutableList()
+            new.map { it.infoHash }.forEach {
+                if (o.contains(it)) {
+                    o.remove(it)
+                } else {
+                    return@distinctUntilChanged false
+                }
+            }
+            o.isEmpty()
+        }
     }
 
     override suspend fun insertTorrent(torrentSchema: TorrentSchema) = withContext(ioDispatcher) {
@@ -41,5 +52,10 @@ class TorrentDataSourceImpl(
     override suspend fun setTorrentProgress(infoHash: String, progress: Float) =
         withContext(ioDispatcher) {
             return@withContext torrentDao.setTorrentProgress(infoHash, progress)
+        }
+
+    override suspend fun getTorrent(infoHash: String): TorrentSchema? =
+        withContext(ioDispatcher) {
+            return@withContext torrentDao.getTorrent(infoHash)
         }
 }

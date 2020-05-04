@@ -33,4 +33,7 @@ interface TorrentDao {
 
     @Query("UPDATE torrent SET progress = :progress WHERE info_hash = :infoHash")
     fun setTorrentProgress(infoHash: String, progress: Float)
+
+    @Query("SELECT * from torrent WHERE info_hash = :infoHash")
+    fun getTorrent(infoHash: String): TorrentSchema?
 }
