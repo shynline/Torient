@@ -3,21 +3,30 @@ package app.shynline.torient.torrent.torrent
 import app.shynline.torient.common.observable.BaseObservable
 import app.shynline.torient.torrent.*
 import com.frostwire.jlibtorrent.AlertListener
+import com.frostwire.jlibtorrent.Sha1Hash
 import com.frostwire.jlibtorrent.TorrentHandle
 import com.frostwire.jlibtorrent.TorrentStatus
 import com.frostwire.jlibtorrent.alerts.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 
 abstract class BaseTorrent : BaseObservable<Torrent.Listener>(), Torrent, AlertListener {
     protected var dhtNodes = 0
     protected val managedTorrents: MutableMap<String, ManageState> = hashMapOf()
 
-    private fun handleTorrentProgress(handle: TorrentHandle) {
-        if (!handle.isValid)
-            return
+    protected lateinit var torrentScope: CoroutineScope
+    protected open fun start() {
+        torrentScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    }
+
+    protected open fun stop() {
+        torrentScope.cancel()
+    }
+
+    protected abstract fun findHandle(sha1: Sha1Hash): TorrentHandle?
+
+    protected fun handleTorrentProgress(_handle: TorrentHandle) {
+        val handle = findHandle(_handle.infoHash()) ?: return
         val statue = handle.status()
         val event: TorrentProgressEvent? = when (statue.state()) {
             TorrentStatus.State.CHECKING_FILES -> TorrentProgressEvent(
@@ -92,13 +101,13 @@ abstract class BaseTorrent : BaseObservable<Torrent.Listener>(), Torrent, AlertL
     }
 
     private fun onAlertAddTorrentAlert(addTorrentAlert: AddTorrentAlert) {
-        if (!addTorrentAlert.handle().isValid)
-            return
+        val handle = findHandle(addTorrentAlert.handle().infoHash()) ?: return
+
         val infoHash = addTorrentAlert.params().infoHash().toHex()
         managedTorrents[infoHash] = ManageState.ADDED
         val succeed = !addTorrentAlert.error().isError
         if (succeed) {
-            addTorrentAlert.handle().resume()
+            handle.resume()
         }
         getListeners().forEach {
             it.onStatReceived(
@@ -115,14 +124,13 @@ abstract class BaseTorrent : BaseObservable<Torrent.Listener>(), Torrent, AlertL
     }
 
     private fun onAlertBlockFinished(blockFinishedAlert: BlockFinishedAlert) {
-        handleTorrentProgress(blockFinishedAlert.handle())
+//        handleTorrentProgress(blockFinishedAlert.handle())
         // TODO
     }
 
     private fun onAlertTorrentFinished(torrentFinishedAlert: TorrentFinishedAlert) {
-        if (!torrentFinishedAlert.handle().isValid)
-            return
-        val infoHash = torrentFinishedAlert.handle().infoHash().toHex()
+        val handle = findHandle(torrentFinishedAlert.handle().infoHash()) ?: return
+        val infoHash = handle.infoHash().toHex()
         managedTorrents[infoHash] = ManageState.FINISHED
         getListeners().forEach {
             it.onStatReceived(
@@ -162,8 +170,6 @@ abstract class BaseTorrent : BaseObservable<Torrent.Listener>(), Torrent, AlertL
     }
 
     private fun onAlertTorrentResumed(torrentResumedAlert: TorrentResumedAlert) {
-        if (!torrentResumedAlert.handle().isValid)
-            return
         val infoHash = torrentResumedAlert.handle().infoHash().toHex()
         managedTorrents[infoHash] = ManageState.RESUMED
         getListeners().forEach {
@@ -307,7 +313,7 @@ abstract class BaseTorrent : BaseObservable<Torrent.Listener>(), Torrent, AlertL
     }
 
     private fun onAlertPieceFinished(pieceFinishedAlert: PieceFinishedAlert) {
-        handleTorrentProgress(pieceFinishedAlert.handle())
+//        handleTorrentProgress(pieceFinishedAlert.handle())
         // TODO
     }
 

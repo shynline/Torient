@@ -13,11 +13,14 @@ import app.shynline.torient.model.TorrentIdentifier
 import app.shynline.torient.torrent.service.TorientService
 import com.frostwire.jlibtorrent.SessionManager
 import com.frostwire.jlibtorrent.Sha1Hash
+import com.frostwire.jlibtorrent.TorrentHandle
 import com.frostwire.jlibtorrent.TorrentInfo
 import kotlinx.coroutines.*
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.File
+import java.util.*
+import kotlin.concurrent.fixedRateTimer
 
 class TorrentImpl(
     private val context: Context,
@@ -33,9 +36,22 @@ class TorrentImpl(
 
     private val torrentsDetails: MutableMap<String, TorrentDetail> = hashMapOf()
 
+    private var periodicTimer: Timer? = null
+
+    private fun periodicTask() = torrentScope.launch {
+        if (isActivityRunning) {
+            requestTorrentStats(managedTorrents.keys.toList())
+        } else {
+            service?.updateNotification(
+                managedTorrents.size,
+                session.downloadRate(),
+                session.uploadRate()
+            )
+        }
+    }
+
     init {
-        session.addListener(this)
-        session.start()
+        start()
     }
 
     override fun onActivityStart() {
@@ -48,25 +64,45 @@ class TorrentImpl(
         handleServiceState()
     }
 
+    override fun start() {
+        super.start()
+        session.addListener(this)
+        session.start()
+        periodicTimer = fixedRateTimer(
+            name = "periodicTaskTorrentsList",
+            initialDelay = 1000,
+            period = 1000
+        ) { periodicTask() }
+    }
+
+    override fun stop() {
+        periodicTimer?.cancel()
+        super.stop()
+        session.stop() //blocking
+        session.removeListener(this@TorrentImpl)
+    }
+
     private fun handleServiceState() = GlobalScope.launch {
         if (isActivityRunning) {
             if (service != null) {
                 service!!.background()
             } else {
                 if (!session.isRunning) {
-                    session.addListener(this@TorrentImpl)
-                    session.start()
+                    start()
                 }
             }
         } else {
             if (managedTorrents.isEmpty()) {
-                session.stop() //blocking
-                session.removeListener(this@TorrentImpl)
+                stop()
                 unbindService()
                 context.stopService(intent)
             } else {
                 if (service != null) {
-                    service!!.foreground()
+                    service!!.foreground(
+                        managedTorrents.size,
+                        session.downloadRate(),
+                        session.uploadRate()
+                    )
                 } else {
                     bindService()
                     context.startService(intent)
@@ -77,6 +113,22 @@ class TorrentImpl(
 
     override fun onServiceDisconnected(name: ComponentName?) {
         service = null
+    }
+
+    private suspend fun requestTorrentStats(torrents: List<String>) {
+        torrents.forEach { infoHash ->
+            session.find(Sha1Hash(infoHash))?.let { handle ->
+                handleTorrentProgress(handle)
+            }
+        }
+    }
+
+    override fun findHandle(sha1: Sha1Hash): TorrentHandle? {
+        session.find(sha1)?.let {
+            if (it.isValid)
+                return it
+        }
+        return null
     }
 
     override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
@@ -219,8 +271,6 @@ class TorrentImpl(
             }
             return@withContext torrentDetail
         }
-
-
 
 
     /**
