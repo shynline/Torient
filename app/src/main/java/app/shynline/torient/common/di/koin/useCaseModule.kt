@@ -1,4 +1,4 @@
-package app.shynline.torient.common.di
+package app.shynline.torient.common.di.koin
 
 import app.shynline.torient.usecases.AddTorrentUseCase
 import app.shynline.torient.usecases.GetAllManagedTorrentStatesUseCase

@@ -1,4 +1,4 @@
-package app.shynline.torient.torrent.torrent
+package app.shynline.torient.torrent.states
 
 enum class TorrentDownloadingState {
     UNKNOWN,

@@ -1,8 +1,8 @@
 package app.shynline.torient.screens.newtorrent
 
-import app.shynline.torient.database.TorrentUserState
 import app.shynline.torient.database.datasource.TorrentDataSource
 import app.shynline.torient.database.entities.TorrentSchema
+import app.shynline.torient.database.states.TorrentUserState
 import app.shynline.torient.model.TorrentDetail
 import app.shynline.torient.screens.common.BaseController
 import app.shynline.torient.screens.common.navigationhelper.PageNavigationHelper

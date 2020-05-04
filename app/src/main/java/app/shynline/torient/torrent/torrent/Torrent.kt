@@ -3,7 +3,8 @@ package app.shynline.torient.torrent.torrent
 import app.shynline.torient.common.observable.Observable
 import app.shynline.torient.model.TorrentDetail
 import app.shynline.torient.model.TorrentIdentifier
-import app.shynline.torient.torrent.TorrentEvent
+import app.shynline.torient.torrent.events.TorrentEvent
+import app.shynline.torient.torrent.states.ManageState
 
 interface Torrent :
     Observable<Torrent.Listener> {

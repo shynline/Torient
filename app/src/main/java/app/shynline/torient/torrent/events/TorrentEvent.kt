@@ -1,6 +1,6 @@
-package app.shynline.torient.torrent
+package app.shynline.torient.torrent.events
 
-import app.shynline.torient.torrent.torrent.TorrentDownloadingState
+import app.shynline.torient.torrent.states.TorrentDownloadingState
 
 sealed class TorrentEvent(val infoHash: String)
 class AddTorrentEvent(infoHash: String, val succeed: Boolean) : TorrentEvent(infoHash)

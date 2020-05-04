@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import app.shynline.torient.database.entities.TorrentSchema
+import app.shynline.torient.database.states.TorrentUserState
 import kotlinx.coroutines.flow.Flow
 
 @Dao

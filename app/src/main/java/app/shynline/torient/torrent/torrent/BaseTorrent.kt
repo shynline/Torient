@@ -1,7 +1,9 @@
 package app.shynline.torient.torrent.torrent
 
 import app.shynline.torient.common.observable.BaseObservable
-import app.shynline.torient.torrent.*
+import app.shynline.torient.torrent.events.*
+import app.shynline.torient.torrent.states.ManageState
+import app.shynline.torient.torrent.states.TorrentDownloadingState
 import com.frostwire.jlibtorrent.AlertListener
 import com.frostwire.jlibtorrent.Sha1Hash
 import com.frostwire.jlibtorrent.TorrentHandle

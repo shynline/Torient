@@ -1,5 +1,6 @@
-package app.shynline.torient.torrent
+package app.shynline.torient.torrent.mediator
 
+import app.shynline.torient.torrent.events.TorrentEvent
 import app.shynline.torient.torrent.torrent.Torrent
 
 class SubscriptionMediator(

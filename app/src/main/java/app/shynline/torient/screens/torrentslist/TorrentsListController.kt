@@ -1,15 +1,16 @@
 package app.shynline.torient.screens.torrentslist
 
-import app.shynline.torient.database.TorrentUserState
 import app.shynline.torient.database.datasource.TorrentDataSource
+import app.shynline.torient.database.states.TorrentUserState
 import app.shynline.torient.model.TorrentDetail
 import app.shynline.torient.screens.common.BaseController
 import app.shynline.torient.screens.common.navigationhelper.PageNavigationHelper
 import app.shynline.torient.screens.common.requesthelper.FragmentRequestHelper
 import app.shynline.torient.screens.common.requesthelper.REQUEST_ID_OPEN_TORRENT_FILE
-import app.shynline.torient.torrent.*
-import app.shynline.torient.torrent.torrent.ManageState
-import app.shynline.torient.torrent.torrent.TorrentDownloadingState
+import app.shynline.torient.torrent.events.*
+import app.shynline.torient.torrent.mediator.SubscriptionMediator
+import app.shynline.torient.torrent.states.ManageState
+import app.shynline.torient.torrent.states.TorrentDownloadingState
 import app.shynline.torient.usecases.AddTorrentUseCase
 import app.shynline.torient.usecases.GetAllManagedTorrentStatesUseCase
 import app.shynline.torient.usecases.GetTorrentDetailUseCase

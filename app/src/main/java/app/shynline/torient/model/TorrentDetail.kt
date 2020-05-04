@@ -1,8 +1,8 @@
 package app.shynline.torient.model
 
-import app.shynline.torient.database.TorrentUserState
-import app.shynline.torient.torrent.torrent.ManageState
-import app.shynline.torient.torrent.torrent.TorrentDownloadingState
+import app.shynline.torient.database.states.TorrentUserState
+import app.shynline.torient.torrent.states.ManageState
+import app.shynline.torient.torrent.states.TorrentDownloadingState
 import com.frostwire.jlibtorrent.TorrentInfo
 
 data class TorrentDetail(

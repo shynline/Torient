@@ -11,6 +11,7 @@ import app.shynline.torient.common.torrentDir
 import app.shynline.torient.model.TorrentDetail
 import app.shynline.torient.model.TorrentIdentifier
 import app.shynline.torient.torrent.service.TorientService
+import app.shynline.torient.torrent.states.ManageState
 import com.frostwire.jlibtorrent.SessionManager
 import com.frostwire.jlibtorrent.Sha1Hash
 import com.frostwire.jlibtorrent.TorrentHandle

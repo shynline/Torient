@@ -1,4 +1,4 @@
-package app.shynline.torient.common.di
+package app.shynline.torient.common.di.koin
 
 import androidx.room.Room
 import app.shynline.torient.database.TorrentDataBase

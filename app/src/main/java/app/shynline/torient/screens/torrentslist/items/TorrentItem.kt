@@ -5,11 +5,11 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import app.shynline.torient.R
-import app.shynline.torient.database.TorrentUserState
+import app.shynline.torient.database.states.TorrentUserState
 import app.shynline.torient.model.TorrentDetail
 import app.shynline.torient.screens.torrentslist.TorrentListViewMvcImpl
-import app.shynline.torient.torrent.torrent.ManageState
-import app.shynline.torient.torrent.torrent.TorrentDownloadingState
+import app.shynline.torient.torrent.states.ManageState
+import app.shynline.torient.torrent.states.TorrentDownloadingState
 import app.shynline.torient.utils.FileIcon
 import app.shynline.torient.utils.toStandardRate
 import com.mikepenz.fastadapter.FastAdapter

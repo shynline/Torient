@@ -1,8 +1,8 @@
 package app.shynline.torient.database.datasource
 
 import app.shynline.torient.database.TorrentDao
-import app.shynline.torient.database.TorrentUserState
 import app.shynline.torient.database.entities.TorrentSchema
+import app.shynline.torient.database.states.TorrentUserState
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
