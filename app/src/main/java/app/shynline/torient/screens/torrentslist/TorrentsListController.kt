@@ -9,23 +9,17 @@ import app.shynline.torient.screens.common.requesthelper.FragmentRequestHelper
 import app.shynline.torient.screens.common.requesthelper.REQUEST_ID_OPEN_TORRENT_FILE
 import app.shynline.torient.torrent.events.*
 import app.shynline.torient.torrent.mediator.SubscriptionMediator
+import app.shynline.torient.torrent.mediator.TorrentMediator
 import app.shynline.torient.torrent.states.ManageState
 import app.shynline.torient.torrent.states.TorrentDownloadingState
-import app.shynline.torient.usecases.AddTorrentUseCase
-import app.shynline.torient.usecases.GetAllManagedTorrentStatesUseCase
-import app.shynline.torient.usecases.GetTorrentDetailUseCase
-import app.shynline.torient.usecases.RemoveTorrentUseCase
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class TorrentsListController(
     private val subscriptionMediator: SubscriptionMediator,
-    private val getTorrentDetailUseCase: GetTorrentDetailUseCase,
     private val torrentDataSource: TorrentDataSource,
-    private val addTorrentUseCase: AddTorrentUseCase,
-    private val getAllManagedTorrentStatesUseCase: GetAllManagedTorrentStatesUseCase,
-    private val removeTorrentUseCase: RemoveTorrentUseCase
+    private val torrentMediator: TorrentMediator
 ) : BaseController(), TorrentListViewMvc.Listener, SubscriptionMediator.Listener {
 
     private var viewMvc: TorrentListViewMvc? = null
@@ -145,7 +139,7 @@ class TorrentsListController(
     private fun queryDataBaseForChange() = controllerScope.launch {
         torrentDataSource.getTorrents().collect { torrentSchemas ->
             // The Torrents which are being managed by the service so we shouldn't add them again
-            val serviceManagedTorrents = getAllManagedTorrentStatesUseCase.execute()
+            val serviceManagedTorrents = torrentMediator.getAllManagedTorrentStates()
             // It's a flow so it will be called on each database transaction
             // Make a copy of our managed torrent to find out which torrents are not in database any more
             val removedTorrents = managedTorrents.keys.toMutableList()
@@ -153,7 +147,7 @@ class TorrentsListController(
             torrentSchemas.forEach {
                 if (!managedTorrents.containsKey(it.infoHash)) {
                     // We add it to our managed list
-                    managedTorrents[it.infoHash] = getTorrentDetailUseCase.execute(
+                    managedTorrents[it.infoHash] = torrentMediator.getTorrentDetail(
                         infoHash = it.infoHash
                     )!!.apply {
                         userState = it.userState
@@ -172,14 +166,14 @@ class TorrentsListController(
                                 this@TorrentsListController,
                                 it.infoHash
                             )
-                            addTorrentUseCase.execute(it.toIdentifier())
+                            torrentMediator.addTorrent(it.toIdentifier())
                         }
                     } else {
                         // If the torrent is managed by service
                         // but it's not suppose to be active
                         // We remove it from the service
                         if (it.userState == TorrentUserState.PAUSED) {
-                            removeTorrentUseCase.execute(it.infoHash)
+                            torrentMediator.removeTorrent(it.infoHash)
                             subscriptionMediator.removeTorrent(
                                 this@TorrentsListController,
                                 it.infoHash
@@ -207,14 +201,14 @@ class TorrentsListController(
                                 this@TorrentsListController,
                                 it.infoHash
                             )
-                            addTorrentUseCase.execute(it.toIdentifier())
+                            torrentMediator.addTorrent(it.toIdentifier())
                         }
                     } else {
                         // If the torrent is managed by service
                         // but it's not suppose to be active
                         // We remove it from the service
                         if (it.userState == TorrentUserState.PAUSED) {
-                            removeTorrentUseCase.execute(it.infoHash)
+                            torrentMediator.removeTorrent(it.infoHash)
                             subscriptionMediator.removeTorrent(
                                 this@TorrentsListController,
                                 it.infoHash
@@ -231,7 +225,7 @@ class TorrentsListController(
                 if (serviceManagedTorrents.containsKey(it)) {
                     // The service is managing the torrent
                     // Request to remove it
-                    removeTorrentUseCase.execute(it)
+                    torrentMediator.removeTorrent(it)
                 }
             }
 
@@ -245,7 +239,7 @@ class TorrentsListController(
     }
 
     fun openTorrentFile(torrentData: ByteArray) = controllerScope.launch {
-        val torrentDetail = getTorrentDetailUseCase.execute(torrentFile = torrentData)
+        val torrentDetail = torrentMediator.getTorrentDetail(torrentFile = torrentData)
         if (torrentDetail != null) {
             pageNavigationHelper!!.showNewTorrentDialog(torrentDetail.infoHash)
         } else {
@@ -270,7 +264,7 @@ class TorrentsListController(
                         torrentDetail.infoHash
                     )
                     // Requesting the service
-                    addTorrentUseCase.execute(torrentDetail.toIdentifier())
+                    torrentMediator.addTorrent(torrentDetail.toIdentifier())
                     // notifying the view
                     viewMvc!!.notifyItemUpdate(torrentDetail.infoHash)
                 }
@@ -288,7 +282,7 @@ class TorrentsListController(
                         this@TorrentsListController,
                         torrentDetail.infoHash
                     )
-                    if (!removeTorrentUseCase.execute(torrentDetail.infoHash)) {
+                    if (!torrentMediator.removeTorrent(torrentDetail.infoHash)) {
                         // no handler found so no request has been made
                     }
                     viewMvc!!.notifyItemUpdate(torrentDetail.infoHash)

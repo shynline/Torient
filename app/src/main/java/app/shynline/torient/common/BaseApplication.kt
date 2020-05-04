@@ -3,7 +3,6 @@ package app.shynline.torient.common
 import android.app.Application
 import app.shynline.torient.common.di.koin.databaseModule
 import app.shynline.torient.common.di.koin.mainModule
-import app.shynline.torient.common.di.koin.useCaseModule
 import app.shynline.torient.torrent.service.TorientService
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -20,7 +19,6 @@ class BaseApplication : Application() {
             androidContext(this@BaseApplication)
             modules(
                 mainModule,
-                useCaseModule,
                 databaseModule
             )
         }

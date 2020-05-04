@@ -7,11 +7,11 @@ import app.shynline.torient.model.TorrentDetail
 import app.shynline.torient.screens.common.BaseController
 import app.shynline.torient.screens.common.navigationhelper.PageNavigationHelper
 import app.shynline.torient.screens.common.requesthelper.FragmentRequestHelper
-import app.shynline.torient.usecases.GetTorrentDetailUseCase
+import app.shynline.torient.torrent.mediator.TorrentMediator
 import kotlinx.coroutines.launch
 
 class NewTorrentController(
-    private val getTorrentDetailUseCase: GetTorrentDetailUseCase,
+    private val torrentMediator: TorrentMediator,
     private val torrentDataSource: TorrentDataSource
 ) : BaseController(), NewTorrentViewMvc.Listener {
     private var viewMvc: NewTorrentViewMvc? = null
@@ -31,7 +31,7 @@ class NewTorrentController(
     }
 
     fun showTorrent(infoHash: String) = controllerScope.launch {
-        currentTorrent = getTorrentDetailUseCase.execute(infoHash = infoHash)
+        currentTorrent = torrentMediator.getTorrentDetail(infoHash = infoHash)
         if (currentTorrent != null) {
             viewMvc!!.showTorrent(currentTorrent!!)
         } else {

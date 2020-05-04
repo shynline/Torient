@@ -7,6 +7,7 @@ import app.shynline.torient.screens.newtorrent.NewTorrentFragment
 import app.shynline.torient.screens.torrentslist.TorrentsListController
 import app.shynline.torient.screens.torrentslist.TorrentsListFragment
 import app.shynline.torient.torrent.mediator.SubscriptionMediator
+import app.shynline.torient.torrent.mediator.TorrentMediator
 import app.shynline.torient.torrent.torrent.Torrent
 import app.shynline.torient.torrent.torrent.TorrentImpl
 import kotlinx.coroutines.Dispatchers
@@ -19,7 +20,7 @@ val mainModule = module {
     }
     scope<TorrentsListFragment> {
         scoped {
-            TorrentsListController(get(), get(), get(), get(), get(), get())
+            TorrentsListController(get(), get(), get())
         }
     }
     scope<NewTorrentFragment> {
@@ -35,5 +36,8 @@ val mainModule = module {
     }
     single {
         Dispatchers.IO
+    }
+    single {
+        TorrentMediator(get())
     }
 }
