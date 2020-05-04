@@ -138,5 +138,5 @@ dependencies {
 
     implementation 'androidx.documentfile:documentfile:1.0.1'
 
-    implementation "com.github.skydoves:progressview:1.0.7"
+    implementation 'me.zhanghai.android.materialprogressbar:library:1.6.1'
 }

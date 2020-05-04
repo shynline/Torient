@@ -64,7 +64,7 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.5" />
 
-    <com.skydoves.progressview.ProgressView
+    <me.zhanghai.android.materialprogressbar.MaterialProgressBar
         android:id="@+id/progressView"
         style="@style/Progressbar"
         android:layout_width="0dp"
@@ -77,15 +77,10 @@
         app:layout_constraintEnd_toEndOf="@id/name"
         app:layout_constraintStart_toStartOf="@id/name"
         app:layout_constraintTop_toBottomOf="@id/guideline"
-        app:progressView_autoAnimate="true"
-        app:progressView_labelSize="13sp"
-        app:progressView_labelSpace="10dp"
-        app:progressView_max="100"
-        app:progressView_min="0"
-        app:progressView_padding="1dp"
-        app:progressView_progress="0"
-        app:progressView_progressFromPrevious="true"
-        app:progressView_radius="12dp" />
+        android:max="100"
+        app:mpb_progressStyle="horizontal"
+        app:mpb_setBothDrawables="true"
+        app:mpb_useIntrinsicPadding="true" />
 
     <TextView
         android:id="@+id/status"

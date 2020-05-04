@@ -4,4 +4,8 @@
     <string name="comment">Comment:</string>
     <string name="infohash">Infohash:</string>
     <string name="size">Size:</string>
+
+
+    <string name="channel_name">Torrent</string>
+    <string name="channel_description">Active torrents</string>
 </resources>
