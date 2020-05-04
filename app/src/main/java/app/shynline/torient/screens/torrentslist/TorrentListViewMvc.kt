@@ -10,8 +10,7 @@ interface TorrentListViewMvc : ObservableViewMvc<TorrentListViewMvc.Listener> {
     }
 
     fun showTorrents(torrentDetails: List<TorrentDetail>)
-    fun notifyItemChange(position: Int)
-    fun notifyItemChangeIdentifier(identifier: Long)
+    fun notifyItemUpdate(infoHash: String)
     fun removeTorrent(identifier: Long)
 
 }

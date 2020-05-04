@@ -17,12 +17,27 @@ import com.mikepenz.fastadapter.listeners.ClickEventHook
 class TorrentListViewMvcImpl(
     inflater: LayoutInflater,
     parent: ViewGroup?
-) : BaseObservableViewMvc<TorrentListViewMvc.Listener>(), TorrentListViewMvc {
+) : BaseObservableViewMvc<TorrentListViewMvc.Listener>(), TorrentListViewMvc,
+    TorrentItem.Subscription {
 
     private val addTorrentFileBtn: FloatingActionButton
     private val torrentListRv: RecyclerView
     private val torrentAdapter: ItemAdapter<TorrentItem>
     private val fastAdapter: FastAdapter<TorrentItem>
+    private val torrentItemUpdateListeners: MutableMap<String, TorrentItemUpdateListener> =
+        mutableMapOf()
+
+    override fun subscribe(infoHash: String, listener: TorrentItemUpdateListener) {
+        torrentItemUpdateListeners[infoHash] = listener
+    }
+
+    override fun unsubscribe(infoHash: String) {
+        torrentItemUpdateListeners.remove(infoHash)
+    }
+
+    interface TorrentItemUpdateListener {
+        fun onUpdate()
+    }
 
     init {
         setRootView(
@@ -60,21 +75,19 @@ class TorrentListViewMvcImpl(
                 return null
             }
         })
+
     }
 
-    override fun notifyItemChange(position: Int) {
-        fastAdapter.notifyAdapterItemChanged(position)
+    override fun notifyItemUpdate(infoHash: String) {
+        torrentItemUpdateListeners[infoHash]?.onUpdate()
     }
 
     override fun showTorrents(torrentDetails: List<TorrentDetail>) {
+        // use diff util here
         torrentAdapter.clear()
         torrentAdapter.add(torrentDetails.map { torrentDetail ->
-            TorrentItem(torrentDetail)
+            TorrentItem(torrentDetail, this)
         })
-    }
-
-    override fun notifyItemChangeIdentifier(identifier: Long) {
-        fastAdapter.notifyAdapterItemChanged(fastAdapter.getPosition(identifier))
     }
 
     override fun removeTorrent(identifier: Long) {

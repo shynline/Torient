@@ -51,12 +51,7 @@ class TorrentsListController(
                     changeManagedTorrentServiceState(torrentEvent.infoHash, ManageState.RESUMED)
                 }
                 is TorrentRemovedEvent -> {
-                    // Removing from view if exists
-                    managedTorrents[torrentEvent.infoHash]?.let {
-                        viewMvc!!.removeTorrent(it.hexHash)
-                    }
-                    // And remove from cache
-                    managedTorrents.remove(torrentEvent.infoHash)
+
                 }
                 is TorrentFinishedEvent -> {
                     torrentDataSource.setTorrentFinished(torrentEvent.infoHash, true)
@@ -70,22 +65,24 @@ class TorrentsListController(
                             TorrentDownloadingState.ALLOCATING -> {
                                 torrent.downloadingState = torrentEvent.state
                                 torrent.progress = torrentEvent.progress
-                                viewMvc!!.notifyItemChangeIdentifier(torrent.hexHash)
+                                viewMvc!!.notifyItemUpdate(torrent.infoHash)
                             }
                             TorrentDownloadingState.CHECKING_FILES -> {
                                 torrent.downloadingState = torrentEvent.state
                                 torrent.progress = torrentEvent.progress
-                                viewMvc!!.notifyItemChangeIdentifier(torrent.hexHash)
+                                viewMvc!!.notifyItemUpdate(torrent.infoHash)
                             }
                             TorrentDownloadingState.CHECKING_RESUME_DATA -> {
                                 torrent.downloadingState = torrentEvent.state
                                 torrent.progress = torrentEvent.progress
-                                viewMvc!!.notifyItemChangeIdentifier(torrent.hexHash)
+                                viewMvc!!.notifyItemUpdate(torrent.infoHash)
                             }
                             TorrentDownloadingState.DOWNLOADING -> {
                                 torrent.downloadingState = torrentEvent.state
                                 torrent.downloadRate = torrentEvent.downloadRate
                                 torrent.uploadRate = torrentEvent.uploadRate
+                                torrent.progress = torrentEvent.progress
+                                viewMvc!!.notifyItemUpdate(torrent.infoHash)
                                 torrentDataSource.setTorrentProgress(
                                     torrentEvent.infoHash,
                                     torrentEvent.progress
@@ -94,17 +91,18 @@ class TorrentsListController(
                             TorrentDownloadingState.DOWNLOADING_METADATA -> {
                                 torrent.downloadingState = torrentEvent.state
                                 torrent.progress = torrentEvent.progress
-                                viewMvc!!.notifyItemChangeIdentifier(torrent.hexHash)
+                                viewMvc!!.notifyItemUpdate(torrent.infoHash)
                             }
                             TorrentDownloadingState.FINISHED -> {
                                 torrent.downloadingState = torrentEvent.state
-                                viewMvc!!.notifyItemChangeIdentifier(torrent.hexHash)
+                                viewMvc!!.notifyItemUpdate(torrent.infoHash)
+                                torrentDataSource.setTorrentFinished(torrentEvent.infoHash, true)
                             }
                             TorrentDownloadingState.SEEDING -> {
                                 torrent.downloadingState = torrentEvent.state
                                 torrent.downloadRate = torrentEvent.downloadRate
                                 torrent.uploadRate = torrentEvent.uploadRate
-                                viewMvc!!.notifyItemChangeIdentifier(torrent.hexHash)
+                                viewMvc!!.notifyItemUpdate(torrent.infoHash)
                             }
                         }
                     }
@@ -118,7 +116,7 @@ class TorrentsListController(
             // Change the state of the torrent detail
             it.serviceState = state
             // notify the view to update accordingly
-            viewMvc!!.notifyItemChangeIdentifier(it.hexHash)
+            viewMvc!!.notifyItemUpdate(it.infoHash)
         }
     }
 
@@ -266,21 +264,33 @@ class TorrentsListController(
                         torrentDetail.infoHash,
                         TorrentUserState.ACTIVE
                     )
+                    subscriptionMediator.addTorrent(
+                        this@TorrentsListController,
+                        torrentDetail.infoHash
+                    )
                     // Requesting the service
                     addTorrentUseCase.execute(torrentDetail.toIdentifier())
                     // notifying the view
-                    viewMvc!!.notifyItemChange(position)
+                    viewMvc!!.notifyItemUpdate(torrentDetail.infoHash)
                 }
                 TorrentUserState.ACTIVE -> {
                     torrentDetail.userState = TorrentUserState.PAUSED
+                    torrentDataSource.getTorrent(torrentDetail.infoHash)?.let {
+                        torrentDetail.progress = it.progress
+                        torrentDetail.finished = it.isFinished
+                    }
                     torrentDataSource.setTorrentState(
                         torrentDetail.infoHash,
                         TorrentUserState.PAUSED
                     )
+                    subscriptionMediator.removeTorrent(
+                        this@TorrentsListController,
+                        torrentDetail.infoHash
+                    )
                     if (!removeTorrentUseCase.execute(torrentDetail.infoHash)) {
                         // no handler found so no request has been made
                     }
-                    viewMvc!!.notifyItemChange(position)
+                    viewMvc!!.notifyItemUpdate(torrentDetail.infoHash)
                 }
             }
         }
