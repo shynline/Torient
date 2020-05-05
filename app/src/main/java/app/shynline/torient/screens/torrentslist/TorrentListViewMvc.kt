@@ -7,6 +7,7 @@ interface TorrentListViewMvc : ObservableViewMvc<TorrentListViewMvc.Listener> {
     interface Listener {
         fun addTorrentFile()
         fun handleClicked(position: Int, torrentDetail: TorrentDetail)
+        fun onCopyToDownloadRequested(torrentDetail: TorrentDetail)
     }
 
     fun showTorrents(torrentDetails: List<TorrentDetail>)

@@ -3,6 +3,7 @@ package app.shynline.torient.screens.torrentslist
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import app.shynline.torient.R
@@ -13,6 +14,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.mikepenz.fastadapter.listeners.ClickEventHook
+import com.mikepenz.fastadapter.listeners.LongClickEventHook
 
 class TorrentListViewMvcImpl(
     inflater: LayoutInflater,
@@ -72,6 +74,37 @@ class TorrentListViewMvcImpl(
             override fun onBind(viewHolder: RecyclerView.ViewHolder): View? {
                 if (viewHolder is TorrentItem.ViewHolder)
                     return viewHolder.handle
+                return null
+            }
+        })
+
+        fastAdapter.addEventHook(object : LongClickEventHook<TorrentItem>() {
+            override fun onLongClick(
+                v: View,
+                position: Int,
+                fastAdapter: FastAdapter<TorrentItem>,
+                item: TorrentItem
+            ): Boolean {
+                val menu = PopupMenu(getContext(), v)
+                menu.inflate(R.menu.torrent_item_menu)
+                menu.setOnMenuItemClickListener {
+                    when (it.itemId) {
+                        R.id.torrent_copy -> {
+                            getListeners().forEach { listener ->
+                                listener.onCopyToDownloadRequested(item.torrentDetail)
+                            }
+                            return@setOnMenuItemClickListener true
+                        }
+                    }
+                    false
+                }
+                menu.show()
+                return true
+            }
+
+            override fun onBind(viewHolder: RecyclerView.ViewHolder): View? {
+                if (viewHolder is TorrentItem.ViewHolder)
+                    return viewHolder.itemView
                 return null
             }
         })
