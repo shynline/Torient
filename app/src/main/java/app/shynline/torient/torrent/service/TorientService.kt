@@ -76,8 +76,8 @@ class TorientService : Service() {
         private const val ACTIVE_TORRENT_NOTIFICATION_ID = 999
         fun createNotificationChannel(context: Context) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val name = context.getString(R.string.channel_name)
-                val description = context.getString(R.string.channel_description)
+                val name = context.getString(R.string.torrent_channel_name)
+                val description = context.getString(R.string.torrent_channel_description)
                 val importance = NotificationManager.IMPORTANCE_LOW
                 val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
                     this.description = description
