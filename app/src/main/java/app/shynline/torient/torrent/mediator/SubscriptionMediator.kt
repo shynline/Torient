@@ -30,7 +30,9 @@ class SubscriptionMediator(
     }
 
     fun addTorrent(listener: Listener, torrent: String) {
-        listeners[listener]?.add(torrent)
+        // Add the torrent if it doesn't exist
+        if (listeners[listener]?.contains(torrent) == false)
+            listeners[listener]?.add(torrent)
     }
 
     fun removeTorrent(listener: Listener, torrent: String) {
