@@ -1,5 +1,7 @@
 package app.shynline.torient.utils
 
+import java.util.*
+
 enum class FileType {
     UNKNOWN,
     APPLICATION,
@@ -56,7 +58,7 @@ object FileTypeDetector {
             return FileType.UNKNOWN
         if (!name.contains('.'))
             return FileType.UNKNOWN
-        val ext = name.split('.').last().toLowerCase()
+        val ext = name.split('.').last().toLowerCase(Locale.ROOT)
         if (ext.isBlank())
             return FileType.UNKNOWN
         if (application.contains(ext))
