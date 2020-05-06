@@ -68,7 +68,9 @@ class TorrentsListFragment : BaseFragment() {
                     }
                 }
             }
+            return
         }
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
 }
