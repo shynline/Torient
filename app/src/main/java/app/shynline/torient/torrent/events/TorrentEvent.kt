@@ -12,5 +12,7 @@ class TorrentProgressEvent(
     val state: TorrentDownloadingState,
     val progress: Float = 0f,
     val downloadRate: Int = 0,
-    val uploadRate: Int = 0
+    val uploadRate: Int = 0,
+    val maxPeers: Int = 0,
+    val connectedPeers: Int = 0
 ) : TorrentEvent(infoHash)

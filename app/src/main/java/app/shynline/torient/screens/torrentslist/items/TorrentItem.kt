@@ -126,9 +126,11 @@ class TorrentItem(
                                         (item.torrentDetail.progress * 100).toInt()
 //                                    progressView.labelText =
 //                                        (item.torrentDetail.progress * 100f).toString() + "%"
-                                    statusTv.text = "Downloading P 0/0 - D " +
+                                    statusTv.text = "Downloading \uD83D\uDC64 " +
+                                            "${item.torrentDetail.connectedPeers}/" +
+                                            "${item.torrentDetail.maxPeers} - ⬇️ " +
                                             "${item.torrentDetail.downloadRate.toStandardRate()} " +
-                                            "U ${item.torrentDetail.uploadRate.toStandardRate()}"
+                                            "⬆️ ${item.torrentDetail.uploadRate.toStandardRate()}"
                                 }
                                 TorrentDownloadingState.DOWNLOADING_METADATA -> {
                                     progressView.isIndeterminate = false
@@ -146,10 +148,11 @@ class TorrentItem(
                                 }
                                 TorrentDownloadingState.SEEDING -> {
                                     progressView.isIndeterminate = false
-                                    statusTv.text = "Seeding to 0 P ..."
-                                    statusTv.text = "Seeding P 0/0 - D " +
+                                    statusTv.text =
+                                        "Seeding \uD83D\uDC64 ${item.torrentDetail.connectedPeers}" +
+                                                "/${item.torrentDetail.maxPeers} - ⬇️ " +
                                             "${item.torrentDetail.downloadRate.toStandardRate()} " +
-                                            "U ${item.torrentDetail.uploadRate.toStandardRate()}"
+                                                "⬆️ ${item.torrentDetail.uploadRate.toStandardRate()}"
                                 }
                             }
                         }

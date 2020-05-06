@@ -22,6 +22,8 @@ data class TorrentDetail(
     var downloadRate = 0
     var uploadRate = 0
     var finished = false
+    var maxPeers = 0
+    var connectedPeers = 0
     fun toIdentifier(): TorrentIdentifier {
         return TorrentIdentifier(
             infoHash,

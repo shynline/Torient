@@ -116,7 +116,7 @@ class TorrentImpl(
         service = null
     }
 
-    private suspend fun requestTorrentStats(torrents: List<String>) {
+    private fun requestTorrentStats(torrents: List<String>) {
         torrents.forEach { infoHash ->
             session.find(Sha1Hash(infoHash))?.let { handle ->
                 handleTorrentProgress(handle)

@@ -77,6 +77,8 @@ class TorrentsListController(
                                 torrent.downloadRate = torrentEvent.downloadRate
                                 torrent.uploadRate = torrentEvent.uploadRate
                                 torrent.progress = torrentEvent.progress
+                                torrent.connectedPeers = torrentEvent.connectedPeers
+                                torrent.maxPeers = torrentEvent.maxPeers
                                 viewMvc!!.notifyItemUpdate(torrent.infoHash)
                                 torrentDataSource.setTorrentProgress(
                                     torrentEvent.infoHash,
@@ -97,6 +99,8 @@ class TorrentsListController(
                                 torrent.downloadingState = torrentEvent.state
                                 torrent.downloadRate = torrentEvent.downloadRate
                                 torrent.uploadRate = torrentEvent.uploadRate
+                                torrent.connectedPeers = torrentEvent.connectedPeers
+                                torrent.maxPeers = torrentEvent.maxPeers
                                 viewMvc!!.notifyItemUpdate(torrent.infoHash)
                             }
                         }

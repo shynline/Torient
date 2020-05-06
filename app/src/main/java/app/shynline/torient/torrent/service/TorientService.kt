@@ -49,8 +49,8 @@ class TorientService : Service() {
         val notification: Notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("$active active torrent${if (active > 1) "s" else ""}")
             .setContentText(
-                "Download: ${downloadRate.toStandardRate()}   " +
-                        "\nUpload: ${uploadRate.toStandardRate()}"
+                "⬇️: ${downloadRate.toStandardRate()}   " +
+                        "\n⬆: ${uploadRate.toStandardRate()}"
             )
             .setContentIntent(pendingIntent)
             .setSmallIcon(R.mipmap.ic_launcher_round)

@@ -46,7 +46,9 @@ abstract class BaseTorrent : BaseObservable<Torrent.Listener>(), Torrent, AlertL
                 TorrentDownloadingState.DOWNLOADING,
                 progress = statue.progress(),
                 downloadRate = statue.downloadRate(),
-                uploadRate = statue.uploadRate()
+                uploadRate = statue.uploadRate(),
+                maxPeers = statue.listPeers(),
+                connectedPeers = statue.numPeers()
             )
             TorrentStatus.State.FINISHED -> TorrentProgressEvent(
                 handle.infoHash().toHex(),
@@ -57,7 +59,9 @@ abstract class BaseTorrent : BaseObservable<Torrent.Listener>(), Torrent, AlertL
                 TorrentDownloadingState.SEEDING,
                 progress = statue.progress(),
                 downloadRate = statue.downloadRate(),
-                uploadRate = statue.uploadRate()
+                uploadRate = statue.uploadRate(),
+                maxPeers = statue.listPeers(),
+                connectedPeers = statue.numPeers()
             )
             TorrentStatus.State.ALLOCATING -> TorrentProgressEvent(
                 handle.infoHash().toHex(),
