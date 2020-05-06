@@ -155,30 +155,19 @@ class TorrentsListController(
                         finished = it.isFinished
                     }
 
-                    // Check if torrent is not in our managed cache
-                    if (!serviceManagedTorrents.containsKey(it.infoHash)) {
-                        // The torrent is not being manage by the service
-                        // If user wants it active
-                        // We notify service for adding it
-                        if (it.userState == TorrentUserState.ACTIVE) {
-                            // Subscribe to the service for this torrent
-                            subscriptionMediator.addTorrent(
-                                this@TorrentsListController,
-                                it.infoHash
-                            )
-                            torrentMediator.addTorrent(it.toIdentifier())
-                        }
-                    } else {
-                        // If the torrent is managed by service
-                        // but it's not suppose to be active
-                        // We remove it from the service
-                        if (it.userState == TorrentUserState.PAUSED) {
-                            torrentMediator.removeTorrent(it.infoHash)
-                            subscriptionMediator.removeTorrent(
-                                this@TorrentsListController,
-                                it.infoHash
-                            )
-                        }
+                    if (it.userState == TorrentUserState.ACTIVE) {
+                        // Subscribe to the service for this torrent
+                        subscriptionMediator.addTorrent(
+                            this@TorrentsListController,
+                            it.infoHash
+                        )
+                        torrentMediator.addTorrent(it.toIdentifier())
+                    } else if (it.userState == TorrentUserState.PAUSED) {
+                        torrentMediator.removeTorrent(it.infoHash)
+                        subscriptionMediator.removeTorrent(
+                            this@TorrentsListController,
+                            it.infoHash
+                        )
                     }
                 } else {
                     // We have the torrent so we remove it from our removedTorrent
