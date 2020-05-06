@@ -160,6 +160,9 @@ class TorrentImpl(
      * @param identifier
      */
     override suspend fun addTorrent(identifier: TorrentIdentifier) {
+        // Return if the torrent is already being managed by session
+        if (managedTorrents.containsKey(identifier.infoHash))
+            return
         managedTorrents[identifier.infoHash] = ManageState.UNKNOWN
         readTorrentFileFromCache(identifier.infoHash)?.let {
             session.download(getTorrentInfo(it), context.downloadDir)
