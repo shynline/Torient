@@ -4,7 +4,6 @@ import android.app.*
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.os.FileUtils
@@ -14,12 +13,11 @@ import androidx.core.app.NotificationManagerCompat
 import app.shynline.torient.R
 import app.shynline.torient.common.MainActivity
 import app.shynline.torient.common.downloadDir
+import app.shynline.torient.utils.FileMimeDetector
 import java.io.File
 
 
 private const val EXTRA_SRC = "app.shynline.torient.transfer.extra.src"
-private const val EXTRA_DES = "app.shynline.torient.transfer.extra.des"
-
 
 class TransferService : IntentService("TransferService"), FileUtils.ProgressListener {
 
@@ -44,7 +42,6 @@ class TransferService : IntentService("TransferService"), FileUtils.ProgressList
         if (intent == null)
             return
         val src = intent.getStringExtra(EXTRA_SRC) ?: return
-        val des = intent.getParcelableExtra<Uri>(EXTRA_DES) ?: return
         isTransferring = true
         name = src
         val srcFile = File(downloadDir, src)
@@ -56,7 +53,6 @@ class TransferService : IntentService("TransferService"), FileUtils.ProgressList
         foreground()
 
         cp(srcFile)
-
         cleanUp()
     }
 
@@ -68,14 +64,14 @@ class TransferService : IntentService("TransferService"), FileUtils.ProgressList
             return
         }
         val resolver = contentResolver
-        val contentValues = ContentValues()
-        contentValues.put(MediaStore.DownloadColumns.DISPLAY_NAME, file.name)
-//        contentValues.put(MediaStore.DownloadColumns.MIME_TYPE, "text/plain")
-        contentValues.put(MediaStore.DownloadColumns.IS_PENDING, 1)
-        contentValues.put(
-            MediaStore.DownloadColumns.RELATIVE_PATH,
-            Environment.DIRECTORY_DOWNLOADS + path
-        )
+        val contentValues = ContentValues().apply {
+            put(MediaStore.DownloadColumns.DISPLAY_NAME, file.name)
+            put(MediaStore.DownloadColumns.IS_PENDING, 1)
+            put(MediaStore.DownloadColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + path)
+        }
+        FileMimeDetector.getType(file.name)?.let {
+            contentValues.put(MediaStore.DownloadColumns.MIME_TYPE, it)
+        }
 
         val collection = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
 
@@ -103,6 +99,7 @@ class TransferService : IntentService("TransferService"), FileUtils.ProgressList
 
     private fun showFileCopiedNotification() {
         val notification: Notification = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("Done")
             .setContentTitle("$name has been copied successfully")
             .setContentIntent(pendingIntent)
             .setSmallIcon(R.mipmap.ic_launcher_round)
@@ -141,10 +138,9 @@ class TransferService : IntentService("TransferService"), FileUtils.ProgressList
     companion object {
 
         @JvmStatic
-        fun copyFile(context: Context, src: String, des: Uri) {
+        fun copyFile(context: Context, src: String) {
             val intent = Intent(context, TransferService::class.java).apply {
                 putExtra(EXTRA_SRC, src)
-                putExtra(EXTRA_DES, des)
             }
             context.startService(intent)
         }
