@@ -248,6 +248,10 @@ class TorrentsListController(
 
     }
 
+    override fun onCopyToDownloadRequested(torrentDetail: TorrentDetail) {
+        fragmentRequestHelper!!.saveToDownload(torrentDetail.name)
+    }
+
     override fun handleClicked(position: Int, torrentDetail: TorrentDetail) {
         controllerScope.launch {
             when (torrentDetail.userState) {
