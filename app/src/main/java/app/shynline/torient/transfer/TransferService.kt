@@ -99,8 +99,8 @@ class TransferService : IntentService("TransferService"), FileUtils.ProgressList
 
     private fun showFileCopiedNotification() {
         val notification: Notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Done")
-            .setContentTitle("$name has been copied successfully")
+            .setContentTitle("Save complete")
+            .setContentText("$name has been saved successfully")
             .setContentIntent(pendingIntent)
             .setSmallIcon(R.mipmap.ic_launcher_round)
             .build()
@@ -115,7 +115,7 @@ class TransferService : IntentService("TransferService"), FileUtils.ProgressList
         show: Boolean
     ): Notification {
         val notification: Notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Copying $name")
+            .setContentTitle("Saving $name")
             .setContentText(
                 "progress: ${(progress.toFloat() * 100 / size).toInt()}%"
             )
