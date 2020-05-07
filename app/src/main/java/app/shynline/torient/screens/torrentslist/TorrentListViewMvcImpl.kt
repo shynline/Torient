@@ -3,10 +3,12 @@ package app.shynline.torient.screens.torrentslist
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import app.shynline.torient.R
+import app.shynline.torient.database.states.TorrentUserState
 import app.shynline.torient.model.TorrentDetail
 import app.shynline.torient.screens.common.view.BaseObservableViewMvc
 import app.shynline.torient.screens.torrentslist.items.TorrentItem
@@ -14,7 +16,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.mikepenz.fastadapter.listeners.ClickEventHook
-import com.mikepenz.fastadapter.listeners.LongClickEventHook
 
 class TorrentListViewMvcImpl(
     inflater: LayoutInflater,
@@ -66,40 +67,54 @@ class TorrentListViewMvcImpl(
                 fastAdapter: FastAdapter<TorrentItem>,
                 item: TorrentItem
             ) {
-                getListeners().forEach {
-                    it.handleClicked(position, item.torrentDetail)
-                }
-            }
-
-            override fun onBind(viewHolder: RecyclerView.ViewHolder): View? {
-                if (viewHolder is TorrentItem.ViewHolder)
-                    return viewHolder.handle
-                return null
-            }
-        })
-
-        fastAdapter.addEventHook(object : LongClickEventHook<TorrentItem>() {
-            override fun onLongClick(
-                v: View,
-                position: Int,
-                fastAdapter: FastAdapter<TorrentItem>,
-                item: TorrentItem
-            ): Boolean {
                 val menu = PopupMenu(getContext(), v)
                 menu.inflate(R.menu.torrent_item_menu)
+                val cItem = menu.menu.findItem(R.id.torrent_control)
+                cItem.title = if (item.torrentDetail.userState == TorrentUserState.ACTIVE) {
+                    "Pause"
+                } else {
+                    "Start"
+                }
+                menu.menu.findItem(R.id.torrent_save).isVisible = item.torrentDetail.finished
+
                 menu.setOnMenuItemClickListener {
                     when (it.itemId) {
-                        R.id.torrent_copy -> {
+                        R.id.torrent_save -> {
                             getListeners().forEach { listener ->
-                                listener.onCopyToDownloadRequested(item.torrentDetail)
+                                listener.onSaveToDownloadRequested(item.torrentDetail)
                             }
                             return@setOnMenuItemClickListener true
+                        }
+                        R.id.torrent_control -> {
+                            getListeners().forEach { listener ->
+                                listener.handleClicked(position, item.torrentDetail)
+                            }
+                        }
+                        R.id.torrent_remove -> {
+                            Toast.makeText(getContext(), "Not implemented", Toast.LENGTH_SHORT)
+                                .show()
                         }
                     }
                     false
                 }
                 menu.show()
-                return true
+            }
+
+            override fun onBind(viewHolder: RecyclerView.ViewHolder): View? {
+                if (viewHolder is TorrentItem.ViewHolder)
+                    return viewHolder.option
+                return null
+            }
+        })
+
+        fastAdapter.addEventHook(object : ClickEventHook<TorrentItem>() {
+            override fun onClick(
+                v: View,
+                position: Int,
+                fastAdapter: FastAdapter<TorrentItem>,
+                item: TorrentItem
+            ) {
+                Toast.makeText(getContext(), item.torrentDetail.name, Toast.LENGTH_SHORT).show()
             }
 
             override fun onBind(viewHolder: RecyclerView.ViewHolder): View? {

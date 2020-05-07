@@ -8,4 +8,6 @@
     <color name="colorSecondaryLight">#bc477b</color>
     <color name="colorTextOnPrimary">#fff</color>
     <color name="colorTextOnSecondary">#fff</color>
+
+    <color name="textGray">#4A4A4A</color>
 </resources>

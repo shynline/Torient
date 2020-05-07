@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/torrent_copy"
-        android:title="Copy to download folder" />
+        android:id="@+id/torrent_control"
+        android:title="Pause/Start" />
+    <item
+        android:id="@+id/torrent_save"
+        android:title="Save to Downloads" />
+
+    <item
+        android:id="@+id/torrent_remove"
+        android:title="Remove torrent" />
 </menu>

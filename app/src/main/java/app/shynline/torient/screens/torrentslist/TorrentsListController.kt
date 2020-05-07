@@ -241,7 +241,7 @@ class TorrentsListController(
 
     }
 
-    override fun onCopyToDownloadRequested(torrentDetail: TorrentDetail) {
+    override fun onSaveToDownloadRequested(torrentDetail: TorrentDetail) {
         fragmentRequestHelper!!.saveToDownload(torrentDetail.name)
     }
 
@@ -251,6 +251,7 @@ class TorrentsListController(
                 TorrentUserState.PAUSED -> {
                     // Change the cached version
                     torrentDetail.userState = TorrentUserState.ACTIVE
+                    torrentDetail.serviceState = ManageState.UNKNOWN
                     // Update the database
                     torrentDataSource.setTorrentState(
                         torrentDetail.infoHash,
