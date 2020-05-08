@@ -12,10 +12,7 @@ import app.shynline.torient.model.TorrentDetail
 import app.shynline.torient.model.TorrentIdentifier
 import app.shynline.torient.torrent.service.TorientService
 import app.shynline.torient.torrent.states.ManageState
-import com.frostwire.jlibtorrent.SessionManager
-import com.frostwire.jlibtorrent.Sha1Hash
-import com.frostwire.jlibtorrent.TorrentHandle
-import com.frostwire.jlibtorrent.TorrentInfo
+import com.frostwire.jlibtorrent.*
 import kotlinx.coroutines.*
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
@@ -32,6 +29,7 @@ class TorrentImpl(
     Observable<Torrent.Listener> {
     private val session: SessionManager = SessionManager(false)
     private var isActivityRunning = false
+    private val sessionParams: SessionParams
     private var service: TorientService? = null
     private val intent: Intent = Intent(context, TorientService::class.java)
 
@@ -45,13 +43,17 @@ class TorrentImpl(
         } else {
             service?.updateNotification(
                 managedTorrents.size,
-                session.downloadRate(),
-                session.uploadRate()
+                session.stats().downloadRate(),
+                session.stats().uploadRate()
             )
         }
     }
 
     init {
+        sessionParams = SessionParams(
+            SettingsPack()
+                .enableDht(true)
+        )
         start()
     }
 
@@ -68,7 +70,7 @@ class TorrentImpl(
     override fun start() {
         super.start()
         session.addListener(this)
-        session.start()
+        session.start(sessionParams)
         periodicTimer = fixedRateTimer(
             name = "periodicTaskTorrentsList",
             initialDelay = 1000,
@@ -219,7 +221,6 @@ class TorrentImpl(
 
     /**
      * This method inquiry the torrent file from its magnet
-     * TODO: It's not working
      * @param magnet
      * @return TorrentDetail or null
      */
@@ -227,8 +228,9 @@ class TorrentImpl(
         withContext(ioDispatcher) {
             // Waiting for at most 10 seconds to find at least 10 dht nodes if doesn't exist
             var times = 0
-            while (dhtNodes < 10 && times < 100) {
-                delay(1000)
+
+            while (session.stats().dhtNodes() < 10 && times < 100) {
+                delay(100)
                 times += 1
             }
             val bytes: ByteArray? = session.fetchMagnet(magnet, 30)
@@ -259,22 +261,26 @@ class TorrentImpl(
             torrentsDetails[torrentDetail.infoHash] = torrentDetail
 
             // Save torrent file here if it doesn't exist
-            val file = File(context.torrentDir, "${torrentDetail.infoHash}.torrent")
-            if (!file.exists()) {
-                try {
-                    // Simply create and write it to file
-                    @Suppress("BlockingMethodInNonBlockingContext")
-                    file.createNewFile()
-                    BufferedOutputStream(file.outputStream()).use {
-                        it.write(data)
-                    }
-                } catch (e: Exception) {
-                    // It's a case if we could not create a persisted
-                    // Which is not a big deal I guess
-                }
-            }
+            saveTorrentFileToCache(torrentDetail, data)
             return@withContext torrentDetail
         }
+
+    private fun saveTorrentFileToCache(torrentDetail: TorrentDetail, data: ByteArray) {
+        val file = File(context.torrentDir, "${torrentDetail.infoHash}.torrent")
+        if (!file.exists()) {
+            try {
+                // Simply create and write it to file
+                @Suppress("BlockingMethodInNonBlockingContext")
+                file.createNewFile()
+                BufferedOutputStream(file.outputStream()).use {
+                    it.write(data)
+                }
+            } catch (e: Exception) {
+                // It's a case if we could not create a persisted
+                // Which is not a big deal I guess
+            }
+        }
+    }
 
 
     /**
