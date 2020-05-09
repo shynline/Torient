@@ -10,4 +10,6 @@
     <string name="transfer_channel_name">Transfer</string>
     <string name="torrent_channel_description">Active torrents</string>
     <string name="transfer_channel_description">Active file transferring</string>
+    <string name="download">Download</string>
+    <string name="add">ADD</string>
 </resources>
