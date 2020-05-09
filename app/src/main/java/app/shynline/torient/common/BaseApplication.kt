@@ -1,6 +1,7 @@
 package app.shynline.torient.common
 
 import android.app.Application
+import app.shynline.torient.common.di.koin.controllerModule
 import app.shynline.torient.common.di.koin.databaseModule
 import app.shynline.torient.common.di.koin.mainModule
 import app.shynline.torient.torrent.service.TorientService
@@ -21,7 +22,8 @@ class BaseApplication : Application() {
             androidContext(this@BaseApplication)
             modules(
                 mainModule,
-                databaseModule
+                databaseModule,
+                controllerModule
             )
         }
     }
