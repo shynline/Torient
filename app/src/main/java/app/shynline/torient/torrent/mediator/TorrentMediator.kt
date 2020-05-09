@@ -22,7 +22,8 @@ class TorrentMediator(
     suspend fun getTorrentDetail(
         infoHash: String? = null,
         identifier: TorrentIdentifier? = null,
-        torrentFile: ByteArray? = null
+        torrentFile: ByteArray? = null,
+        magnet: String? = null
     ): TorrentDetail? {
         infoHash?.let {
             return torrent.getTorrentDetailFromInfoHash(it)
@@ -30,10 +31,17 @@ class TorrentMediator(
         torrentFile?.let {
             return torrent.getTorrentDetail(it)
         }
-        return torrent.getTorrentDetail(identifier!!)
+        identifier?.let {
+            return torrent.getTorrentDetail(it)
+        }
+        return torrent.getTorrentDetail(magnet!!)
     }
 
     suspend fun removeTorrent(infoHash: String): Boolean {
         return torrent.removeTorrent(infoHash)
+    }
+
+    fun isTorrentFileCached(infoHash: String): Boolean {
+        return torrent.isTorrentFileCached(infoHash)
     }
 }
