@@ -19,6 +19,7 @@ interface Torrent :
     suspend fun addTorrent(identifier: TorrentIdentifier)
     suspend fun getManagedTorrentState(infoHash: String): ManageState?
     suspend fun getAllManagedTorrentStats(): Map<String, ManageState>
+    fun isTorrentFileCached(infoHash: String): Boolean
 
     /**
      * Remove a torrent from service and cache

@@ -29,7 +29,10 @@ class TorrentImpl(
     Observable<Torrent.Listener> {
     private val session: SessionManager = SessionManager(false)
     private var isActivityRunning = false
-    private val sessionParams: SessionParams
+    private val sessionParams: SessionParams = SessionParams(
+        SettingsPack()
+            .enableDht(true)
+    )
     private var service: TorientService? = null
     private val intent: Intent = Intent(context, TorientService::class.java)
 
@@ -50,10 +53,6 @@ class TorrentImpl(
     }
 
     init {
-        sessionParams = SessionParams(
-            SettingsPack()
-                .enableDht(true)
-        )
         start()
     }
 
@@ -208,7 +207,7 @@ class TorrentImpl(
 
     private fun readTorrentFileFromCache(infoHash: String): ByteArray? {
         // Load torrent from file directory if exists
-        val file = File(context.torrentDir, "$infoHash.torrent")
+        val file = File(context.torrentDir, "${infoHash.toLowerCase(Locale.ROOT)}.torrent")
         if (file.exists()) {
             // If the torrent file exists we read it
             // and parse it
@@ -266,7 +265,8 @@ class TorrentImpl(
         }
 
     private fun saveTorrentFileToCache(torrentDetail: TorrentDetail, data: ByteArray) {
-        val file = File(context.torrentDir, "${torrentDetail.infoHash}.torrent")
+        val file =
+            File(context.torrentDir, "${torrentDetail.infoHash.toLowerCase(Locale.ROOT)}.torrent")
         if (!file.exists()) {
             try {
                 // Simply create and write it to file
@@ -296,6 +296,12 @@ class TorrentImpl(
             return true
         }
         return false
+    }
+
+
+    override fun isTorrentFileCached(infoHash: String): Boolean {
+        return File(context.torrentDir, "${infoHash.toLowerCase(Locale.ROOT)}.torrent")
+            .exists()
     }
 
 }
