@@ -28,6 +28,7 @@
         android:layout_marginStart="12dp"
         android:layout_marginTop="4dp"
         android:layout_marginBottom="4dp"
+        style="@style/IconStyle"
         app:layout_constraintBottom_toTopOf="@id/guideline"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintStart_toEndOf="@id/bar"
