@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/dialog_background"
     android:orientation="vertical">
 
     <androidx.recyclerview.widget.RecyclerView
@@ -17,7 +18,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="4dp"
-        android:text="Add &amp; Download"
+        android:layout_marginBottom="8dp"
+        android:text="@string/download"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/addBtn"
         app:layout_constraintHorizontal_chainStyle="packed"
@@ -28,9 +30,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
-        android:text="ADD"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="@string/add"
+        app:layout_constraintBottom_toBottomOf="@id/downloadBtn"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/downloadBtn" />
+        app:layout_constraintStart_toEndOf="@id/downloadBtn"
+        app:layout_constraintTop_toTopOf="@id/downloadBtn" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
