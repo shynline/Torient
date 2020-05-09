@@ -4,6 +4,8 @@ import com.frostwire.jlibtorrent.TorrentInfo
 import java.net.URI
 import java.net.URLDecoder
 import java.net.URLEncoder
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 data class Magnet(
@@ -18,7 +20,7 @@ data class Magnet(
     }
 
     fun write(): String {
-        var magnet = ("magnet:?xt=urn:btih:" + infoHash
+        var magnet = ("magnet:?xt=urn:btih:" + infoHash!!.toUpperCase(Locale.ROOT)
                 + "&dn=" + URLEncoder.encode(name, "UTF-8"))
         for (uri in announce!!) {
             magnet += "&tr=" + URLEncoder.encode(uri.toString(), "UTF-8")
@@ -36,7 +38,7 @@ data class Magnet(
             for (arg in args) {
                 when {
                     arg.startsWith("xt=urn:btih:") -> {
-                        m.infoHash = arg.substring(12)
+                        m.infoHash = arg.substring(12).toLowerCase(Locale.ROOT)
                     }
                     arg.startsWith("dn=") -> {
                         m.name = URLDecoder.decode(arg.substring(3), "UTF-8")
