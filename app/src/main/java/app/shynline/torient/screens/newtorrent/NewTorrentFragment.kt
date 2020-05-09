@@ -40,8 +40,9 @@ class NewTorrentFragment : DialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         requireActivity().resources.displayMetrics.let {
-            width = (it.widthPixels * 0.9f).toInt()
-            height = (it.heightPixels * 0.8f).toInt()
+            width = (it.widthPixels * if (it.widthPixels < it.heightPixels) 0.8f else 0.6f).toInt()
+            height =
+                (it.heightPixels * if (it.widthPixels < it.heightPixels) 0.6f else 0.8f).toInt()
         }
         val viewMvc = viewMvcFactory.getNewTorrentViewMvc(inflater, container)
         controller.bind(
