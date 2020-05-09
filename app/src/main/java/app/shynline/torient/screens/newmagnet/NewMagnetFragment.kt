@@ -35,8 +35,9 @@ class NewMagnetFragment : DialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         requireActivity().resources.displayMetrics.let {
-            width = (it.widthPixels * 0.9f).toInt()
-            height = (it.heightPixels * 0.8f).toInt()
+            width = (it.widthPixels * if (it.widthPixels > it.heightPixels) 0.4f else 0.7f).toInt()
+            height =
+                (it.heightPixels * if (it.widthPixels > it.heightPixels) 0.7f else 0.4f).toInt()
         }
         val viewMvc = viewMvcFactory.getNewMagnetViewMvc(
             inflater, container

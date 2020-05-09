@@ -1,9 +1,14 @@
 package app.shynline.torient.screens.newmagnet
 
 import app.shynline.torient.database.datasource.TorrentDataSource
+import app.shynline.torient.database.entities.TorrentSchema
+import app.shynline.torient.database.states.TorrentUserState
+import app.shynline.torient.model.TorrentIdentifier
 import app.shynline.torient.screens.common.BaseController
 import app.shynline.torient.screens.common.navigationhelper.PageNavigationHelper
 import app.shynline.torient.torrent.mediator.TorrentMediator
+import app.shynline.torient.torrent.utils.Magnet
+import kotlinx.coroutines.launch
 
 class NewMagnetController(
     private val torrentMediator: TorrentMediator,
@@ -12,6 +17,8 @@ class NewMagnetController(
 
     private var viewMvc: NewMagnetViewMvc? = null
     private var pageNavigationHelper: PageNavigationHelper? = null
+    private var currentMagnet: Magnet? = null
+    private lateinit var magnet: String
 
     fun bind(
         viewMvc: NewMagnetViewMvc,
@@ -35,7 +42,44 @@ class NewMagnetController(
         pageNavigationHelper = null
     }
 
-    fun showTorrent(magnet: String) {
+    fun showTorrent(magnet: String) = controllerScope.launch {
+        this@NewMagnetController.magnet = magnet
+        currentMagnet = Magnet.parse(magnet)
+        if (currentMagnet == null) {
+            close()
+            return@launch
+        }
+        viewMvc!!.showMagnet(currentMagnet!!)
+        // Attempting to get the torrent metaData
+        val torrentDetail =
+            torrentMediator.getTorrentDetail(
+                identifier = TorrentIdentifier(
+                    currentMagnet!!.infoHash!!,
+                    magnet
+                )
+            )
 
+        torrentDetail?.let {
+            // If we found the metadata we navigate to NewTorrentFragment
+            close()
+            pageNavigationHelper!!.showNewTorrentDialog(it.infoHash)
+        }
+    }
+
+    override fun onDownloadClicked() {
+        controllerScope.launch {
+            torrentDataSource.insertTorrent(
+                TorrentSchema(
+                    currentMagnet!!.infoHash!!,
+                    magnet,
+                    TorrentUserState.ACTIVE
+                )
+            )
+            close()
+        }
+    }
+
+    private fun close() {
+        pageNavigationHelper!!.back()
     }
 }
