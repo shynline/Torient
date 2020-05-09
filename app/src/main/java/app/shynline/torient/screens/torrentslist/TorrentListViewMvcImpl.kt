@@ -12,7 +12,8 @@ import app.shynline.torient.database.states.TorrentUserState
 import app.shynline.torient.model.TorrentDetail
 import app.shynline.torient.screens.common.view.BaseObservableViewMvc
 import app.shynline.torient.screens.torrentslist.items.TorrentItem
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.cheekiat.fabmenu.FabMenu
+import com.cheekiat.fabmenu.listener.OnItemClickListener
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.mikepenz.fastadapter.listeners.ClickEventHook
@@ -23,7 +24,7 @@ class TorrentListViewMvcImpl(
 ) : BaseObservableViewMvc<TorrentListViewMvc.Listener>(), TorrentListViewMvc,
     TorrentItem.Subscription {
 
-    private val addTorrentFileBtn: FloatingActionButton
+    private val fabMenuBtn: FabMenu
     private val torrentListRv: RecyclerView
     private val torrentAdapter: ItemAdapter<TorrentItem>
     private val fastAdapter: FastAdapter<TorrentItem>
@@ -46,7 +47,7 @@ class TorrentListViewMvcImpl(
         setRootView(
             inflater.inflate(R.layout.fragment_torrent_list_view, parent, false)
         )
-        addTorrentFileBtn = findViewById(R.id.addTorrentFile)
+        fabMenuBtn = findViewById(R.id.fabMenu)
         torrentListRv = findViewById(R.id.torrentsList)
 
         torrentAdapter = ItemAdapter()
@@ -54,11 +55,19 @@ class TorrentListViewMvcImpl(
         torrentListRv.adapter = fastAdapter
         torrentListRv.layoutManager = LinearLayoutManager(getContext())
 
-        addTorrentFileBtn.setOnClickListener {
-            getListeners().forEach {
-                it.addTorrentFile()
+        fabMenuBtn.addItem(R.drawable.icon_magnet, R.color.colorSecondary)
+        fabMenuBtn.addItem(R.drawable.icon_add_file, R.color.colorSecondary)
+        fabMenuBtn.setOnItemClickListener(object : OnItemClickListener {
+            override fun onItemClick(position: Int) {
+                if (position == 0) { // torrent file
+                    getListeners().forEach {
+                        it.addTorrentFile()
+                    }
+                } else { // magnet
+
+                }
             }
-        }
+        })
 
         fastAdapter.addEventHook(object : ClickEventHook<TorrentItem>() {
             override fun onClick(

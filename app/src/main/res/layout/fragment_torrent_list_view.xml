@@ -9,13 +9,41 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/addTorrentFile"
+    <com.cheekiat.fabmenu.FabMenu
+        android:id="@+id/fabMenu"
+        android:layout_height="match_parent"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:fabSize="normal"
+        app:collapseIcon="@drawable/icon_plus"
+        app:expandIcon="@drawable/icon_plus"
+        app:fabBackgroundColor="@color/colorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:space="16dp" />
+
+
+    <!--    <com.sa90.materialarcmenu.ArcMenu-->
+    <!--        android:id="@+id/torrentArcMenu"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:menu_scr="@drawable/icon_plus"-->
+    <!--        app:menu_radius="75dp"-->
+    <!--        app:menu_open="arc_left">-->
+
+    <!--        <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+    <!--            android:id="@+id/addTorrentFile"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:src="@drawable/icon_add_file"/>-->
+
+    <!--        <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+    <!--            android:id="@+id/addTorrentMagnet"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:src="@drawable/icon_magnet" />-->
+
+
+    <!--    </com.sa90.materialarcmenu.ArcMenu>-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>
