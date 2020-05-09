@@ -10,4 +10,5 @@
     <color name="colorTextOnSecondary">#fff</color>
 
     <color name="textGray">#4A4A4A</color>
+    <color name="rootBackground">#fafafa</color>
 </resources>
