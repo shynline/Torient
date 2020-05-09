@@ -1,6 +1,7 @@
 package app.shynline.torient.screens.common.navigationhelper
 
 import androidx.navigation.NavController
+import app.shynline.torient.R
 import app.shynline.torient.screens.torrentslist.TorrentsListFragmentDirections
 
 
@@ -10,7 +11,19 @@ class PageNavigationHelper(
     fun showNewTorrentDialog(infoHash: String) {
         val action =
             TorrentsListFragmentDirections.actionTorrentListFragmentToNewTorrentFragment(infoHash)
-        navController.navigate(action)
+        // This condition help to not reNavigation to same destination
+        // Which cause exception
+        if (navController.currentDestination?.id == R.id.torrent_list_fragment)
+            navController.navigate(action)
+    }
+
+    fun showNewTorrentDialogByMagnet(magnet: String) {
+        val action =
+            TorrentsListFragmentDirections.actionTorrentListFragmentToNewMagnetFragment(magnet)
+        // This condition help to not reNavigation to same destination
+        // Which cause exception
+        if (navController.currentDestination?.id == R.id.torrent_list_fragment)
+            navController.navigate(action)
     }
 
     fun back() {
