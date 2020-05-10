@@ -12,7 +12,7 @@ class FragmentRequestHelperImpl(private val fragment: Fragment) :
     override fun openTorrentFile(requestId: Int) {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
-            type = "*/*"
+            type = "application/x-bittorrent"
         }
         fragment.startActivityForResult(intent, requestId)
     }
