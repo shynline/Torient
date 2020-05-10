@@ -28,6 +28,7 @@ class TorrentListViewMvcImpl(
     private val torrentListRv: RecyclerView
     private val torrentAdapter: ItemAdapter<TorrentItem>
     private val fastAdapter: FastAdapter<TorrentItem>
+    private val emptyPlaceholder: View
     private val torrentItemUpdateListeners: MutableMap<String, TorrentItemUpdateListener> =
         mutableMapOf()
 
@@ -49,7 +50,8 @@ class TorrentListViewMvcImpl(
         )
         fabMenuBtn = findViewById(R.id.fabMenu)
         torrentListRv = findViewById(R.id.torrentsList)
-
+        emptyPlaceholder = findViewById(R.id.emptyPlaceHolder)
+        emptyPlaceholder.visibility = View.GONE
         torrentAdapter = ItemAdapter()
         fastAdapter = FastAdapter.with(torrentAdapter)
         torrentListRv.adapter = fastAdapter
@@ -144,6 +146,11 @@ class TorrentListViewMvcImpl(
 
     override fun showTorrents(torrentDetails: List<TorrentDetail>) {
         // use diff util here
+        emptyPlaceholder.visibility = if (torrentDetails.isEmpty()) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
         torrentAdapter.clear()
         torrentAdapter.add(torrentDetails.map { torrentDetail ->
             TorrentItem(torrentDetail, this)
@@ -153,6 +160,11 @@ class TorrentListViewMvcImpl(
 
     override fun removeTorrent(identifier: Long) {
         torrentAdapter.removeByIdentifier(identifier)
+        emptyPlaceholder.visibility = if (fastAdapter.itemCount == 0) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
     }
 
 }
