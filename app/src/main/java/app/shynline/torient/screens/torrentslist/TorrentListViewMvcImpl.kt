@@ -64,7 +64,9 @@ class TorrentListViewMvcImpl(
                         it.addTorrentFile()
                     }
                 } else { // magnet
-
+                    getListeners().forEach {
+                        it.addTorrentMagnet()
+                    }
                 }
             }
         })

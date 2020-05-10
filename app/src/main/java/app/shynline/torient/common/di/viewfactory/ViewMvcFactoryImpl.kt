@@ -2,6 +2,8 @@ package app.shynline.torient.common.di.viewfactory
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import app.shynline.torient.screens.addmagnet.AddMagnetViewMvc
+import app.shynline.torient.screens.addmagnet.AddMagnetViewMvcImpl
 import app.shynline.torient.screens.newmagnet.NewMagnetViewMvc
 import app.shynline.torient.screens.newmagnet.NewMagnetViewMvcImpl
 import app.shynline.torient.screens.newtorrent.NewTorrentViewMvc
@@ -32,4 +34,12 @@ class ViewMvcFactoryImpl :
     ): NewMagnetViewMvc {
         return NewMagnetViewMvcImpl(inflater, parent)
     }
+
+    override fun getAddMagnetViewMvc(
+        inflater: LayoutInflater,
+        parent: ViewGroup?
+    ): AddMagnetViewMvc {
+        return AddMagnetViewMvcImpl(inflater, parent)
+    }
+
 }

@@ -29,4 +29,11 @@ class PageNavigationHelper(
     fun back() {
         navController.navigateUp()
     }
+
+    fun showAddMagnetDialog() {
+        val action = TorrentsListFragmentDirections
+            .actionTorrentListFragmentToAddMagnetFragment()
+        if (navController.currentDestination?.id == R.id.torrent_list_fragment)
+            navController.navigate(action)
+    }
 }

@@ -226,6 +226,10 @@ class TorrentsListController(
         }
     }
 
+    override fun addTorrentMagnet() {
+        pageNavigationHelper!!.showAddMagnetDialog()
+    }
+
 
     override fun addTorrentFile() {
         fragmentRequestHelper!!.openTorrentFile(REQUEST_ID_OPEN_TORRENT_FILE)

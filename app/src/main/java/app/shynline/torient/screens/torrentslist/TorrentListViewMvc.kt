@@ -6,6 +6,7 @@ import app.shynline.torient.screens.common.view.ObservableViewMvc
 interface TorrentListViewMvc : ObservableViewMvc<TorrentListViewMvc.Listener> {
     interface Listener {
         fun addTorrentFile()
+        fun addTorrentMagnet()
         fun handleClicked(position: Int, torrentDetail: TorrentDetail)
         fun onSaveToDownloadRequested(torrentDetail: TorrentDetail)
     }
