@@ -53,7 +53,7 @@ class TorientService : Service() {
                         "\n⬆: ${uploadRate.toStandardRate()}"
             )
             .setContentIntent(pendingIntent)
-            .setSmallIcon(R.mipmap.ic_launcher_round)
+            .setSmallIcon(R.drawable.ic_notification)
             .build()
         if (show) {
             with(NotificationManagerCompat.from(this)) {

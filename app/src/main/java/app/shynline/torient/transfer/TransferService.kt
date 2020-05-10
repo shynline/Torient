@@ -102,7 +102,7 @@ class TransferService : IntentService("TransferService"), FileUtils.ProgressList
             .setContentTitle("Save complete")
             .setContentText("$name has been saved successfully")
             .setContentIntent(pendingIntent)
-            .setSmallIcon(R.mipmap.ic_launcher_round)
+            .setSmallIcon(R.drawable.ic_notification)
             .build()
         with(NotificationManagerCompat.from(this)) {
             notify(NotificationID.getID(), notification)
