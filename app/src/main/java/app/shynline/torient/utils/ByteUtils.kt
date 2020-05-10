@@ -16,20 +16,20 @@ fun Long.toByteRepresentation(): String {
     var byte = true
     var u = "B"
     var sr = this.toFloat()
-    if (sr > 1024) {
+    if (sr >= 1024) {
         sr /= 1024
         u = "KB"
         byte = false
     }
-    if (sr > 1024) {
+    if (sr >= 1024) {
         sr /= 1024
         u = "MB"
     }
-    if (sr > 1024) {
+    if (sr >= 1024) {
         sr /= 1024
         u = "GB"
     }
-    if (sr > 1024) {
+    if (sr >= 1024) {
         sr /= 1024
         u = "TB"
     }
