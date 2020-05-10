@@ -250,8 +250,12 @@ class TorrentImpl(
         withContext(ioDispatcher) {
             if (data == null)
                 return@withContext null
-            // Decode the byteArray
-            val torrentInfo = getTorrentInfo(data)
+            val torrentInfo = try {
+                // Decode the byteArray
+                getTorrentInfo(data)
+            } catch (e: Exception) {
+                return@withContext null
+            }
             // Create the torrentDetail
             val torrentDetail = TorrentDetail.from(torrentInfo)
             torrentDetail.serviceState =
