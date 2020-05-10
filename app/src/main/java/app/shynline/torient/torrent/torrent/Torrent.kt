@@ -28,5 +28,6 @@ interface Torrent :
      * @return true if there is any torrent to be removed false otherwise
      */
     suspend fun removeTorrent(infoHash: String): Boolean
+    suspend fun removeTorrentFiles(name: String): Boolean
 
 }

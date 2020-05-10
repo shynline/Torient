@@ -58,4 +58,9 @@ class TorrentDataSourceImpl(
         withContext(ioDispatcher) {
             return@withContext torrentDao.getTorrent(infoHash)
         }
+
+    override suspend fun removeTorrent(infoHash: String) =
+        withContext(ioDispatcher) {
+            torrentDao.removeTorrent(infoHash)
+        }
 }

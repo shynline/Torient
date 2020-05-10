@@ -9,6 +9,7 @@ interface TorrentListViewMvc : ObservableViewMvc<TorrentListViewMvc.Listener> {
         fun addTorrentMagnet()
         fun handleClicked(position: Int, torrentDetail: TorrentDetail)
         fun onSaveToDownloadRequested(torrentDetail: TorrentDetail)
+        fun onRemoveTorrent(torrentDetail: TorrentDetail)
     }
 
     fun showTorrents(torrentDetails: List<TorrentDetail>)

@@ -302,6 +302,22 @@ class TorrentImpl(
         return false
     }
 
+    override suspend fun removeTorrentFiles(name: String): Boolean {
+        return removeTorrentFile(File(context.downloadDir, name))
+    }
+
+    private suspend fun removeTorrentFile(file: File): Boolean {
+        if (file.exists()) {
+            if (file.isDirectory) {
+                file.listFiles()?.forEach {
+                    removeTorrentFile(it)
+                }
+            }
+            return file.delete()
+        }
+        return false
+    }
+
 
     override fun isTorrentFileCached(infoHash: String): Boolean {
         return File(context.torrentDir, "${infoHash.toLowerCase(Locale.ROOT)}.torrent")

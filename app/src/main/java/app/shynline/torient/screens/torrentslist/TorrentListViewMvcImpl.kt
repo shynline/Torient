@@ -102,8 +102,9 @@ class TorrentListViewMvcImpl(
                             }
                         }
                         R.id.torrent_remove -> {
-                            Toast.makeText(getContext(), "Not implemented", Toast.LENGTH_SHORT)
-                                .show()
+                            getListeners().forEach { listener ->
+                                listener.onRemoveTorrent(item.torrentDetail)
+                            }
                         }
                     }
                     false
@@ -149,8 +150,9 @@ class TorrentListViewMvcImpl(
         })
     }
 
+
     override fun removeTorrent(identifier: Long) {
-        fastAdapter.notifyAdapterItemRemoved(fastAdapter.getPosition(identifier))
+        torrentAdapter.removeByIdentifier(identifier)
     }
 
 }

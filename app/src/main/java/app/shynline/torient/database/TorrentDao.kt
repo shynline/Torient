@@ -37,4 +37,7 @@ interface TorrentDao {
 
     @Query("SELECT * from torrent WHERE info_hash = :infoHash")
     fun getTorrent(infoHash: String): TorrentSchema?
+
+    @Query("DELETE from torrent WHERE info_hash = :infoHash")
+    fun removeTorrent(infoHash: String)
 }

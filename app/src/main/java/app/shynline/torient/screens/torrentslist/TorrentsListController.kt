@@ -235,6 +235,23 @@ class TorrentsListController(
         fragmentRequestHelper!!.openTorrentFile(REQUEST_ID_OPEN_TORRENT_FILE)
     }
 
+    override fun onRemoveTorrent(torrentDetail: TorrentDetail) {
+        // Remove from UI
+        viewMvc!!.removeTorrent(torrentDetail.hexHash)
+        // Remove controller cache
+        managedTorrents.remove(torrentDetail.infoHash)
+        // Unsubscribe
+        subscriptionMediator.removeTorrent(this, torrentDetail.infoHash)
+        controllerScope.launch {
+            // Remove torrent if exists
+            torrentMediator.removeTorrent(torrentDetail.infoHash)
+            // Remove files if exists
+            torrentMediator.removeTorrentFiles(torrentDetail.name)
+            // Remove from database
+            torrentDataSource.removeTorrent(torrentDetail.infoHash)
+        }
+    }
+
     fun openTorrentFile(torrentData: ByteArray) = controllerScope.launch {
         val torrentDetail = torrentMediator.getTorrentDetail(torrentFile = torrentData)
         if (torrentDetail != null) {

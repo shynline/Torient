@@ -12,4 +12,5 @@ interface TorrentDataSource {
     suspend fun setTorrentFinished(infoHash: String, finished: Boolean)
     suspend fun setTorrentProgress(infoHash: String, progress: Float)
     suspend fun getTorrent(infoHash: String): TorrentSchema?
+    suspend fun removeTorrent(infoHash: String)
 }

@@ -44,4 +44,8 @@ class TorrentMediator(
     fun isTorrentFileCached(infoHash: String): Boolean {
         return torrent.isTorrentFileCached(infoHash)
     }
+
+    suspend fun removeTorrentFiles(name: String): Boolean {
+        return torrent.removeTorrentFiles(name)
+    }
 }
