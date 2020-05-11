@@ -18,7 +18,9 @@ data class TorrentSchema(
     @ColumnInfo(name = "is_finished")
     var isFinished: Boolean = false,
     @ColumnInfo(name = "progress")
-    var progress: Float = 0f
+    var progress: Float = 0f,
+    @ColumnInfo(name = "name")
+    var name: String
 ) {
     fun toIdentifier(): TorrentIdentifier {
         return TorrentIdentifier(
