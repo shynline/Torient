@@ -66,10 +66,6 @@ class TorrentsListController(
                                 torrent.connectedPeers = torrentEvent.connectedPeers
                                 torrent.maxPeers = torrentEvent.maxPeers
                                 viewMvc!!.notifyItemUpdate(torrent.infoHash)
-                                torrentDataSource.setTorrentProgress(
-                                    torrentEvent.infoHash,
-                                    torrentEvent.progress
-                                )
                             }
                             TorrentDownloadingState.DOWNLOADING_METADATA -> {
                                 torrent.downloadingState = torrentEvent.state
@@ -80,10 +76,8 @@ class TorrentsListController(
                                 torrent.downloadingState = torrentEvent.state
                                 torrent.finished = true
                                 viewMvc!!.notifyItemUpdate(torrent.infoHash)
-                                torrentDataSource.setTorrentFinished(torrentEvent.infoHash, true)
                             }
                             TorrentDownloadingState.SEEDING -> {
-                                torrentDataSource.setTorrentFinished(torrentEvent.infoHash, true)
                                 torrent.finished = true
                                 torrent.downloadingState = torrentEvent.state
                                 torrent.downloadRate = torrentEvent.downloadRate

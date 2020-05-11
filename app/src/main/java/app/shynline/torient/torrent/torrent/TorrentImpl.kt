@@ -8,6 +8,7 @@ import android.os.IBinder
 import app.shynline.torient.common.downloadDir
 import app.shynline.torient.common.observable.Observable
 import app.shynline.torient.common.torrentDir
+import app.shynline.torient.database.datasource.InternalTorrentDataSource
 import app.shynline.torient.model.TorrentIdentifier
 import app.shynline.torient.model.TorrentModel
 import app.shynline.torient.torrent.service.TorientService
@@ -21,8 +22,9 @@ import kotlin.concurrent.fixedRateTimer
 
 class TorrentImpl(
     private val context: Context,
-    private val ioDispatcher: CoroutineDispatcher
-) : BaseTorrent(),
+    private val ioDispatcher: CoroutineDispatcher,
+    override val internalTorrentDataSource: InternalTorrentDataSource
+) : BaseTorrent(internalTorrentDataSource),
     ServiceConnection,
     TorrentController,
     Observable<Torrent.Listener> {
@@ -117,10 +119,12 @@ class TorrentImpl(
     }
 
     private fun requestTorrentStats() {
-        managedTorrents.forEach {
-            session.find(Sha1Hash(it.key))?.let { handle ->
-                if (handle.isValid)
-                    handleTorrentProgress(handle)
+        GlobalScope.launch {
+            managedTorrents.forEach {
+                session.find(Sha1Hash(it.key))?.let { handle ->
+                    if (handle.isValid)
+                        handleTorrentProgress(handle)
+                }
             }
         }
     }

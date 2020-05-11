@@ -15,7 +15,7 @@ val mainModule = module {
         ViewMvcFactoryImpl()
     }
     single<Torrent> {
-        TorrentImpl(androidContext(), get())
+        TorrentImpl(androidContext(), get(), get())
     }
     single {
         SubscriptionMediator(get())

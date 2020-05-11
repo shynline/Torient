@@ -2,6 +2,8 @@ package app.shynline.torient.common.di.koin
 
 import androidx.room.Room
 import app.shynline.torient.database.TorrentDataBase
+import app.shynline.torient.database.datasource.InternalTorrentDataSource
+import app.shynline.torient.database.datasource.InternalTorrentDataSourceImpl
 import app.shynline.torient.database.datasource.TorrentDataSource
 import app.shynline.torient.database.datasource.TorrentDataSourceImpl
 import org.koin.android.ext.koin.androidContext
@@ -18,5 +20,9 @@ val databaseModule = module {
 
     single<TorrentDataSource> {
         TorrentDataSourceImpl(get(), get())
+    }
+
+    single<InternalTorrentDataSource> {
+        InternalTorrentDataSourceImpl(get(), get())
     }
 }

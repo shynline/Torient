@@ -44,15 +44,6 @@ class TorrentDataSourceImpl(
             return@withContext torrentDao.setTorrentState(infoHash, userState)
         }
 
-    override suspend fun setTorrentFinished(infoHash: String, finished: Boolean) =
-        withContext(ioDispatcher) {
-            return@withContext torrentDao.setTorrentFinished(infoHash, finished)
-        }
-
-    override suspend fun setTorrentProgress(infoHash: String, progress: Float) =
-        withContext(ioDispatcher) {
-            return@withContext torrentDao.setTorrentProgress(infoHash, progress)
-        }
 
     override suspend fun getTorrent(infoHash: String): TorrentSchema? =
         withContext(ioDispatcher) {

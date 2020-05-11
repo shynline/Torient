@@ -1,6 +1,7 @@
 package app.shynline.torient.torrent.torrent
 
 import app.shynline.torient.common.observable.BaseObservable
+import app.shynline.torient.database.datasource.InternalTorrentDataSource
 import app.shynline.torient.model.TorrentModel
 import app.shynline.torient.torrent.events.TorrentMetaDataEvent
 import app.shynline.torient.torrent.events.TorrentProgressEvent
@@ -15,7 +16,9 @@ import com.frostwire.jlibtorrent.alerts.AlertType
 import kotlinx.coroutines.*
 
 
-abstract class BaseTorrent : BaseObservable<Torrent.Listener>(), Torrent, AlertListener {
+abstract class BaseTorrent(
+    protected open val internalTorrentDataSource: InternalTorrentDataSource
+) : BaseObservable<Torrent.Listener>(), Torrent, AlertListener {
     protected val managedTorrents: MutableMap<String, TorrentStatus.State?> = hashMapOf()
 
     protected lateinit var torrentScope: CoroutineScope
@@ -31,7 +34,7 @@ abstract class BaseTorrent : BaseObservable<Torrent.Listener>(), Torrent, AlertL
 
     protected abstract fun saveTorrentFileToCache(infoHash: String, data: ByteArray)
 
-    protected fun handleTorrentProgress(handle: TorrentHandle) {
+    protected suspend fun handleTorrentProgress(handle: TorrentHandle) {
         val statue = handle.status()
         val infoHash = handle.infoHash().toHex()
         val event: TorrentProgressEvent? = when (statue.state()) {
@@ -49,7 +52,7 @@ abstract class BaseTorrent : BaseObservable<Torrent.Listener>(), Torrent, AlertL
                 // It means we have the meta data now
                 // and we have to show it to user
                 checkIfMetaDataDownloaded(infoHash, handle)
-                TorrentProgressEvent(
+                val tpe = TorrentProgressEvent(
                     infoHash,
                     TorrentDownloadingState.DOWNLOADING,
                     progress = statue.progress(),
@@ -58,22 +61,30 @@ abstract class BaseTorrent : BaseObservable<Torrent.Listener>(), Torrent, AlertL
                     maxPeers = statue.listPeers(),
                     connectedPeers = statue.numPeers()
                 )
+                internalTorrentDataSource.setTorrentProgress(
+                    infoHash,
+                    tpe.progress
+                )
+                tpe
             }
             TorrentStatus.State.FINISHED -> {
                 // This is a rare case when the file is so small
                 // Also it happens when whole downloading process being done
                 // in background process
                 checkIfMetaDataDownloaded(infoHash, handle)
-                TorrentProgressEvent(
+                val tpe = TorrentProgressEvent(
                     handle.infoHash().toHex(),
                     TorrentDownloadingState.FINISHED
                 )
+                internalTorrentDataSource.setTorrentFinished(infoHash, true)
+                tpe
             }
             TorrentStatus.State.SEEDING -> {
                 // This is a rare case when the file is so small
                 // Also it happens when whole downloading process being done
                 // in background process
                 checkIfMetaDataDownloaded(infoHash, handle)
+                internalTorrentDataSource.setTorrentFinished(infoHash, true)
                 TorrentProgressEvent(
                     handle.infoHash().toHex(),
                     TorrentDownloadingState.SEEDING,
