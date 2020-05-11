@@ -36,4 +36,11 @@ class PageNavigationHelper(
         if (navController.currentDestination?.id == R.id.torrent_list_fragment)
             navController.navigate(action)
     }
+
+    fun showTorrentDetail(infoHash: String) {
+        val action = TorrentsListFragmentDirections
+            .actionTorrentListFragmentToTorrentDetailFragment(infoHash)
+        if (navController.currentDestination?.id == R.id.torrent_list_fragment)
+            navController.navigate(action)
+    }
 }

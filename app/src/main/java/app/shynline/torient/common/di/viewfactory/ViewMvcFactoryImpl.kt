@@ -8,6 +8,8 @@ import app.shynline.torient.screens.newmagnet.NewMagnetViewMvc
 import app.shynline.torient.screens.newmagnet.NewMagnetViewMvcImpl
 import app.shynline.torient.screens.newtorrent.NewTorrentViewMvc
 import app.shynline.torient.screens.newtorrent.NewTorrentViewMvcImpl
+import app.shynline.torient.screens.torrentdetail.TorrentDetailViewMvc
+import app.shynline.torient.screens.torrentdetail.TorrentDetailViewMvcImpl
 import app.shynline.torient.screens.torrentslist.TorrentListViewMvc
 import app.shynline.torient.screens.torrentslist.TorrentListViewMvcImpl
 
@@ -42,4 +44,10 @@ class ViewMvcFactoryImpl :
         return AddMagnetViewMvcImpl(inflater, parent)
     }
 
+    override fun getTorrentDetailViewMvc(
+        inflater: LayoutInflater,
+        parent: ViewGroup?
+    ): TorrentDetailViewMvc {
+        return TorrentDetailViewMvcImpl(inflater, parent)
+    }
 }

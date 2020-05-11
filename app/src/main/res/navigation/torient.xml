@@ -15,6 +15,9 @@
         <action
             android:id="@+id/action_torrent_list_fragment_to_addMagnetFragment"
             app:destination="@id/addMagnetFragment" />
+        <action
+            android:id="@+id/action_torrent_list_fragment_to_torrentDetailFragment"
+            app:destination="@id/torrentDetailFragment" />
     </fragment>
     <dialog
         android:id="@+id/newTorrentFragment"
@@ -38,5 +41,13 @@
         android:id="@+id/addMagnetFragment"
         android:name="app.shynline.torient.screens.addmagnet.AddMagnetFragment"
         android:label="AddMagnetFragment" />
+    <fragment
+        android:id="@+id/torrentDetailFragment"
+        android:name="app.shynline.torient.screens.torrentdetail.TorrentDetailFragment"
+        android:label="TorrentDetailFragment">
+        <argument
+            android:name="hash"
+            app:argType="string" />
+    </fragment>
 
 </navigation>
