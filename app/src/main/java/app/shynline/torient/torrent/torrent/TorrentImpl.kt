@@ -11,7 +11,6 @@ import app.shynline.torient.common.torrentDir
 import app.shynline.torient.model.TorrentDetail
 import app.shynline.torient.model.TorrentIdentifier
 import app.shynline.torient.torrent.service.TorientService
-import app.shynline.torient.torrent.states.ManageState
 import com.frostwire.jlibtorrent.*
 import kotlinx.coroutines.*
 import java.io.BufferedInputStream
@@ -42,7 +41,7 @@ class TorrentImpl(
 
     private fun periodicTask() = torrentScope.launch {
         if (isActivityRunning) {
-            requestTorrentStats(managedTorrents.keys.toList())
+            requestTorrentStats()
         } else {
             service?.updateNotification(
                 managedTorrents.size,
@@ -117,10 +116,11 @@ class TorrentImpl(
         service = null
     }
 
-    private fun requestTorrentStats(torrents: List<String>) {
-        torrents.forEach { infoHash ->
-            session.find(Sha1Hash(infoHash))?.let { handle ->
-                handleTorrentProgress(handle)
+    private fun requestTorrentStats() {
+        managedTorrents.forEach {
+            session.find(Sha1Hash(it.key))?.let { handle ->
+                if (handle.isValid)
+                    handleTorrentProgress(handle)
             }
         }
     }
@@ -164,7 +164,7 @@ class TorrentImpl(
         // Return if the torrent is already being managed by session
         if (managedTorrents.containsKey(identifier.infoHash))
             return
-        managedTorrents[identifier.infoHash] = ManageState.UNKNOWN
+        managedTorrents[identifier.infoHash] = null
         readTorrentFileFromCache(identifier.infoHash)?.let {
             session.download(getTorrentInfo(it), context.downloadDir)
             return
@@ -258,19 +258,16 @@ class TorrentImpl(
             }
             // Create the torrentDetail
             val torrentDetail = TorrentDetail.from(torrentInfo)
-            torrentDetail.serviceState =
-                managedTorrents[torrentDetail.infoHash] ?: ManageState.UNKNOWN
             // Cache it in memory
             torrentsDetails[torrentDetail.infoHash] = torrentDetail
 
             // Save torrent file here if it doesn't exist
-            saveTorrentFileToCache(torrentDetail, data)
+            saveTorrentFileToCache(torrentDetail.infoHash, data)
             return@withContext torrentDetail
         }
 
-    private fun saveTorrentFileToCache(torrentDetail: TorrentDetail, data: ByteArray) {
-        val file =
-            File(context.torrentDir, "${torrentDetail.infoHash.toLowerCase(Locale.ROOT)}.torrent")
+    override fun saveTorrentFileToCache(infoHash: String, data: ByteArray) {
+        val file = File(context.torrentDir, "${infoHash.toLowerCase(Locale.ROOT)}.torrent")
         if (!file.exists()) {
             try {
                 // Simply create and write it to file

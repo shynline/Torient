@@ -1,21 +1,19 @@
 package app.shynline.torient.model
 
 import app.shynline.torient.database.states.TorrentUserState
-import app.shynline.torient.torrent.states.ManageState
 import app.shynline.torient.torrent.states.TorrentDownloadingState
 import com.frostwire.jlibtorrent.TorrentInfo
 
 data class TorrentDetail(
     val infoHash: String,
-    val name: String,
-    val author: String,
-    val comment: String,
-    val totalSize: Long,
-    val torrentFile: TorrentFile,
-    val magnet: String,
-    val hexHash: Long
+    var name: String,
+    var magnet: String
 ) {
-    var serviceState: ManageState = ManageState.UNKNOWN
+    var hexHash: Long = 0L
+    var author: String = ""
+    var comment: String = ""
+    var totalSize: Long = 0L
+    var torrentFile: TorrentFile? = null
     var userState: TorrentUserState = TorrentUserState.PAUSED
     var downloadingState: TorrentDownloadingState = TorrentDownloadingState.UNKNOWN
     var progress = 0f
@@ -36,13 +34,14 @@ data class TorrentDetail(
             return TorrentDetail(
                 torrentInfo.infoHash().toHex(),
                 torrentInfo.name(),
-                torrentInfo.creator(),
-                torrentInfo.comment(),
-                torrentInfo.totalSize(),
-                TorrentFile.from(torrentInfo),
-                torrentInfo.makeMagnetUri(),
-                torrentInfo.infoHash().toHex().hashCode().toLong()
-            )
+                torrentInfo.makeMagnetUri()
+            ).apply {
+                comment = torrentInfo.comment()
+                totalSize = torrentInfo.totalSize()
+                torrentFile = TorrentFile.from(torrentInfo)
+                author = torrentInfo.creator()
+                hexHash = torrentInfo.infoHash().toHex().hashCode().toLong()
+            }
         }
     }
 }

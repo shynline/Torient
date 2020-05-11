@@ -4,7 +4,6 @@ import app.shynline.torient.common.observable.Observable
 import app.shynline.torient.model.TorrentDetail
 import app.shynline.torient.model.TorrentIdentifier
 import app.shynline.torient.torrent.events.TorrentEvent
-import app.shynline.torient.torrent.states.ManageState
 
 interface Torrent :
     Observable<Torrent.Listener> {
@@ -17,8 +16,7 @@ interface Torrent :
     suspend fun getTorrentDetail(magnet: String): TorrentDetail?
     suspend fun getTorrentDetailFromInfoHash(infoHash: String): TorrentDetail?
     suspend fun addTorrent(identifier: TorrentIdentifier)
-    suspend fun getManagedTorrentState(infoHash: String): ManageState?
-    suspend fun getAllManagedTorrentStats(): Map<String, ManageState>
+    suspend fun getAllManagedTorrents(): List<String>
     fun isTorrentFileCached(infoHash: String): Boolean
 
     /**

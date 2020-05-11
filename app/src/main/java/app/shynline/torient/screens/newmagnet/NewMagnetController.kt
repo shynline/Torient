@@ -70,9 +70,10 @@ class NewMagnetController(
         controllerScope.launch {
             torrentDataSource.insertTorrent(
                 TorrentSchema(
-                    currentMagnet!!.infoHash!!,
-                    magnet,
-                    TorrentUserState.ACTIVE
+                    infoHash = currentMagnet!!.infoHash!!,
+                    magnet = magnet,
+                    userState = TorrentUserState.ACTIVE,
+                    name = currentMagnet!!.name!!
                 )
             )
             close()

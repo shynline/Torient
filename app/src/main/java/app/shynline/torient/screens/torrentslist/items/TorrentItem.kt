@@ -8,19 +8,15 @@ import app.shynline.torient.R
 import app.shynline.torient.database.states.TorrentUserState
 import app.shynline.torient.model.TorrentDetail
 import app.shynline.torient.screens.torrentslist.TorrentListViewMvcImpl
-import app.shynline.torient.torrent.states.ManageState
 import app.shynline.torient.torrent.states.TorrentDownloadingState
-import app.shynline.torient.utils.FileIcon
-import app.shynline.torient.utils.toByteRepresentation
-import app.shynline.torient.utils.toReadableTime
-import app.shynline.torient.utils.toStandardRate
+import app.shynline.torient.utils.*
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.items.AbstractItem
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar
 
 class TorrentItem(
     val torrentDetail: TorrentDetail,
-    val subscription: Subscription
+    private val subscription: Subscription
 ) : AbstractItem<TorrentItem.ViewHolder>() {
 
 
@@ -71,7 +67,11 @@ class TorrentItem(
             latestItem = item
             nameTV.text = item.torrentDetail.name
             priorityBar.setBackgroundColor(Color.RED)
-            iconIv.setImageResource(FileIcon.iconOf(item.torrentDetail.torrentFile.fileType))
+            iconIv.setImageResource(
+                FileIcon.iconOf(
+                    item.torrentDetail.torrentFile?.fileType ?: FileType.UNKNOWN
+                )
+            )
             val bytesDone: Float
             val currentProgress = if (item.torrentDetail.finished) {
                 bytesDone = item.torrentDetail.totalSize.toFloat()
@@ -80,7 +80,7 @@ class TorrentItem(
                 bytesDone = item.torrentDetail.totalSize * item.torrentDetail.progress
                 (item.torrentDetail.progress * 100).toInt()
             }
-            statusProgressTv.text = "${bytesDone.toLong().toByteRepresentation()} of " +
+            val progressText = "${bytesDone.toLong().toByteRepresentation()} of " +
                     "${item.torrentDetail.totalSize.toByteRepresentation()} " +
                     "($currentProgress%)"
             when (item.torrentDetail.userState) {
@@ -88,82 +88,72 @@ class TorrentItem(
                     statusTv.text = "Paused"
                     progressView.isIndeterminate = false
                     progressView.progress = currentProgress
-                    // update ui from database data
+                    statusProgressTv.text = progressText
                 }
                 TorrentUserState.ACTIVE -> {
-                    when (item.torrentDetail.serviceState) {
-                        ManageState.UNKNOWN, ManageState.ADDED -> {
-                            // Requested to add to service
-                            // Progressbar should be indeterminate
-                            statusTv.text = "Finding peers..."
+                    when (item.torrentDetail.downloadingState) {
+                        TorrentDownloadingState.UNKNOWN -> {
                             progressView.isIndeterminate = true
+                            statusTv.text = "Finding peers..."
+                            statusProgressTv.text = "Preparing"
                         }
-                        ManageState.FINISHED -> {
-                            // It's finished download now it's a seeder
-                            // handle depends on user's state
+                        TorrentDownloadingState.ALLOCATING -> {
+                            progressView.isIndeterminate = true
+                            statusTv.text = "Allocating files..."
+                            statusProgressTv.text = "Preparing"
+                        }
+                        TorrentDownloadingState.CHECKING_FILES -> {
                             progressView.isIndeterminate = false
-                            progressView.progress = 100
-                            statusTv.text = "Download finished."
+                            statusTv.text = "Checking files..."
+                            statusProgressTv.text = "Preparing"
+                            progressView.progress =
+                                (item.torrentDetail.progress * 100).toInt()
                         }
-                        ManageState.RESUMED -> {
-                            when (item.torrentDetail.downloadingState) {
-                                TorrentDownloadingState.UNKNOWN -> {
-                                }
-                                TorrentDownloadingState.ALLOCATING -> {
-                                    progressView.isIndeterminate = false
-                                    progressView.progress =
-                                        (item.torrentDetail.progress * 100).toInt()
-                                    statusTv.text = "Allocating space..."
-                                }
-                                TorrentDownloadingState.CHECKING_FILES,
-                                TorrentDownloadingState.CHECKING_RESUME_DATA -> {
-                                    progressView.isIndeterminate = false
-                                    statusTv.text = "Checking files..."
-                                    progressView.progress =
-                                        (item.torrentDetail.progress * 100).toInt()
-                                }
-                                TorrentDownloadingState.DOWNLOADING -> {
-                                    progressView.isIndeterminate = false
-                                    statusTv.text = "Checking files..."
-                                    progressView.progress =
-                                        (item.torrentDetail.progress * 100).toInt()
-                                    val downloadRate = item.torrentDetail.downloadRate
-                                    val remainingBytes =
-                                        (item.torrentDetail.totalSize * (1f - item.torrentDetail.progress)).toLong()
-                                    val remainingTime = if (downloadRate == 0) {
-                                        null
-                                    } else {
-                                        remainingBytes / downloadRate
-                                    }
-                                    statusTv.text = "Downloading \uD83D\uDC64 " +
-                                            "${item.torrentDetail.connectedPeers}/" +
-                                            "${item.torrentDetail.maxPeers} - ⬇️ " +
-                                            "${downloadRate.toStandardRate()} " +
-                                            "⬆️ ${item.torrentDetail.uploadRate.toStandardRate()}"
-                                    statusProgressTv.text =
-                                        statusProgressTv.text.toString() + " ${remainingTime?.toReadableTime() ?: ""}"
-                                }
-                                TorrentDownloadingState.DOWNLOADING_METADATA -> {
-                                    progressView.isIndeterminate = false
-                                    statusTv.text = "Downloading metadata..."
-                                    progressView.progress =
-                                        (item.torrentDetail.progress * 100).toInt()
-
-                                }
-                                TorrentDownloadingState.FINISHED -> {
-                                    progressView.isIndeterminate = false
-                                    progressView.progress = 100
-                                    statusTv.text = "Download finished."
-                                }
-                                TorrentDownloadingState.SEEDING -> {
-                                    progressView.isIndeterminate = false
-                                    statusTv.text =
-                                        "Seeding \uD83D\uDC64 ${item.torrentDetail.connectedPeers}" +
-                                                "/${item.torrentDetail.maxPeers} - ⬇️ " +
-                                            "${item.torrentDetail.downloadRate.toStandardRate()} " +
-                                                "⬆️ ${item.torrentDetail.uploadRate.toStandardRate()}"
-                                }
+                        TorrentDownloadingState.CHECKING_RESUME_DATA -> {
+                            progressView.isIndeterminate = true
+                            statusTv.text = "Loading torrent state..."
+                            statusProgressTv.text = "Preparing"
+                        }
+                        TorrentDownloadingState.DOWNLOADING -> {
+                            progressView.isIndeterminate = false
+                            progressView.progress =
+                                (item.torrentDetail.progress * 100).toInt()
+                            val downloadRate = item.torrentDetail.downloadRate
+                            val remainingBytes =
+                                (item.torrentDetail.totalSize * (1f - item.torrentDetail.progress)).toLong()
+                            val remainingTime = if (downloadRate == 0) {
+                                null
+                            } else {
+                                remainingBytes / downloadRate
                             }
+                            statusTv.text = "Downloading \uD83D\uDC64 " +
+                                    "${item.torrentDetail.connectedPeers}/" +
+                                    "${item.torrentDetail.maxPeers} - ⬇️ " +
+                                    "${downloadRate.toStandardRate()} " +
+                                    "⬆️ ${item.torrentDetail.uploadRate.toStandardRate()}"
+                            statusProgressTv.text =
+                                "$progressText ${remainingTime?.toReadableTime() ?: ""}"
+                        }
+                        TorrentDownloadingState.DOWNLOADING_METADATA -> {
+                            progressView.isIndeterminate = true
+                            statusTv.text = "Downloading metadata..."
+                            statusProgressTv.text = "Preparing"
+                        }
+                        TorrentDownloadingState.FINISHED -> {
+                            progressView.isIndeterminate = false
+                            progressView.progress = currentProgress
+                            statusTv.text = "Download finished"
+                            statusProgressTv.text = progressText
+                        }
+                        TorrentDownloadingState.SEEDING -> {
+                            progressView.isIndeterminate = false
+                            statusProgressTv.text = progressText
+                            progressView.progress = currentProgress
+                            statusTv.text =
+                                "Seeding \uD83D\uDC64 ${item.torrentDetail.connectedPeers}" +
+                                        "/${item.torrentDetail.maxPeers} - ⬇️ " +
+                                        "${item.torrentDetail.downloadRate.toStandardRate()} " +
+                                        "⬆️ ${item.torrentDetail.uploadRate.toStandardRate()}"
                         }
                     }
                 }

@@ -1,12 +1,9 @@
 package app.shynline.torient.torrent.events
 
+import app.shynline.torient.model.TorrentDetail
 import app.shynline.torient.torrent.states.TorrentDownloadingState
 
 sealed class TorrentEvent(val infoHash: String)
-class AddTorrentEvent(infoHash: String, val succeed: Boolean) : TorrentEvent(infoHash)
-class TorrentResumedEvent(infoHash: String) : TorrentEvent(infoHash)
-class TorrentFinishedEvent(infoHash: String) : TorrentEvent(infoHash)
-class TorrentRemovedEvent(infoHash: String) : TorrentEvent(infoHash)
 class TorrentProgressEvent(
     infoHash: String,
     val state: TorrentDownloadingState,
@@ -16,3 +13,6 @@ class TorrentProgressEvent(
     val maxPeers: Int = 0,
     val connectedPeers: Int = 0
 ) : TorrentEvent(infoHash)
+
+class TorrentMetaDataEvent(infoHash: String, val torrentDetail: TorrentDetail) :
+    TorrentEvent(infoHash)

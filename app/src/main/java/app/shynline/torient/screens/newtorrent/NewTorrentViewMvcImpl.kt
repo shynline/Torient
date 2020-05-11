@@ -90,6 +90,6 @@ class NewTorrentViewMvcImpl(
             )
         )
         fileIdentifier = 0L
-        fastItemAdapter.add(parseTorrentFile(torrentDetail.torrentFile))
+        fastItemAdapter.add(parseTorrentFile(torrentDetail.torrentFile!!))
     }
 }

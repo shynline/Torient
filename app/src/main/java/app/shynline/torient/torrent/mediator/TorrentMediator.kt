@@ -2,7 +2,6 @@ package app.shynline.torient.torrent.mediator
 
 import app.shynline.torient.model.TorrentDetail
 import app.shynline.torient.model.TorrentIdentifier
-import app.shynline.torient.torrent.states.ManageState
 import app.shynline.torient.torrent.torrent.Torrent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -15,8 +14,8 @@ class TorrentMediator(
             torrent.addTorrent(identifier)
         }
 
-    suspend fun getAllManagedTorrentStates(): Map<String, ManageState> {
-        return torrent.getAllManagedTorrentStats()
+    suspend fun getAllManagedTorrents(): List<String> {
+        return torrent.getAllManagedTorrents()
     }
 
     suspend fun getTorrentDetail(

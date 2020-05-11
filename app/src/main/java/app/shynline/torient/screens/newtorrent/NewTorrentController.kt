@@ -52,9 +52,10 @@ class NewTorrentController(
             currentTorrent?.let {
                 torrentDataSource.insertTorrent(
                     TorrentSchema(
-                        it.infoHash,
-                        it.magnet,
-                        TorrentUserState.ACTIVE
+                        infoHash = it.infoHash,
+                        name = it.name,
+                        magnet = it.magnet,
+                        userState = TorrentUserState.ACTIVE
                     )
                 )
             }
@@ -67,9 +68,10 @@ class NewTorrentController(
             currentTorrent?.let {
                 torrentDataSource.insertTorrent(
                     TorrentSchema(
-                        it.infoHash,
-                        it.magnet,
-                        TorrentUserState.PAUSED
+                        infoHash = it.infoHash,
+                        magnet = it.magnet,
+                        name = it.name,
+                        userState = TorrentUserState.PAUSED
                     )
                 )
             }
