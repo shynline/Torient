@@ -8,8 +8,8 @@ import android.os.IBinder
 import app.shynline.torient.common.downloadDir
 import app.shynline.torient.common.observable.Observable
 import app.shynline.torient.common.torrentDir
-import app.shynline.torient.model.TorrentDetail
 import app.shynline.torient.model.TorrentIdentifier
+import app.shynline.torient.model.TorrentModel
 import app.shynline.torient.torrent.service.TorientService
 import com.frostwire.jlibtorrent.*
 import kotlinx.coroutines.*
@@ -35,7 +35,7 @@ class TorrentImpl(
     private var service: TorientService? = null
     private val intent: Intent = Intent(context, TorientService::class.java)
 
-    private val torrentsDetails: MutableMap<String, TorrentDetail> = hashMapOf()
+    private val torrentModels: MutableMap<String, TorrentModel> = hashMapOf()
 
     private var periodicTimer: Timer? = null
 
@@ -181,12 +181,12 @@ class TorrentImpl(
      * @param identifier
      * @return TorrentDetail or null
      */
-    override suspend fun getTorrentDetail(identifier: TorrentIdentifier): TorrentDetail? =
+    override suspend fun getTorrentModel(identifier: TorrentIdentifier): TorrentModel? =
         withContext(ioDispatcher) {
-            getTorrentDetailFromInfoHash(identifier.infoHash)?.let {
+            getTorrentModelFromInfoHash(identifier.infoHash)?.let {
                 return@withContext it
             }
-            return@withContext getTorrentDetail(identifier.magnet)
+            return@withContext getTorrentModel(identifier.magnet)
         }
 
     /**
@@ -197,12 +197,12 @@ class TorrentImpl(
      * @param infoHash
      * @return TorrentDetail or null
      */
-    override suspend fun getTorrentDetailFromInfoHash(infoHash: String): TorrentDetail? {
+    override suspend fun getTorrentModelFromInfoHash(infoHash: String): TorrentModel? {
         // Check if we already have it in our cache
-        if (torrentsDetails.containsKey(infoHash)) {
-            return torrentsDetails[infoHash]
+        if (torrentModels.containsKey(infoHash)) {
+            return torrentModels[infoHash]
         }
-        return getTorrentDetail(readTorrentFileFromCache(infoHash))
+        return getTorrentModel(readTorrentFileFromCache(infoHash))
     }
 
     private fun readTorrentFileFromCache(infoHash: String): ByteArray? {
@@ -223,7 +223,7 @@ class TorrentImpl(
      * @param magnet
      * @return TorrentDetail or null
      */
-    override suspend fun getTorrentDetail(magnet: String): TorrentDetail? =
+    override suspend fun getTorrentModel(magnet: String): TorrentModel? =
         withContext(ioDispatcher) {
             // Waiting for at most 10 seconds to find at least 10 dht nodes if doesn't exist
             var times = 0
@@ -233,7 +233,7 @@ class TorrentImpl(
                 times += 1
             }
             val bytes: ByteArray? = session.fetchMagnet(magnet, 30)
-            return@withContext getTorrentDetail(bytes)
+            return@withContext getTorrentModel(bytes)
         }
 
     private suspend fun getTorrentInfo(data: ByteArray): TorrentInfo {
@@ -246,7 +246,7 @@ class TorrentImpl(
      * @param data
      * @return TorrentDetail or null
      */
-    override suspend fun getTorrentDetail(data: ByteArray?): TorrentDetail? =
+    override suspend fun getTorrentModel(data: ByteArray?): TorrentModel? =
         withContext(ioDispatcher) {
             if (data == null)
                 return@withContext null
@@ -257,9 +257,9 @@ class TorrentImpl(
                 return@withContext null
             }
             // Create the torrentDetail
-            val torrentDetail = TorrentDetail.from(torrentInfo)
+            val torrentDetail = TorrentModel.from(torrentInfo)
             // Cache it in memory
-            torrentsDetails[torrentDetail.infoHash] = torrentDetail
+            torrentModels[torrentDetail.infoHash] = torrentDetail
 
             // Save torrent file here if it doesn't exist
             saveTorrentFileToCache(torrentDetail.infoHash, data)

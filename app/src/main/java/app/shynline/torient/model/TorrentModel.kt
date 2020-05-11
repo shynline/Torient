@@ -4,7 +4,7 @@ import app.shynline.torient.database.states.TorrentUserState
 import app.shynline.torient.torrent.states.TorrentDownloadingState
 import com.frostwire.jlibtorrent.TorrentInfo
 
-data class TorrentDetail(
+data class TorrentModel(
     val infoHash: String,
     var name: String,
     var magnet: String
@@ -30,8 +30,8 @@ data class TorrentDetail(
     }
 
     companion object {
-        fun from(torrentInfo: TorrentInfo): TorrentDetail {
-            return TorrentDetail(
+        fun from(torrentInfo: TorrentInfo): TorrentModel {
+            return TorrentModel(
                 torrentInfo.infoHash().toHex(),
                 torrentInfo.name(),
                 torrentInfo.makeMagnetUri()

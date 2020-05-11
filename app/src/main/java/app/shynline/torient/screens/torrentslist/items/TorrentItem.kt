@@ -6,7 +6,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import app.shynline.torient.R
 import app.shynline.torient.database.states.TorrentUserState
-import app.shynline.torient.model.TorrentDetail
+import app.shynline.torient.model.TorrentModel
 import app.shynline.torient.screens.torrentslist.TorrentListViewMvcImpl
 import app.shynline.torient.torrent.states.TorrentDownloadingState
 import app.shynline.torient.utils.*
@@ -15,7 +15,7 @@ import com.mikepenz.fastadapter.items.AbstractItem
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar
 
 class TorrentItem(
-    val torrentDetail: TorrentDetail,
+    val torrentModel: TorrentModel,
     private val subscription: Subscription
 ) : AbstractItem<TorrentItem.ViewHolder>() {
 
@@ -36,7 +36,7 @@ class TorrentItem(
     }
 
     override var identifier: Long
-        get() = torrentDetail.hexHash
+        get() = torrentModel.hexHash
         set(value) {
             throw RuntimeException("It's not modifiable.")
         }
@@ -62,28 +62,28 @@ class TorrentItem(
         }
 
         override fun bindView(item: TorrentItem, payloads: List<Any>) {
-            subscription.subscribe(item.torrentDetail.infoHash, this)
+            subscription.subscribe(item.torrentModel.infoHash, this)
 
             latestItem = item
-            nameTV.text = item.torrentDetail.name
+            nameTV.text = item.torrentModel.name
             priorityBar.setBackgroundColor(Color.RED)
             iconIv.setImageResource(
                 FileIcon.iconOf(
-                    item.torrentDetail.torrentFile?.fileType ?: FileType.UNKNOWN
+                    item.torrentModel.torrentFile?.fileType ?: FileType.UNKNOWN
                 )
             )
             val bytesDone: Float
-            val currentProgress = if (item.torrentDetail.finished) {
-                bytesDone = item.torrentDetail.totalSize.toFloat()
+            val currentProgress = if (item.torrentModel.finished) {
+                bytesDone = item.torrentModel.totalSize.toFloat()
                 100
             } else {
-                bytesDone = item.torrentDetail.totalSize * item.torrentDetail.progress
-                (item.torrentDetail.progress * 100).toInt()
+                bytesDone = item.torrentModel.totalSize * item.torrentModel.progress
+                (item.torrentModel.progress * 100).toInt()
             }
             val progressText = "${bytesDone.toLong().toByteRepresentation()} of " +
-                    "${item.torrentDetail.totalSize.toByteRepresentation()} " +
+                    "${item.torrentModel.totalSize.toByteRepresentation()} " +
                     "($currentProgress%)"
-            when (item.torrentDetail.userState) {
+            when (item.torrentModel.userState) {
                 TorrentUserState.PAUSED -> {
                     statusTv.text = "Paused"
                     progressView.isIndeterminate = false
@@ -91,7 +91,7 @@ class TorrentItem(
                     statusProgressTv.text = progressText
                 }
                 TorrentUserState.ACTIVE -> {
-                    when (item.torrentDetail.downloadingState) {
+                    when (item.torrentModel.downloadingState) {
                         TorrentDownloadingState.UNKNOWN -> {
                             progressView.isIndeterminate = true
                             statusTv.text = "Finding peers..."
@@ -107,7 +107,7 @@ class TorrentItem(
                             statusTv.text = "Checking files..."
                             statusProgressTv.text = "Preparing"
                             progressView.progress =
-                                (item.torrentDetail.progress * 100).toInt()
+                                (item.torrentModel.progress * 100).toInt()
                         }
                         TorrentDownloadingState.CHECKING_RESUME_DATA -> {
                             progressView.isIndeterminate = true
@@ -117,20 +117,20 @@ class TorrentItem(
                         TorrentDownloadingState.DOWNLOADING -> {
                             progressView.isIndeterminate = false
                             progressView.progress =
-                                (item.torrentDetail.progress * 100).toInt()
-                            val downloadRate = item.torrentDetail.downloadRate
+                                (item.torrentModel.progress * 100).toInt()
+                            val downloadRate = item.torrentModel.downloadRate
                             val remainingBytes =
-                                (item.torrentDetail.totalSize * (1f - item.torrentDetail.progress)).toLong()
+                                (item.torrentModel.totalSize * (1f - item.torrentModel.progress)).toLong()
                             val remainingTime = if (downloadRate == 0) {
                                 null
                             } else {
                                 remainingBytes / downloadRate
                             }
                             statusTv.text = "Downloading \uD83D\uDC64 " +
-                                    "${item.torrentDetail.connectedPeers}/" +
-                                    "${item.torrentDetail.maxPeers} - ⬇️ " +
+                                    "${item.torrentModel.connectedPeers}/" +
+                                    "${item.torrentModel.maxPeers} - ⬇️ " +
                                     "${downloadRate.toStandardRate()} " +
-                                    "⬆️ ${item.torrentDetail.uploadRate.toStandardRate()}"
+                                    "⬆️ ${item.torrentModel.uploadRate.toStandardRate()}"
                             statusProgressTv.text =
                                 "$progressText ${remainingTime?.toReadableTime() ?: ""}"
                         }
@@ -150,10 +150,10 @@ class TorrentItem(
                             statusProgressTv.text = progressText
                             progressView.progress = currentProgress
                             statusTv.text =
-                                "Seeding \uD83D\uDC64 ${item.torrentDetail.connectedPeers}" +
-                                        "/${item.torrentDetail.maxPeers} - ⬇️ " +
-                                        "${item.torrentDetail.downloadRate.toStandardRate()} " +
-                                        "⬆️ ${item.torrentDetail.uploadRate.toStandardRate()}"
+                                "Seeding \uD83D\uDC64 ${item.torrentModel.connectedPeers}" +
+                                        "/${item.torrentModel.maxPeers} - ⬇️ " +
+                                        "${item.torrentModel.downloadRate.toStandardRate()} " +
+                                        "⬆️ ${item.torrentModel.uploadRate.toStandardRate()}"
                         }
                     }
                 }
@@ -163,7 +163,7 @@ class TorrentItem(
 
         override fun unbindView(item: TorrentItem) {
             latestItem = null
-            subscription.unsubscribe(item.torrentDetail.infoHash)
+            subscription.unsubscribe(item.torrentModel.infoHash)
             nameTV.text = ""
         }
     }

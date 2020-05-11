@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
                 GlobalScope.launch {
                     contentResolver.openInputStream(uri)?.use { inputStream ->
                         val data = BufferedInputStream(inputStream).readBytes()
-                        torrentMediator.getTorrentDetail(torrentFile = data)?.let { torrentDetail ->
+                        torrentMediator.getTorrentModel(torrentFile = data)?.let { torrentDetail ->
                             PageNavigationHelper(findNavController(R.id.nav_host_fragment))
                                 .showNewTorrentDialog(torrentDetail.infoHash)
                         }

@@ -1,6 +1,6 @@
 package app.shynline.torient.screens.newtorrent
 
-import app.shynline.torient.model.TorrentDetail
+import app.shynline.torient.model.TorrentModel
 import app.shynline.torient.screens.common.view.ObservableViewMvc
 
 interface NewTorrentViewMvc : ObservableViewMvc<NewTorrentViewMvc.Listener> {
@@ -9,6 +9,6 @@ interface NewTorrentViewMvc : ObservableViewMvc<NewTorrentViewMvc.Listener> {
         fun addTorrent()
     }
 
-    fun showTorrent(torrentDetail: TorrentDetail)
+    fun showTorrent(torrentModel: TorrentModel)
 
 }

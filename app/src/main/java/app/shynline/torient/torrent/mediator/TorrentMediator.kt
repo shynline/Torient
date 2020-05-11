@@ -1,7 +1,7 @@
 package app.shynline.torient.torrent.mediator
 
-import app.shynline.torient.model.TorrentDetail
 import app.shynline.torient.model.TorrentIdentifier
+import app.shynline.torient.model.TorrentModel
 import app.shynline.torient.torrent.torrent.Torrent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -18,22 +18,22 @@ class TorrentMediator(
         return torrent.getAllManagedTorrents()
     }
 
-    suspend fun getTorrentDetail(
+    suspend fun getTorrentModel(
         infoHash: String? = null,
         identifier: TorrentIdentifier? = null,
         torrentFile: ByteArray? = null,
         magnet: String? = null
-    ): TorrentDetail? {
+    ): TorrentModel? {
         infoHash?.let {
-            return torrent.getTorrentDetailFromInfoHash(it)
+            return torrent.getTorrentModelFromInfoHash(it)
         }
         torrentFile?.let {
-            return torrent.getTorrentDetail(it)
+            return torrent.getTorrentModel(it)
         }
         identifier?.let {
-            return torrent.getTorrentDetail(it)
+            return torrent.getTorrentModel(it)
         }
-        return torrent.getTorrentDetail(magnet!!)
+        return torrent.getTorrentModel(magnet!!)
     }
 
     suspend fun removeTorrent(infoHash: String): Boolean {

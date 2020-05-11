@@ -2,7 +2,7 @@ package app.shynline.torient.screens.torrentslist
 
 import app.shynline.torient.database.datasource.TorrentDataSource
 import app.shynline.torient.database.states.TorrentUserState
-import app.shynline.torient.model.TorrentDetail
+import app.shynline.torient.model.TorrentModel
 import app.shynline.torient.screens.common.BaseController
 import app.shynline.torient.screens.common.navigationhelper.PageNavigationHelper
 import app.shynline.torient.screens.common.requesthelper.FragmentRequestHelper
@@ -26,7 +26,7 @@ class TorrentsListController(
     private var viewMvc: TorrentListViewMvc? = null
     private var fragmentRequestHelper: FragmentRequestHelper? = null
     private var pageNavigationHelper: PageNavigationHelper? = null
-    private val managedTorrents: MutableMap<String, TorrentDetail> = hashMapOf()
+    private val managedTorrents: MutableMap<String, TorrentModel> = hashMapOf()
 
     fun bind(
         viewMvc: TorrentListViewMvc, fragmentRequestHelper: FragmentRequestHelper,
@@ -97,12 +97,12 @@ class TorrentsListController(
                 }
                 is TorrentMetaDataEvent -> {
                     managedTorrents[torrentEvent.infoHash]?.let {
-                        it.name = torrentEvent.torrentDetail.name
-                        it.totalSize = torrentEvent.torrentDetail.totalSize
-                        it.author = torrentEvent.torrentDetail.author
-                        it.comment = torrentEvent.torrentDetail.comment
-                        it.hexHash = torrentEvent.torrentDetail.hexHash
-                        it.torrentFile = torrentEvent.torrentDetail.torrentFile
+                        it.name = torrentEvent.torrentModel.name
+                        it.totalSize = torrentEvent.torrentModel.totalSize
+                        it.author = torrentEvent.torrentModel.author
+                        it.comment = torrentEvent.torrentModel.comment
+                        it.hexHash = torrentEvent.torrentModel.hexHash
+                        it.torrentFile = torrentEvent.torrentModel.torrentFile
                     }
                 }
             }
@@ -140,9 +140,9 @@ class TorrentsListController(
             // Traversing through torrents in database
             torrentSchemas.forEach {
                 if (!managedTorrents.containsKey(it.infoHash)) {
-                    val torrentDetail = torrentMediator.getTorrentDetail(
+                    val torrentDetail = torrentMediator.getTorrentModel(
                         infoHash = it.infoHash
-                    ) ?: TorrentDetail(
+                    ) ?: TorrentModel(
                         infoHash = it.infoHash,
                         name = it.name,
                         magnet = it.magnet
@@ -230,25 +230,25 @@ class TorrentsListController(
         fragmentRequestHelper!!.openTorrentFile(REQUEST_ID_OPEN_TORRENT_FILE)
     }
 
-    override fun onRemoveTorrent(torrentDetail: TorrentDetail) {
+    override fun onRemoveTorrent(torrentModel: TorrentModel) {
         // Remove from UI
-        viewMvc!!.removeTorrent(torrentDetail.hexHash)
+        viewMvc!!.removeTorrent(torrentModel.hexHash)
         // Remove controller cache
-        managedTorrents.remove(torrentDetail.infoHash)
+        managedTorrents.remove(torrentModel.infoHash)
         // Unsubscribe
-        subscriptionMediator.removeTorrent(this, torrentDetail.infoHash)
+        subscriptionMediator.removeTorrent(this, torrentModel.infoHash)
         controllerScope.launch {
             // Remove torrent if exists
-            torrentMediator.removeTorrent(torrentDetail.infoHash)
+            torrentMediator.removeTorrent(torrentModel.infoHash)
             // Remove files if exists
-            torrentMediator.removeTorrentFiles(torrentDetail.name)
+            torrentMediator.removeTorrentFiles(torrentModel.name)
             // Remove from database
-            torrentDataSource.removeTorrent(torrentDetail.infoHash)
+            torrentDataSource.removeTorrent(torrentModel.infoHash)
         }
     }
 
     fun openTorrentFile(torrentData: ByteArray) = controllerScope.launch {
-        val torrentDetail = torrentMediator.getTorrentDetail(torrentFile = torrentData)
+        val torrentDetail = torrentMediator.getTorrentModel(torrentFile = torrentData)
         if (torrentDetail != null) {
             pageNavigationHelper!!.showNewTorrentDialog(torrentDetail.infoHash)
         } else {
@@ -257,48 +257,48 @@ class TorrentsListController(
 
     }
 
-    override fun onSaveToDownloadRequested(torrentDetail: TorrentDetail) {
-        fragmentRequestHelper!!.saveToDownload(torrentDetail.name)
+    override fun onSaveToDownloadRequested(torrentModel: TorrentModel) {
+        fragmentRequestHelper!!.saveToDownload(torrentModel.name)
     }
 
-    override fun handleClicked(position: Int, torrentDetail: TorrentDetail) {
+    override fun handleClicked(position: Int, torrentModel: TorrentModel) {
         controllerScope.launch {
-            when (torrentDetail.userState) {
+            when (torrentModel.userState) {
                 TorrentUserState.PAUSED -> {
                     // Change the cached version
-                    torrentDetail.userState = TorrentUserState.ACTIVE
+                    torrentModel.userState = TorrentUserState.ACTIVE
                     // Update the database
                     torrentDataSource.setTorrentState(
-                        torrentDetail.infoHash,
+                        torrentModel.infoHash,
                         TorrentUserState.ACTIVE
                     )
                     subscriptionMediator.addTorrent(
                         this@TorrentsListController,
-                        torrentDetail.infoHash
+                        torrentModel.infoHash
                     )
                     // Requesting the service
-                    torrentMediator.addTorrent(torrentDetail.toIdentifier())
+                    torrentMediator.addTorrent(torrentModel.toIdentifier())
                     // notifying the view
-                    viewMvc!!.notifyItemUpdate(torrentDetail.infoHash)
+                    viewMvc!!.notifyItemUpdate(torrentModel.infoHash)
                 }
                 TorrentUserState.ACTIVE -> {
-                    torrentDetail.userState = TorrentUserState.PAUSED
-                    torrentDataSource.getTorrent(torrentDetail.infoHash)?.let {
-                        torrentDetail.progress = it.progress
-                        torrentDetail.finished = it.isFinished
+                    torrentModel.userState = TorrentUserState.PAUSED
+                    torrentDataSource.getTorrent(torrentModel.infoHash)?.let {
+                        torrentModel.progress = it.progress
+                        torrentModel.finished = it.isFinished
                     }
                     torrentDataSource.setTorrentState(
-                        torrentDetail.infoHash,
+                        torrentModel.infoHash,
                         TorrentUserState.PAUSED
                     )
                     subscriptionMediator.removeTorrent(
                         this@TorrentsListController,
-                        torrentDetail.infoHash
+                        torrentModel.infoHash
                     )
-                    if (!torrentMediator.removeTorrent(torrentDetail.infoHash)) {
+                    if (!torrentMediator.removeTorrent(torrentModel.infoHash)) {
                         // no handler found so no request has been made
                     }
-                    viewMvc!!.notifyItemUpdate(torrentDetail.infoHash)
+                    viewMvc!!.notifyItemUpdate(torrentModel.infoHash)
                 }
             }
         }

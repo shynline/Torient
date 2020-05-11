@@ -3,12 +3,12 @@ package app.shynline.torient.screens.newtorrent.items
 import android.view.View
 import android.widget.TextView
 import app.shynline.torient.R
-import app.shynline.torient.model.TorrentDetail
+import app.shynline.torient.model.TorrentModel
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.items.AbstractItem
 
 class HeaderItem(
-    private val torrentDetail: TorrentDetail
+    private val torrentModel: TorrentModel
 ) : AbstractItem<HeaderItem.ViewHolder>() {
 
     override val layoutRes: Int
@@ -19,11 +19,11 @@ class HeaderItem(
     override fun getViewHolder(v: View): ViewHolder {
         return ViewHolder(
             v,
-            torrentDetail
+            torrentModel
         )
     }
 
-    class ViewHolder(view: View, private val torrentDetail: TorrentDetail) :
+    class ViewHolder(view: View, private val torrentModel: TorrentModel) :
         FastAdapter.ViewHolder<HeaderItem>(view) {
         private val nameTV = view.findViewById<TextView>(R.id.name)
         private val creatorTV = view.findViewById<TextView>(R.id.creator)
@@ -32,11 +32,11 @@ class HeaderItem(
         private val sizeTV = view.findViewById<TextView>(R.id.size)
 
         override fun bindView(item: HeaderItem, payloads: List<Any>) {
-            nameTV.text = torrentDetail.name
-            creatorTV.text = torrentDetail.author
-            commentTV.text = torrentDetail.comment
-            infoHashTV.text = torrentDetail.infoHash
-            sizeTV.text = torrentDetail.totalSize.toString()
+            nameTV.text = torrentModel.name
+            creatorTV.text = torrentModel.author
+            commentTV.text = torrentModel.comment
+            infoHashTV.text = torrentModel.infoHash
+            sizeTV.text = torrentModel.totalSize.toString()
         }
 
         override fun unbindView(item: HeaderItem) {

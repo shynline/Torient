@@ -3,7 +3,7 @@ package app.shynline.torient.screens.newtorrent
 import app.shynline.torient.database.datasource.TorrentDataSource
 import app.shynline.torient.database.entities.TorrentSchema
 import app.shynline.torient.database.states.TorrentUserState
-import app.shynline.torient.model.TorrentDetail
+import app.shynline.torient.model.TorrentModel
 import app.shynline.torient.screens.common.BaseController
 import app.shynline.torient.screens.common.navigationhelper.PageNavigationHelper
 import app.shynline.torient.screens.common.requesthelper.FragmentRequestHelper
@@ -17,7 +17,7 @@ class NewTorrentController(
     private var viewMvc: NewTorrentViewMvc? = null
     private var pageNavigationHelper: PageNavigationHelper? = null
     private var fragmentRequestHelper: FragmentRequestHelper? = null
-    private var currentTorrent: TorrentDetail? = null
+    private var currentTorrent: TorrentModel? = null
 
 
     fun bind(
@@ -31,7 +31,7 @@ class NewTorrentController(
     }
 
     fun showTorrent(infoHash: String) = controllerScope.launch {
-        currentTorrent = torrentMediator.getTorrentDetail(infoHash = infoHash)
+        currentTorrent = torrentMediator.getTorrentModel(infoHash = infoHash)
         if (currentTorrent != null) {
             viewMvc!!.showTorrent(currentTorrent!!)
         } else {

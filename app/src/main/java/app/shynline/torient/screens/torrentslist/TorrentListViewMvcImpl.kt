@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import app.shynline.torient.R
 import app.shynline.torient.database.states.TorrentUserState
-import app.shynline.torient.model.TorrentDetail
+import app.shynline.torient.model.TorrentModel
 import app.shynline.torient.screens.common.view.BaseObservableViewMvc
 import app.shynline.torient.screens.torrentslist.items.TorrentItem
 import com.cheekiat.fabmenu.FabMenu
@@ -83,29 +83,29 @@ class TorrentListViewMvcImpl(
                 val menu = PopupMenu(getContext(), v)
                 menu.inflate(R.menu.torrent_item_menu)
                 val cItem = menu.menu.findItem(R.id.torrent_control)
-                cItem.title = if (item.torrentDetail.userState == TorrentUserState.ACTIVE) {
+                cItem.title = if (item.torrentModel.userState == TorrentUserState.ACTIVE) {
                     "Pause"
                 } else {
                     "Start"
                 }
-                menu.menu.findItem(R.id.torrent_save).isVisible = item.torrentDetail.finished
+                menu.menu.findItem(R.id.torrent_save).isVisible = item.torrentModel.finished
 
                 menu.setOnMenuItemClickListener {
                     when (it.itemId) {
                         R.id.torrent_save -> {
                             getListeners().forEach { listener ->
-                                listener.onSaveToDownloadRequested(item.torrentDetail)
+                                listener.onSaveToDownloadRequested(item.torrentModel)
                             }
                             return@setOnMenuItemClickListener true
                         }
                         R.id.torrent_control -> {
                             getListeners().forEach { listener ->
-                                listener.handleClicked(position, item.torrentDetail)
+                                listener.handleClicked(position, item.torrentModel)
                             }
                         }
                         R.id.torrent_remove -> {
                             getListeners().forEach { listener ->
-                                listener.onRemoveTorrent(item.torrentDetail)
+                                listener.onRemoveTorrent(item.torrentModel)
                             }
                         }
                     }
@@ -128,7 +128,7 @@ class TorrentListViewMvcImpl(
                 fastAdapter: FastAdapter<TorrentItem>,
                 item: TorrentItem
             ) {
-                Toast.makeText(getContext(), item.torrentDetail.name, Toast.LENGTH_SHORT).show()
+                Toast.makeText(getContext(), item.torrentModel.name, Toast.LENGTH_SHORT).show()
             }
 
             override fun onBind(viewHolder: RecyclerView.ViewHolder): View? {
@@ -144,15 +144,15 @@ class TorrentListViewMvcImpl(
         torrentItemUpdateListeners[infoHash]?.onUpdate()
     }
 
-    override fun showTorrents(torrentDetails: List<TorrentDetail>) {
+    override fun showTorrents(torrentModels: List<TorrentModel>) {
         // use diff util here
-        emptyPlaceholder.visibility = if (torrentDetails.isEmpty()) {
+        emptyPlaceholder.visibility = if (torrentModels.isEmpty()) {
             View.VISIBLE
         } else {
             View.GONE
         }
         torrentAdapter.clear()
-        torrentAdapter.add(torrentDetails.map { torrentDetail ->
+        torrentAdapter.add(torrentModels.map { torrentDetail ->
             TorrentItem(torrentDetail, this)
         })
     }

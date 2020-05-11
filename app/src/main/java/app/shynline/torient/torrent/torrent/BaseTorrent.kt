@@ -1,7 +1,7 @@
 package app.shynline.torient.torrent.torrent
 
 import app.shynline.torient.common.observable.BaseObservable
-import app.shynline.torient.model.TorrentDetail
+import app.shynline.torient.model.TorrentModel
 import app.shynline.torient.torrent.events.TorrentMetaDataEvent
 import app.shynline.torient.torrent.events.TorrentProgressEvent
 import app.shynline.torient.torrent.states.TorrentDownloadingState
@@ -113,7 +113,7 @@ abstract class BaseTorrent : BaseObservable<Torrent.Listener>(), Torrent, AlertL
         if (managedTorrents[infoHash] == TorrentStatus.State.DOWNLOADING_METADATA) {
             val metaDataEvent = TorrentMetaDataEvent(
                 infoHash,
-                TorrentDetail.from(handle.torrentFile())
+                TorrentModel.from(handle.torrentFile())
             )
             // Cache it in torrent storage
             saveTorrentFileToCache(infoHash, handle.torrentFile().bencode())

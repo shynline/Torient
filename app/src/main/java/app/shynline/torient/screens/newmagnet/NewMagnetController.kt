@@ -52,7 +52,7 @@ class NewMagnetController(
         viewMvc!!.showMagnet(currentMagnet!!)
         // Attempting to get the torrent metaData
         val torrentDetail =
-            torrentMediator.getTorrentDetail(
+            torrentMediator.getTorrentModel(
                 identifier = TorrentIdentifier(
                     currentMagnet!!.infoHash!!,
                     magnet

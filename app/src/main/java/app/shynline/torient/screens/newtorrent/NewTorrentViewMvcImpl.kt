@@ -6,8 +6,8 @@ import android.widget.Button
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import app.shynline.torient.R
-import app.shynline.torient.model.TorrentDetail
 import app.shynline.torient.model.TorrentFile
+import app.shynline.torient.model.TorrentModel
 import app.shynline.torient.screens.common.view.BaseObservableViewMvc
 import app.shynline.torient.screens.newtorrent.items.FileItem
 import app.shynline.torient.screens.newtorrent.items.FolderItem
@@ -82,14 +82,14 @@ class NewTorrentViewMvcImpl(
 
     }
 
-    override fun showTorrent(torrentDetail: TorrentDetail) {
+    override fun showTorrent(torrentModel: TorrentModel) {
         headerItemAdapter.clear()
         headerItemAdapter.add(
             HeaderItem(
-                torrentDetail
+                torrentModel
             )
         )
         fileIdentifier = 0L
-        fastItemAdapter.add(parseTorrentFile(torrentDetail.torrentFile!!))
+        fastItemAdapter.add(parseTorrentFile(torrentModel.torrentFile!!))
     }
 }
