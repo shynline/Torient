@@ -15,6 +15,7 @@ import androidx.navigation.NavDeepLinkBuilder
 import app.shynline.torient.R
 import app.shynline.torient.common.downloadDir
 import app.shynline.torient.utils.FileMimeDetector
+import app.shynline.torient.utils.calculateTotalSize
 import java.io.File
 
 
@@ -62,7 +63,7 @@ class TransferService : Service(), FileUtils.ProgressListener {
             stopSelf()
             return super.onStartCommand(intent, flags, startId)
         }
-        size = calculateFileSize(srcFile)
+        size = srcFile.calculateTotalSize()
         overallProgress = 0L
         foreground()
 
@@ -72,18 +73,6 @@ class TransferService : Service(), FileUtils.ProgressListener {
         cleanUp()
         stopSelf()
         return super.onStartCommand(intent, flags, startId)
-    }
-
-
-    private fun calculateFileSize(file: File): Long {
-        if (file.isDirectory) {
-            var s = 0L
-            file.listFiles()?.forEach {
-                s += calculateFileSize(it)
-            }
-            return s
-        }
-        return file.length()
     }
 
     override fun onBind(intent: Intent?): IBinder? {
