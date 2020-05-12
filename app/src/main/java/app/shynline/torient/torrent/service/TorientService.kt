@@ -8,8 +8,8 @@ import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.navigation.NavDeepLinkBuilder
 import app.shynline.torient.R
-import app.shynline.torient.common.MainActivity
 import app.shynline.torient.utils.toStandardRate
 
 class TorientService : Service() {
@@ -17,9 +17,10 @@ class TorientService : Service() {
 
     private var isForeground = false
     private val pendingIntent: PendingIntent by lazy {
-        Intent(this, MainActivity::class.java).let { notificationIntent ->
-            PendingIntent.getActivity(this, 0, notificationIntent, 0)
-        }
+        NavDeepLinkBuilder(this)
+            .setGraph(R.navigation.torient)
+            .setDestination(R.id.torrent_list_fragment)
+            .createPendingIntent()
     }
 
     override fun onBind(intent: Intent?): IBinder? {

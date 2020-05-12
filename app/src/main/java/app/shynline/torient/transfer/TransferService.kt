@@ -7,11 +7,12 @@ import android.content.Intent
 import android.os.Build
 import android.os.Environment
 import android.os.FileUtils
+import android.os.IBinder
 import android.provider.MediaStore
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.navigation.NavDeepLinkBuilder
 import app.shynline.torient.R
-import app.shynline.torient.common.MainActivity
 import app.shynline.torient.common.downloadDir
 import app.shynline.torient.utils.FileMimeDetector
 import java.io.File
@@ -19,41 +20,74 @@ import java.io.File
 
 private const val EXTRA_SRC = "app.shynline.torient.transfer.extra.src"
 
-class TransferService : IntentService("TransferService"), FileUtils.ProgressListener {
+class TransferService : Service(), FileUtils.ProgressListener {
 
 
     private val pendingIntent: PendingIntent by lazy {
-        Intent(this, MainActivity::class.java).let { notificationIntent ->
-            PendingIntent.getActivity(this, 0, notificationIntent, 0)
-        }
+        NavDeepLinkBuilder(this)
+            .setGraph(R.navigation.torient)
+            .setDestination(R.id.torrent_list_fragment)
+            .createPendingIntent()
     }
 
     override fun onProgress(progress: Long) {
         if (!isTransferring)
             return
-        showProgressNotification(progress, true)
+        overallProgress += progress - lastFileProgress
+        lastFileProgress = progress
+        showProgressNotification(true)
     }
 
     private var isTransferring = false
     private var name = ""
     private var size = 0L
+    private var overallProgress = 0L
+    private var lastFileProgress = 0L
 
-    override fun onHandleIntent(intent: Intent?) {
-        if (intent == null)
-            return
-        val src = intent.getStringExtra(EXTRA_SRC) ?: return
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent == null) {
+            stopSelf()
+            return super.onStartCommand(intent, flags, startId)
+        }
+        val src = intent.getStringExtra(EXTRA_SRC)
+        if (src == null) {
+            stopSelf()
+            return super.onStartCommand(intent, flags, startId)
+        }
         isTransferring = true
         name = src
         val srcFile = File(downloadDir, src)
         if (!srcFile.exists()) {
             cleanUp()
-            return
+            stopSelf()
+            return super.onStartCommand(intent, flags, startId)
         }
-        size = srcFile.length()
+        size = calculateFileSize(srcFile)
+        overallProgress = 0L
         foreground()
 
         cp(srcFile)
+
+        showFileCopiedNotification()
         cleanUp()
+        stopSelf()
+        return super.onStartCommand(intent, flags, startId)
+    }
+
+
+    private fun calculateFileSize(file: File): Long {
+        if (file.isDirectory) {
+            var s = 0L
+            file.listFiles()?.forEach {
+                s += calculateFileSize(it)
+            }
+            return s
+        }
+        return file.length()
+    }
+
+    override fun onBind(intent: Intent?): IBinder? {
+        return null
     }
 
     private fun cp(file: File, path: String = "") {
@@ -76,9 +110,9 @@ class TransferService : IntentService("TransferService"), FileUtils.ProgressList
         val collection = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
 
         val item = resolver.insert(collection, contentValues)
+        lastFileProgress = 0L
         resolver.openFileDescriptor(item!!, "rw")?.use {
-            FileUtils.copy(file.inputStream().fd, it.fileDescriptor, null, null, this)
-            showFileCopiedNotification()
+            FileUtils.copy(file.inputStream().fd, it.fileDescriptor, null, mainExecutor, this)
         }
         contentValues.clear()
         contentValues.put(MediaStore.DownloadColumns.IS_PENDING, 0)
@@ -88,12 +122,13 @@ class TransferService : IntentService("TransferService"), FileUtils.ProgressList
     private fun cleanUp() {
         name = ""
         size = 0L
+        overallProgress = 0L
         isTransferring = false
         background()
     }
 
     private fun foreground() {
-        val notification = showProgressNotification(0, false)
+        val notification = showProgressNotification(false)
         startForeground(ACTIVE_TRANSFER_NOTIFICATION_ID, notification)
     }
 
@@ -111,16 +146,15 @@ class TransferService : IntentService("TransferService"), FileUtils.ProgressList
     }
 
     private fun showProgressNotification(
-        progress: Long,
         show: Boolean
     ): Notification {
         val notification: Notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Saving $name")
             .setContentText(
-                "progress: ${(progress.toFloat() * 100 / size).toInt()}%"
+                "progress: ${(overallProgress.toFloat() * 100 / size).toInt()}%"
             )
             .setContentIntent(pendingIntent)
-            .setSmallIcon(R.mipmap.ic_launcher_round)
+            .setSmallIcon(R.drawable.ic_notification)
             .build()
         if (show) {
             with(NotificationManagerCompat.from(this)) {
