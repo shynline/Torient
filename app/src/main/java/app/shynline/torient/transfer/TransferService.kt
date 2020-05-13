@@ -169,13 +169,15 @@ class TransferService : Service() {
     private fun showProgressNotification(
         show: Boolean
     ): Notification {
+        val progress = (overallProgress.toFloat() * 100 / size).toInt()
         val notification: Notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Saving $name")
             .setContentText(
-                "progress: ${(overallProgress.toFloat() * 100 / size).toInt()}%"
+                "progress: $progress%"
             )
             .setContentIntent(pendingIntent)
             .setSmallIcon(R.drawable.ic_notification)
+            .setProgress(100, progress, false)
             .build()
         if (show) {
             with(NotificationManagerCompat.from(this)) {
