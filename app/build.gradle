@@ -126,6 +126,8 @@ dependencies {
     implementation "com.mikepenz:fastadapter-extensions-utils:$fastadapter"
     implementation "com.mikepenz:fastadapter-extensions-drag:$fastadapter"
     implementation "com.mikepenz:fastadapter-extensions-scroll:$fastadapter"
+    implementation "com.mikepenz:fastadapter-extensions-diff:$fastadapter"
+
 
 
     // Room

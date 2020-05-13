@@ -16,6 +16,7 @@ import com.cheekiat.fabmenu.FabMenu
 import com.cheekiat.fabmenu.listener.OnItemClickListener
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.adapters.ItemAdapter
+import com.mikepenz.fastadapter.diff.FastAdapterDiffUtil
 import com.mikepenz.fastadapter.listeners.ClickEventHook
 
 class TorrentListViewMvcImpl(
@@ -151,10 +152,9 @@ class TorrentListViewMvcImpl(
         } else {
             View.GONE
         }
-        torrentAdapter.clear()
-        torrentAdapter.add(torrentModels.map { torrentDetail ->
+        FastAdapterDiffUtil[torrentAdapter] = torrentModels.map { torrentDetail ->
             TorrentItem(torrentDetail, this)
-        })
+        }
     }
 
 
