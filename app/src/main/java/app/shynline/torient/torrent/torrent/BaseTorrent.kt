@@ -56,8 +56,8 @@ abstract class BaseTorrent(
                     infoHash,
                     TorrentDownloadingState.DOWNLOADING,
                     progress = statue.progress(),
-                    downloadRate = statue.downloadRate(),
-                    uploadRate = statue.uploadRate(),
+                    downloadRate = statue.downloadPayloadRate(),
+                    uploadRate = statue.uploadPayloadRate(),
                     maxPeers = statue.listPeers(),
                     connectedPeers = statue.numPeers()
                 )
