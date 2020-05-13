@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Environment
-import android.os.FileUtils
 import android.os.IBinder
 import android.provider.MediaStore
 import androidx.core.app.NotificationCompat
@@ -16,12 +15,17 @@ import app.shynline.torient.R
 import app.shynline.torient.common.downloadDir
 import app.shynline.torient.utils.FileMimeDetector
 import app.shynline.torient.utils.calculateTotalSize
+import app.shynline.torient.utils.copyTo
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.File
+import java.util.*
 
 
 private const val EXTRA_SRC = "app.shynline.torient.transfer.extra.src"
 
-class TransferService : Service(), FileUtils.ProgressListener {
+class TransferService : Service() {
 
 
     private val pendingIntent: PendingIntent by lazy {
@@ -31,48 +35,75 @@ class TransferService : Service(), FileUtils.ProgressListener {
             .createPendingIntent()
     }
 
-    override fun onProgress(progress: Long) {
-        if (!isTransferring)
-            return
-        overallProgress += progress - lastFileProgress
-        lastFileProgress = progress
-        showProgressNotification(true)
-    }
-
-    private var isTransferring = false
     private var name = ""
     private var size = 0L
     private var overallProgress = 0L
-    private var lastFileProgress = 0L
+    private var isTransferring = false
+    private val files: ArrayDeque<String> = ArrayDeque()
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent == null) {
-            stopSelf()
-            return super.onStartCommand(intent, flags, startId)
-        }
-        val src = intent.getStringExtra(EXTRA_SRC)
+        // Checking if there is an intent with required extra string
+        val src = intent?.getStringExtra(EXTRA_SRC)
         if (src == null) {
-            stopSelf()
+            // If this service is not transferring anything it should be stopped
+            if (!isTransferring) {
+                stopSelf()
+            }
             return super.onStartCommand(intent, flags, startId)
         }
-        isTransferring = true
-        name = src
-        val srcFile = File(downloadDir, src)
-        if (!srcFile.exists()) {
-            cleanUp()
-            stopSelf()
-            return super.onStartCommand(intent, flags, startId)
+        // Push the extra string which probably is a file uri to files deque
+        files.push(src)
+
+        // If service is not actively transferring anything activate it
+        if (!isTransferring) {
+            copyNextOrStop()
         }
-        size = srcFile.calculateTotalSize()
-        overallProgress = 0L
-        foreground()
-
-        cp(srcFile)
-
-        showFileCopiedNotification()
-        cleanUp()
-        stopSelf()
         return super.onStartCommand(intent, flags, startId)
+    }
+
+    /***
+     * This function get strings one by one from the deque and perform a copy action
+     * If it find a null which represent an empty deque it stop transferring and
+     * shut down the service
+     */
+    private fun copyNextOrStop() {
+        // Make sure isTransferring flag is on
+        isTransferring = true
+        // Poll a string from deque
+        val src = files.poll()
+        if (src == null) {
+            // Empty deque / clear the flag and stop the service
+            isTransferring = false
+            stopSelf()
+            return
+        }
+        GlobalScope.launch(Dispatchers.IO) {
+            name = src
+            val srcFile = File(downloadDir, src)
+            // Trying to open the file and see if it exists or not
+            if (!srcFile.exists()) {
+                // If the file doesn't exist clean up everything
+                // and recall this function again to poll next
+                cleanUp()
+                copyNextOrStop()
+                return@launch
+            }
+            // Calculate the total size for calculating the progress in notification
+            size = srcFile.calculateTotalSize()
+            overallProgress = 0L
+
+            // bring the service in foreground with overallProgress = 0
+            foreground()
+
+            // Copy the file(s)
+            cp(srcFile)
+
+            showFileCopiedNotification()
+            // cleaning up includes stopping foreground
+            cleanUp()
+            // Poll next
+            copyNextOrStop()
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -80,6 +111,7 @@ class TransferService : Service(), FileUtils.ProgressListener {
     }
 
     private fun cp(file: File, path: String = "") {
+        // If this file is a directory we recall this function recursively for each file inside
         if (file.isDirectory) {
             file.listFiles()?.forEach {
                 cp(it, path + File.separator + file.name)
@@ -97,11 +129,12 @@ class TransferService : Service(), FileUtils.ProgressListener {
         }
 
         val collection = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
-
         val item = resolver.insert(collection, contentValues)
-        lastFileProgress = 0L
-        resolver.openFileDescriptor(item!!, "rw")?.use {
-            FileUtils.copy(file.inputStream().fd, it.fileDescriptor, null, mainExecutor, this)
+        resolver.openOutputStream(item!!)!!.use {
+            file.inputStream().copyTo(it) { delta, progress ->
+                overallProgress += delta
+                showProgressNotification(true)
+            }
         }
         contentValues.clear()
         contentValues.put(MediaStore.DownloadColumns.IS_PENDING, 0)
@@ -112,7 +145,6 @@ class TransferService : Service(), FileUtils.ProgressListener {
         name = ""
         size = 0L
         overallProgress = 0L
-        isTransferring = false
         background()
     }
 
