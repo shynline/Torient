@@ -130,10 +130,12 @@ class TransferService : Service() {
 
         val collection = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
         val item = resolver.insert(collection, contentValues)
-        resolver.openOutputStream(item!!)!!.use {
-            file.inputStream().copyTo(it) { delta, progress ->
-                overallProgress += delta
-                showProgressNotification(true)
+        resolver.openOutputStream(item!!)!!.use { os ->
+            file.inputStream().use { fis ->
+                fis.copyTo(os) { delta, progress ->
+                    overallProgress += delta
+                    showProgressNotification(true)
+                }
             }
         }
         contentValues.clear()
