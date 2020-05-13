@@ -8,6 +8,10 @@
         android:title="Save to Downloads" />
 
     <item
+        android:id="@+id/torrent_copy_magnet"
+        android:title="Copy magnet" />
+
+    <item
         android:id="@+id/torrent_remove"
         android:title="Remove torrent" />
 </menu>

@@ -251,6 +251,10 @@ class TorrentsListController(
 
     }
 
+    override fun onCopyMagnetRequested(torrentModel: TorrentModel) {
+        fragmentRequestHelper!!.copyMagnetToClipBoard(torrentModel.name, torrentModel.magnet)
+    }
+
     override fun onSaveToDownloadRequested(torrentModel: TorrentModel) {
         fragmentRequestHelper!!.saveToDownload(torrentModel.name)
     }

@@ -109,6 +109,11 @@ class TorrentListViewMvcImpl(
                                 listener.onRemoveTorrent(item.torrentModel)
                             }
                         }
+                        R.id.torrent_copy_magnet -> {
+                            getListeners().forEach { listener ->
+                                listener.onCopyMagnetRequested(item.torrentModel)
+                            }
+                        }
                     }
                     false
                 }

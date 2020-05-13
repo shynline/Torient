@@ -10,6 +10,7 @@ interface TorrentListViewMvc : ObservableViewMvc<TorrentListViewMvc.Listener> {
         fun handleClicked(position: Int, torrentModel: TorrentModel)
         fun onSaveToDownloadRequested(torrentModel: TorrentModel)
         fun onRemoveTorrent(torrentModel: TorrentModel)
+        fun onCopyMagnetRequested(torrentModel: TorrentModel)
     }
 
     fun showTorrents(torrentModels: List<TorrentModel>)

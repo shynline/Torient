@@ -1,6 +1,10 @@
 package app.shynline.torient.screens.common.requesthelper
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import app.shynline.torient.transfer.TransferService
 
@@ -19,5 +23,13 @@ class FragmentRequestHelperImpl(private val fragment: Fragment) :
 
     override fun saveToDownload(name: String) {
         TransferService.copyFile(fragment.requireContext(), name)
+    }
+
+    override fun copyMagnetToClipBoard(name: String, magnet: String) {
+        val clipBoardManager = fragment.requireContext()
+            .getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("magnet: $name", magnet)
+        clipBoardManager.setPrimaryClip(clip)
+        Toast.makeText(fragment.requireContext(), "Copied to clipboard", Toast.LENGTH_SHORT).show()
     }
 }
