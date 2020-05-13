@@ -265,6 +265,7 @@ class TorrentsListController(
                 TorrentUserState.PAUSED -> {
                     // Change the cached version
                     torrentModel.userState = TorrentUserState.ACTIVE
+                    torrentModel.downloadingState = TorrentDownloadingState.UNKNOWN
                     // Update the database
                     torrentDataSource.setTorrentState(
                         torrentModel.infoHash,
