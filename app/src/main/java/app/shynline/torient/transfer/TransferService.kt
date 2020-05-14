@@ -20,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.io.File
+import java.io.IOException
 import java.util.*
 
 
@@ -129,18 +130,23 @@ class TransferService : Service() {
         }
 
         val collection = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
-        val item = resolver.insert(collection, contentValues)
-        resolver.openOutputStream(item!!)!!.use { os ->
-            file.inputStream().use { fis ->
-                fis.copyTo(os) { delta, progress ->
-                    overallProgress += delta
-                    showProgressNotification(true)
+        val item = resolver.insert(collection, contentValues)!!
+        try {
+            resolver.openOutputStream(item)!!.use { os ->
+                file.inputStream().use { fis ->
+                    fis.copyTo(os) { delta, progress ->
+                        overallProgress += delta
+                        showProgressNotification(true)
+                    }
                 }
             }
+            contentValues.clear()
+            contentValues.put(MediaStore.DownloadColumns.IS_PENDING, 0)
+            resolver.update(item, contentValues, null, null)
+        } catch (exception: IOException) {
+            resolver.delete(item, null, null)
+            showFileNotCopiedNotification()
         }
-        contentValues.clear()
-        contentValues.put(MediaStore.DownloadColumns.IS_PENDING, 0)
-        resolver.update(item, contentValues, null, null)
     }
 
     private fun cleanUp() {
@@ -158,8 +164,23 @@ class TransferService : Service() {
     private fun showFileCopiedNotification() {
         val notification: Notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Save complete")
-            .setContentText("$name has been saved successfully")
             .setContentIntent(pendingIntent)
+            .setStyle(
+                NotificationCompat.BigTextStyle().bigText("$name has been saved successfully")
+            )
+            .setSmallIcon(R.drawable.ic_notification)
+            .build()
+        with(NotificationManagerCompat.from(this)) {
+            notify(NotificationID.getID(), notification)
+        }
+
+    }
+
+    private fun showFileNotCopiedNotification() {
+        val notification: Notification = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("Save failed")
+            .setContentIntent(pendingIntent)
+            .setStyle(NotificationCompat.BigTextStyle().bigText("$name couldn't be saved"))
             .setSmallIcon(R.drawable.ic_notification)
             .build()
         with(NotificationManagerCompat.from(this)) {
