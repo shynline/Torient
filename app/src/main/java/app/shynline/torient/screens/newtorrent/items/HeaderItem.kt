@@ -4,6 +4,7 @@ import android.view.View
 import android.widget.TextView
 import app.shynline.torient.R
 import app.shynline.torient.model.TorrentModel
+import app.shynline.torient.utils.toByteRepresentation
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.items.AbstractItem
 
@@ -36,7 +37,7 @@ class HeaderItem(
             creatorTV.text = torrentModel.author
             commentTV.text = torrentModel.comment
             infoHashTV.text = torrentModel.infoHash
-            sizeTV.text = torrentModel.totalSize.toString()
+            sizeTV.text = torrentModel.totalSize.toByteRepresentation()
         }
 
         override fun unbindView(item: HeaderItem) {
