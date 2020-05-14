@@ -39,6 +39,11 @@ data class TorrentFile(
                             current = fileTree
                         } else {
                             // It's a sub folder
+                            if (i == 0) {
+                                // index 0 refer to file tree
+                                // and file tree already exists
+                                continue
+                            }
                             val ind = current!!.files!!.indexOfFirst { it.name == path[i] }
                             if (ind == -1) { // New folder
                                 // Creating a new folder
