@@ -3,6 +3,7 @@ package app.shynline.torient.torrent.torrent
 import app.shynline.torient.common.observable.Observable
 import app.shynline.torient.model.TorrentIdentifier
 import app.shynline.torient.model.TorrentModel
+import app.shynline.torient.model.TorrentOverview
 import app.shynline.torient.torrent.events.TorrentEvent
 
 interface Torrent :
@@ -17,6 +18,7 @@ interface Torrent :
     suspend fun getTorrentModelFromInfoHash(infoHash: String): TorrentModel?
     suspend fun addTorrent(identifier: TorrentIdentifier)
     suspend fun getAllManagedTorrents(): List<String>
+    suspend fun getTorrentOverview(infoHash: String): TorrentOverview?
     fun isTorrentFileCached(infoHash: String): Boolean
 
     /**

@@ -2,6 +2,7 @@ package app.shynline.torient.torrent.mediator
 
 import app.shynline.torient.model.TorrentIdentifier
 import app.shynline.torient.model.TorrentModel
+import app.shynline.torient.model.TorrentOverview
 import app.shynline.torient.torrent.torrent.Torrent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -46,5 +47,9 @@ class TorrentMediator(
 
     suspend fun removeTorrentFiles(name: String): Boolean {
         return torrent.removeTorrentFiles(name)
+    }
+
+    suspend fun torrentOverview(infoHash: String): TorrentOverview? {
+        return torrent.getTorrentOverview(infoHash)
     }
 }

@@ -9,8 +9,10 @@ import app.shynline.torient.common.downloadDir
 import app.shynline.torient.common.observable.Observable
 import app.shynline.torient.common.torrentDir
 import app.shynline.torient.database.datasource.InternalTorrentDataSource
+import app.shynline.torient.database.states.TorrentUserState
 import app.shynline.torient.model.TorrentIdentifier
 import app.shynline.torient.model.TorrentModel
+import app.shynline.torient.model.TorrentOverview
 import app.shynline.torient.torrent.service.TorientService
 import com.frostwire.jlibtorrent.*
 import kotlinx.coroutines.*
@@ -130,6 +132,38 @@ class TorrentImpl(
                 }
             }
         }
+    }
+
+    override suspend fun getTorrentOverview(infoHash: String): TorrentOverview? {
+        session.find(Sha1Hash(infoHash))?.let { handle ->
+            if (handle.isValid) {
+                val state = handle.status()
+                val info = handle.torrentFile()
+                return TorrentOverview(
+                    name = handle.name(),
+                    infoHash = infoHash,
+                    progress = state.progress(),
+                    numPiece = info.numPieces(),
+                    pieceLength = info.pieceLength(),
+                    size = info.totalSize(),
+                    userState = TorrentUserState.ACTIVE
+                )
+            }
+        }
+        readTorrentFileFromCache(infoHash)?.let {
+            val info = TorrentInfo(it)
+            return TorrentOverview(
+                name = info.name(),
+                infoHash = infoHash,
+                progress = 0f,
+                numPiece = info.numPieces(),
+                pieceLength = info.pieceLength(),
+                size = info.totalSize(),
+                userState = TorrentUserState.PAUSED
+            )
+        }
+
+        return null
     }
 
     override fun findHandle(sha1: Sha1Hash): TorrentHandle? {
