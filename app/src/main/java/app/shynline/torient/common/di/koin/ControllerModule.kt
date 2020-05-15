@@ -4,8 +4,12 @@ import app.shynline.torient.screens.newmagnet.NewMagnetController
 import app.shynline.torient.screens.newmagnet.NewMagnetFragment
 import app.shynline.torient.screens.newtorrent.NewTorrentController
 import app.shynline.torient.screens.newtorrent.NewTorrentFragment
-import app.shynline.torient.screens.torrentdetail.TorrentDetailController
-import app.shynline.torient.screens.torrentdetail.TorrentDetailFragment
+import app.shynline.torient.screens.torrentfiles.TorrentFilesController
+import app.shynline.torient.screens.torrentfiles.TorrentFilesFragment
+import app.shynline.torient.screens.torrentoverview.TorrentOverviewController
+import app.shynline.torient.screens.torrentoverview.TorrentOverviewFragment
+import app.shynline.torient.screens.torrentpreference.TorrentPreferenceController
+import app.shynline.torient.screens.torrentpreference.TorrentPreferenceFragment
 import app.shynline.torient.screens.torrentslist.TorrentsListController
 import app.shynline.torient.screens.torrentslist.TorrentsListFragment
 import org.koin.dsl.module
@@ -26,9 +30,19 @@ val controllerModule = module {
             NewMagnetController(get(), get())
         }
     }
-    scope<TorrentDetailFragment> {
+    scope<TorrentOverviewFragment> {
         scoped {
-            TorrentDetailController(get(), get(), get())
+            TorrentOverviewController()
+        }
+    }
+    scope<TorrentFilesFragment> {
+        scoped {
+            TorrentFilesController()
+        }
+    }
+    scope<TorrentPreferenceFragment> {
+        scoped {
+            TorrentPreferenceController()
         }
     }
 }

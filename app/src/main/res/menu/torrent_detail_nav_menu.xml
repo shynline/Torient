@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/torrentOverviewFragment"
+        android:title="OverView" />
+    <item
+        android:id="@+id/torrentFilesFragment"
+        android:title="File" />
+    <item
+        android:id="@+id/torrentPreferenceFragment"
+        android:title="Pref" />
+
+</menu>

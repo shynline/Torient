@@ -49,5 +49,29 @@
             android:name="hash"
             app:argType="string" />
     </fragment>
+    <fragment
+        android:id="@+id/torrentFilesFragment"
+        android:name="app.shynline.torient.screens.torrentfiles.TorrentFilesFragment"
+        android:label="TorrentFilesFragment">
+        <argument
+            android:name="infohash"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/torrentOverviewFragment"
+        android:name="app.shynline.torient.screens.torrentoverview.TorrentOverviewFragment"
+        android:label="TorrentOverviewFragment">
+        <argument
+            android:name="infohash"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/torrentPreferenceFragment"
+        android:name="app.shynline.torient.screens.torrentpreference.TorrentPreferenceFragment"
+        android:label="TorrentPreferenceFragment">
+        <argument
+            android:name="infohash"
+            app:argType="string" />
+    </fragment>
 
 </navigation>

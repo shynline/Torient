@@ -3,7 +3,6 @@ package app.shynline.torient.screens.torrentslist
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -134,7 +133,9 @@ class TorrentListViewMvcImpl(
                 fastAdapter: FastAdapter<TorrentItem>,
                 item: TorrentItem
             ) {
-                Toast.makeText(getContext(), item.torrentModel.name, Toast.LENGTH_SHORT).show()
+                getListeners().forEach { listener ->
+                    listener.onTorrentClicked(item.torrentModel)
+                }
             }
 
             override fun onBind(viewHolder: RecyclerView.ViewHolder): View? {

@@ -1,30 +1,32 @@
-package app.shynline.torient.screens.torrentdetail
+package app.shynline.torient.screens.torrentpreference
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import app.shynline.torient.common.di.viewfactory.ViewMvcFactory
 import app.shynline.torient.screens.common.BaseFragment
-import app.shynline.torient.screens.common.navigationhelper.PageNavigationHelper
 import org.koin.android.ext.android.inject
 import org.koin.androidx.scope.lifecycleScope
 
-class TorrentDetailFragment : BaseFragment() {
+class TorrentPreferenceFragment : BaseFragment() {
+
     private val viewMvcFactory by inject<ViewMvcFactory>()
-    private val controller by lifecycleScope.inject<TorrentDetailController>()
+    private val controller by lifecycleScope.inject<TorrentPreferenceController>()
+    private val navArgs by navArgs<TorrentPreferenceFragmentArgs>()
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val viewMvc = viewMvcFactory.getTorrentDetailViewMvc(inflater, container)
+        val viewMvc = viewMvcFactory.getTorrentPreferenceViewMvc(inflater, container)
         controller.bind(
-            viewMvc,
-            PageNavigationHelper(findNavController())
+            viewMvc
         )
+        controller.setTorrent(navArgs.infohash)
         return viewMvc.getRootView()
     }
 
@@ -47,6 +49,4 @@ class TorrentDetailFragment : BaseFragment() {
         super.onDestroy()
         controller.onDestroy()
     }
-
-
 }

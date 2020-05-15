@@ -8,8 +8,12 @@ import app.shynline.torient.screens.newmagnet.NewMagnetViewMvc
 import app.shynline.torient.screens.newmagnet.NewMagnetViewMvcImpl
 import app.shynline.torient.screens.newtorrent.NewTorrentViewMvc
 import app.shynline.torient.screens.newtorrent.NewTorrentViewMvcImpl
-import app.shynline.torient.screens.torrentdetail.TorrentDetailViewMvc
-import app.shynline.torient.screens.torrentdetail.TorrentDetailViewMvcImpl
+import app.shynline.torient.screens.torrentfiles.TorrentFilesViewMvc
+import app.shynline.torient.screens.torrentfiles.TorrentFilesViewMvcImpl
+import app.shynline.torient.screens.torrentoverview.TorrentOverviewViewMvc
+import app.shynline.torient.screens.torrentoverview.TorrentOverviewViewMvcImpl
+import app.shynline.torient.screens.torrentpreference.TorrentPreferenceViewMvc
+import app.shynline.torient.screens.torrentpreference.TorrentPreferenceViewMvcImpl
 import app.shynline.torient.screens.torrentslist.TorrentListViewMvc
 import app.shynline.torient.screens.torrentslist.TorrentListViewMvcImpl
 
@@ -44,10 +48,25 @@ class ViewMvcFactoryImpl :
         return AddMagnetViewMvcImpl(inflater, parent)
     }
 
-    override fun getTorrentDetailViewMvc(
+
+    override fun getTorrentFilesViewMvc(
         inflater: LayoutInflater,
         parent: ViewGroup?
-    ): TorrentDetailViewMvc {
-        return TorrentDetailViewMvcImpl(inflater, parent)
+    ): TorrentFilesViewMvc {
+        return TorrentFilesViewMvcImpl(inflater, parent)
+    }
+
+    override fun getTorrentOverViewViewMvc(
+        inflater: LayoutInflater,
+        parent: ViewGroup?
+    ): TorrentOverviewViewMvc {
+        return TorrentOverviewViewMvcImpl(inflater, parent)
+    }
+
+    override fun getTorrentPreferenceViewMvc(
+        inflater: LayoutInflater,
+        parent: ViewGroup?
+    ): TorrentPreferenceViewMvc {
+        return TorrentPreferenceViewMvcImpl(inflater, parent)
     }
 }

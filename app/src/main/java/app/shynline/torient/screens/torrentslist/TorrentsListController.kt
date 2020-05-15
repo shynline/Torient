@@ -251,6 +251,10 @@ class TorrentsListController(
 
     }
 
+    override fun onTorrentClicked(torrentModel: TorrentModel) {
+        pageNavigationHelper!!.showTorrentOverView(torrentModel.infoHash)
+    }
+
     override fun onCopyMagnetRequested(torrentModel: TorrentModel) {
         fragmentRequestHelper!!.copyMagnetToClipBoard(torrentModel.name, torrentModel.magnet)
     }
