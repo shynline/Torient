@@ -33,6 +33,9 @@ class TorrentImpl(
     private val sessionParams: SessionParams = SessionParams(
         SettingsPack()
             .enableDht(true)
+            .activeDownloads(5)
+            .activeSeeds(5)
+            .connectionsLimit(50)
     )
     private var service: TorientService? = null
     private val intent: Intent = Intent(context, TorientService::class.java)
