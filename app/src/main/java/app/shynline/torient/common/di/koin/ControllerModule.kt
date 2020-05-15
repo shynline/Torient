@@ -32,7 +32,7 @@ val controllerModule = module {
     }
     scope<TorrentOverviewFragment> {
         scoped {
-            TorrentOverviewController()
+            TorrentOverviewController(get(), get())
         }
     }
     scope<TorrentFilesFragment> {

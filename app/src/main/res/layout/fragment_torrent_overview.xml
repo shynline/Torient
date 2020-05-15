@@ -1,11 +1,117 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="overview" />
+        android:id="@+id/torrentName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textAlignment="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/labelBarrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="right"
+        app:constraint_referenced_ids="infoHashLabel,sizeLabel,stateLabel, haveLabel" />
+
+    <TextView
+        android:id="@+id/infoHashLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Info hash:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/torrentName" />
+
+    <TextView
+        android:id="@+id/torrentInfoHash"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/labelBarrier"
+        app:layout_constraintTop_toTopOf="@id/infoHashLabel" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/infoHashBarrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="infoHashLabel,torrentInfoHash" />
+
+    <TextView
+        android:id="@+id/stateLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Torrent state:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/infoHashBarrier" />
+
+    <TextView
+        android:id="@+id/torrentState"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/labelBarrier"
+        app:layout_constraintTop_toTopOf="@id/stateLabel" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/stateBarrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="stateLabel,torrentState" />
+
+    <TextView
+        android:id="@+id/sizeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Torrent size:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/stateBarrier" />
+
+    <TextView
+        android:id="@+id/torrentSize"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/labelBarrier"
+        app:layout_constraintTop_toTopOf="@id/sizeLabel" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/sizeBarrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="sizeLabel,torrentSize" />
+
+    <TextView
+        android:id="@+id/haveLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Have:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sizeBarrier" />
+
+    <TextView
+        android:id="@+id/torrentHave"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/labelBarrier"
+        app:layout_constraintTop_toTopOf="@id/haveLabel" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/haveBarrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="haveLabel,torrentHave" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

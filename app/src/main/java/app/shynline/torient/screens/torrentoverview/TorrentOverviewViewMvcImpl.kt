@@ -2,15 +2,46 @@ package app.shynline.torient.screens.torrentoverview
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.TextView
 import app.shynline.torient.R
+import app.shynline.torient.database.states.TorrentUserState
+import app.shynline.torient.model.TorrentOverview
 import app.shynline.torient.screens.common.view.BaseObservableViewMvc
+import app.shynline.torient.utils.toByteRepresentation
 
 class TorrentOverviewViewMvcImpl(
     inflater: LayoutInflater,
     parent: ViewGroup?
 ) : BaseObservableViewMvc<TorrentOverviewViewMvc.Listener>(), TorrentOverviewViewMvc {
+    private val infoHashTv: TextView
+    private val sizeTv: TextView
+    private val haveTv: TextView
+    private val stateTv: TextView
 
     init {
         setRootView(inflater.inflate(R.layout.fragment_torrent_overview, parent, false))
+        infoHashTv = findViewById(R.id.torrentInfoHash)
+        sizeTv = findViewById(R.id.torrentSize)
+        haveTv = findViewById(R.id.torrentHave)
+        stateTv = findViewById(R.id.torrentState)
+
+    }
+
+    override fun updateUi(torrentOverview: TorrentOverview) {
+        infoHashTv.text = torrentOverview.infoHash
+        stateTv.text = if (torrentOverview.userState == TorrentUserState.ACTIVE) {
+            "Active"
+        } else {
+            "Paused"
+        }
+        val pieces = if (torrentOverview.numPiece > 1) "s" else ""
+        sizeTv.text =
+            "${torrentOverview.size.toByteRepresentation()} (${torrentOverview.numPiece} " +
+                    "piece$pieces) @ ${torrentOverview.pieceLength.toByteRepresentation()}"
+
+        haveTv.text = "${(torrentOverview.size * torrentOverview.progress).toLong()
+            .toByteRepresentation()} " +
+                "(${(torrentOverview.progress * 100).toInt()}%)"
+
     }
 }
