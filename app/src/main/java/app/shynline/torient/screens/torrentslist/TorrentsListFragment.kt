@@ -29,9 +29,7 @@ class TorrentsListFragment : BaseFragment() {
         val viewMvc = viewMvcFactory.getTorrentListViewMvc(inflater, container)
         controller.bind(
             viewMvc,
-            FragmentRequestHelperImpl(
-                this
-            ),
+            FragmentRequestHelperImpl(this),
             PageNavigationHelper(findNavController())
         )
         return viewMvc.getRootView()

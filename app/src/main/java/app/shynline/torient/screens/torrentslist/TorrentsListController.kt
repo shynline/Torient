@@ -39,6 +39,13 @@ class TorrentsListController(
 
     override fun onStatReceived(torrentEvent: TorrentEvent) {
         controllerScope.launch {
+            // View Mvc might be null here
+            // In case of calling onStatReceived right before destroying view
+            // because this coroutine is called and it might be still active( if the app is open and
+            // onDestroyView was called due to screen change )
+            // the rest of the coroutine processes right after clearing viewMvc
+            // It's a rare case and It's safe
+            // That's why I used kotlin null safety for updating the view
             when (torrentEvent) {
                 is TorrentProgressEvent -> {
                     managedTorrents[torrentEvent.infoHash]?.let { torrent ->
@@ -47,16 +54,16 @@ class TorrentsListController(
                             }
                             TorrentDownloadingState.ALLOCATING -> {
                                 torrent.downloadingState = torrentEvent.state
-                                viewMvc!!.notifyItemUpdate(torrent.infoHash)
+                                viewMvc?.notifyItemUpdate(torrent.infoHash)
                             }
                             TorrentDownloadingState.CHECKING_FILES -> {
                                 torrent.downloadingState = torrentEvent.state
                                 torrent.progress = torrentEvent.progress
-                                viewMvc!!.notifyItemUpdate(torrent.infoHash)
+                                viewMvc?.notifyItemUpdate(torrent.infoHash)
                             }
                             TorrentDownloadingState.CHECKING_RESUME_DATA -> {
                                 torrent.downloadingState = torrentEvent.state
-                                viewMvc!!.notifyItemUpdate(torrent.infoHash)
+                                viewMvc?.notifyItemUpdate(torrent.infoHash)
                             }
                             TorrentDownloadingState.DOWNLOADING -> {
                                 torrent.downloadingState = torrentEvent.state
@@ -65,17 +72,17 @@ class TorrentsListController(
                                 torrent.progress = torrentEvent.progress
                                 torrent.connectedPeers = torrentEvent.connectedPeers
                                 torrent.maxPeers = torrentEvent.maxPeers
-                                viewMvc!!.notifyItemUpdate(torrent.infoHash)
+                                viewMvc?.notifyItemUpdate(torrent.infoHash)
                             }
                             TorrentDownloadingState.DOWNLOADING_METADATA -> {
                                 torrent.downloadingState = torrentEvent.state
-                                viewMvc!!.notifyItemUpdate(torrent.infoHash)
+                                viewMvc?.notifyItemUpdate(torrent.infoHash)
                             }
                             // It's less likely we catch this stat if torrent is going to seed
                             TorrentDownloadingState.FINISHED -> {
                                 torrent.downloadingState = torrentEvent.state
                                 torrent.finished = true
-                                viewMvc!!.notifyItemUpdate(torrent.infoHash)
+                                viewMvc?.notifyItemUpdate(torrent.infoHash)
                             }
                             TorrentDownloadingState.SEEDING -> {
                                 torrent.finished = true
@@ -84,7 +91,7 @@ class TorrentsListController(
                                 torrent.uploadRate = torrentEvent.uploadRate
                                 torrent.connectedPeers = torrentEvent.connectedPeers
                                 torrent.maxPeers = torrentEvent.maxPeers
-                                viewMvc!!.notifyItemUpdate(torrent.infoHash)
+                                viewMvc?.notifyItemUpdate(torrent.infoHash)
                             }
                         }
                     }
@@ -119,8 +126,8 @@ class TorrentsListController(
     }
 
     override fun onStop() {
-        subscriptionMediator.unsubscribe(this)
         viewMvc!!.unRegisterListener(this)
+        subscriptionMediator.unsubscribe(this)
         queryingDataBaseJob?.cancel()
     }
 
