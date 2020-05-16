@@ -19,7 +19,7 @@ class FileItem(private val torrentFile: TorrentFile) : AbstractItem<FileItem.Vie
     var level = -1
 
     override val layoutRes: Int
-        get() = R.layout.item_file
+        get() = R.layout.new_torrent_item_file
 
     override val type: Int
         get() = R.id.fastadapter_file_item_id

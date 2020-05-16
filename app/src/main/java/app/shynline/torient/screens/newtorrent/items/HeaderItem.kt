@@ -13,7 +13,7 @@ class HeaderItem(
 ) : AbstractItem<HeaderItem.ViewHolder>() {
 
     override val layoutRes: Int
-        get() = R.layout.item_header
+        get() = R.layout.new_torrent_item_header
     override val type: Int
         get() = R.id.fastadapter_header_item_id
 

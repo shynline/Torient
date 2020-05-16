@@ -15,7 +15,7 @@ import com.mikepenz.fastadapter.expandable.items.AbstractExpandableItem
 class FolderItem(private val torrentFile: TorrentFile) :
     AbstractExpandableItem<FolderItem.ViewHolder>() {
     override val layoutRes: Int
-        get() = R.layout.item_folder
+        get() = R.layout.new_torrent_item_folder
     override val type: Int
         get() = R.id.fastadapter_folder_item_id
 
