@@ -1,7 +1,7 @@
 package app.shynline.torient.screens.torrentoverview
 
 import app.shynline.torient.database.datasource.TorrentDataSource
-import app.shynline.torient.database.states.TorrentUserState
+import app.shynline.torient.model.TorrentOverview
 import app.shynline.torient.screens.common.BaseController
 import app.shynline.torient.torrent.mediator.TorrentMediator
 import kotlinx.coroutines.launch
@@ -48,18 +48,37 @@ class TorrentOverviewController(
 
     private suspend fun update() {
         // If it returns null this torrent doesn't have meta data (added by magnet)
-        torrentMediator.torrentOverview(infoHash)?.let { torrentOverview ->
-            if (torrentOverview.userState != TorrentUserState.ACTIVE) {
-                torrentDataSource.getTorrent(infoHash)?.let { torrentSchema ->
-                    torrentOverview.progress = if (torrentSchema.isFinished) {
-                        1f
-                    } else {
-                        torrentSchema.progress
-                    }
+        var torrentOverview = torrentMediator.torrentOverview(infoHash)
+        val torrentSchema = torrentDataSource.getTorrent(infoHash)
+        if (torrentOverview != null) {
+            if (torrentSchema != null) {
+                torrentOverview.progress = if (torrentSchema.isFinished) {
+                    1f
+                } else {
+                    torrentSchema.progress
                 }
+                torrentOverview.lastSeenComplete = torrentSchema.lastSeenComplete
+                torrentOverview.name = torrentSchema.name
             }
-            viewMvc!!.updateUi(torrentOverview)
+        } else {
+            if (torrentSchema != null) {
+                torrentOverview = TorrentOverview(
+                    name = torrentSchema.name,
+                    infoHash = infoHash,
+                    progress = 0f,
+                    numPiece = 0,
+                    pieceLength = 0,
+                    size = 0,
+                    userState = torrentSchema.userState,
+                    creator = "",
+                    comment = "",
+                    createdDate = 0,
+                    private = false,
+                    lastSeenComplete = torrentSchema.lastSeenComplete
+                )
+            }
         }
+        torrentOverview?.let { viewMvc!!.updateUi(it) }
     }
 
     private fun periodicTask() = controllerScope.launch {

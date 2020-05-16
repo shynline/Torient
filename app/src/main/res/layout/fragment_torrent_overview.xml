@@ -2,14 +2,21 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:paddingStart="16dp"
+    android:paddingTop="8dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="8dp">
 
     <TextView
         android:id="@+id/torrentName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="4dp"
         android:gravity="center"
         android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -19,18 +26,23 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="right"
-        app:constraint_referenced_ids="infoHashLabel,sizeLabel,stateLabel, haveLabel" />
+        app:constraint_referenced_ids="lastSeenCompleteLabel,
+        privacyLabel,infoHashLabel,sizeLabel,stateLabel,
+        haveLabel,creatorLabel,commentLabel,createdDateLabel" />
 
     <TextView
         android:id="@+id/infoHashLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:text="Info hash:"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/torrentName" />
 
     <TextView
         android:id="@+id/torrentInfoHash"
+        style="@style/TorrentOverviewValue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
@@ -49,11 +61,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Torrent state:"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/infoHashBarrier" />
 
     <TextView
         android:id="@+id/torrentState"
+        style="@style/TorrentOverviewValue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
@@ -72,11 +86,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Torrent size:"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/stateBarrier" />
 
     <TextView
         android:id="@+id/torrentSize"
+        style="@style/TorrentOverviewValue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
@@ -95,11 +111,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Have:"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/sizeBarrier" />
 
     <TextView
         android:id="@+id/torrentHave"
+        style="@style/TorrentOverviewValue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
@@ -112,6 +130,133 @@
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
         app:constraint_referenced_ids="haveLabel,torrentHave" />
+
+
+    <TextView
+        android:id="@+id/creatorLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Creator:"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/haveBarrier" />
+
+    <TextView
+        android:id="@+id/torrentCreator"
+        style="@style/TorrentOverviewValue"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/labelBarrier"
+        app:layout_constraintTop_toTopOf="@id/creatorLabel" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/CreatorBarrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="creatorLabel,torrentCreator" />
+
+    <TextView
+        android:id="@+id/commentLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Comment:"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/CreatorBarrier" />
+
+    <TextView
+        android:id="@+id/torrentComment"
+        style="@style/TorrentOverviewValue"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/labelBarrier"
+        app:layout_constraintTop_toTopOf="@id/commentLabel" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/CommentBarrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="commentLabel,torrentComment" />
+
+    <TextView
+        android:id="@+id/createdDateLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Created date:"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/CommentBarrier" />
+
+    <TextView
+        android:id="@+id/torrentCreatedDate"
+        style="@style/TorrentOverviewValue"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/labelBarrier"
+        app:layout_constraintTop_toTopOf="@id/createdDateLabel" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/createdDateBarrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="createdDateLabel,torrentCreatedDate" />
+
+    <TextView
+        android:id="@+id/privacyLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Privacy:"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/createdDateBarrier" />
+
+    <TextView
+        android:id="@+id/torrentPrivacy"
+        style="@style/TorrentOverviewValue"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/labelBarrier"
+        app:layout_constraintTop_toTopOf="@id/privacyLabel" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/privacyBarrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="privacyLabel,torrentPrivacy" />
+
+
+    <TextView
+        android:id="@+id/lastSeenCompleteLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Last seen complete:"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/privacyBarrier" />
+
+    <TextView
+        android:id="@+id/torrentLastSeenComplete"
+        style="@style/TorrentOverviewValue"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/labelBarrier"
+        app:layout_constraintTop_toTopOf="@id/lastSeenCompleteLabel" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/lastSeenCompleteBarrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="lastSeenCompleteLabel,torrentLastSeenComplete" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

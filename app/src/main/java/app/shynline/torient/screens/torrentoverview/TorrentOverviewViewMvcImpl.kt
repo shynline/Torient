@@ -8,6 +8,7 @@ import app.shynline.torient.database.states.TorrentUserState
 import app.shynline.torient.model.TorrentOverview
 import app.shynline.torient.screens.common.view.BaseObservableViewMvc
 import app.shynline.torient.utils.toByteRepresentation
+import java.util.*
 
 class TorrentOverviewViewMvcImpl(
     inflater: LayoutInflater,
@@ -17,6 +18,12 @@ class TorrentOverviewViewMvcImpl(
     private val sizeTv: TextView
     private val haveTv: TextView
     private val stateTv: TextView
+    private val nameTv: TextView
+    private val creatorTv: TextView
+    private val commentTv: TextView
+    private val createdDateTv: TextView
+    private val privacyTv: TextView
+    private val lastSeenCompleteTv: TextView
 
     init {
         setRootView(inflater.inflate(R.layout.fragment_torrent_overview, parent, false))
@@ -24,7 +31,12 @@ class TorrentOverviewViewMvcImpl(
         sizeTv = findViewById(R.id.torrentSize)
         haveTv = findViewById(R.id.torrentHave)
         stateTv = findViewById(R.id.torrentState)
-
+        nameTv = findViewById(R.id.torrentName)
+        creatorTv = findViewById(R.id.torrentCreator)
+        commentTv = findViewById(R.id.torrentComment)
+        createdDateTv = findViewById(R.id.torrentCreatedDate)
+        privacyTv = findViewById(R.id.torrentPrivacy)
+        lastSeenCompleteTv = findViewById(R.id.torrentLastSeenComplete)
     }
 
     override fun updateUi(torrentOverview: TorrentOverview) {
@@ -42,6 +54,18 @@ class TorrentOverviewViewMvcImpl(
         haveTv.text = "${(torrentOverview.size * torrentOverview.progress).toLong()
             .toByteRepresentation()} " +
                 "(${(torrentOverview.progress * 100).toInt()}%)"
+        nameTv.text = torrentOverview.name
+        creatorTv.text = torrentOverview.creator
+        commentTv.text = torrentOverview.comment
+        privacyTv.text = if (torrentOverview.private) {
+            "Private"
+        } else {
+            "Public"
+        }
+        createdDateTv.text =
+            if (torrentOverview.createdDate == 0L) "" else Date(torrentOverview.createdDate).toString()
+        lastSeenCompleteTv.text =
+            if (torrentOverview.lastSeenComplete == 0L) "" else Date(torrentOverview.lastSeenComplete).toString()
 
     }
 }
