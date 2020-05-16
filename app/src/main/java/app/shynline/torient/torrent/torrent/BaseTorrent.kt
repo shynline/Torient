@@ -35,13 +35,13 @@ abstract class BaseTorrent(
     protected abstract fun saveTorrentFileToCache(infoHash: String, data: ByteArray)
 
     protected suspend fun handleTorrentProgress(handle: TorrentHandle) {
-        val statue = handle.status()
+        val status = handle.status()
         val infoHash = handle.infoHash().toHex()
-        val event: TorrentProgressEvent? = when (statue.state()) {
+        val event: TorrentProgressEvent? = when (status.state()) {
             TorrentStatus.State.CHECKING_FILES -> TorrentProgressEvent(
                 handle.infoHash().toHex(),
                 TorrentDownloadingState.CHECKING_FILES,
-                progress = statue.progress()
+                progress = status.progress()
             )
             TorrentStatus.State.DOWNLOADING_METADATA -> TorrentProgressEvent(
                 handle.infoHash().toHex(),
@@ -55,15 +55,16 @@ abstract class BaseTorrent(
                 val tpe = TorrentProgressEvent(
                     infoHash,
                     TorrentDownloadingState.DOWNLOADING,
-                    progress = statue.progress(),
-                    downloadRate = statue.downloadPayloadRate(),
-                    uploadRate = statue.uploadPayloadRate(),
-                    maxPeers = statue.listPeers(),
-                    connectedPeers = statue.numPeers()
+                    progress = status.progress(),
+                    downloadRate = status.downloadPayloadRate(),
+                    uploadRate = status.uploadPayloadRate(),
+                    maxPeers = status.listPeers(),
+                    connectedPeers = status.numPeers()
                 )
                 internalTorrentDataSource.setTorrentProgress(
                     infoHash,
-                    tpe.progress
+                    tpe.progress,
+                    lastSeenComplete = status.lastSeenComplete()
                 )
                 tpe
             }
@@ -88,10 +89,10 @@ abstract class BaseTorrent(
                 TorrentProgressEvent(
                     handle.infoHash().toHex(),
                     TorrentDownloadingState.SEEDING,
-                    downloadRate = statue.downloadRate(),
-                    uploadRate = statue.uploadRate(),
-                    maxPeers = statue.listPeers(),
-                    connectedPeers = statue.numPeers()
+                    downloadRate = status.downloadRate(),
+                    uploadRate = status.uploadRate(),
+                    maxPeers = status.listPeers(),
+                    connectedPeers = status.numPeers()
                 )
             }
             TorrentStatus.State.ALLOCATING -> TorrentProgressEvent(
@@ -112,7 +113,7 @@ abstract class BaseTorrent(
         }
         event?.let { ev ->
             if (ev.state != TorrentDownloadingState.UNKNOWN) {
-                managedTorrents[infoHash] = statue.state()
+                managedTorrents[infoHash] = status.state()
                 getListeners().forEach { listener ->
                     listener.onStatReceived(event)
                 }

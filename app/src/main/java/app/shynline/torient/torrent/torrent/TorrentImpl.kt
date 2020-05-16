@@ -138,15 +138,20 @@ class TorrentImpl(
         session.find(Sha1Hash(infoHash))?.let { handle ->
             if (handle.isValid) {
                 val state = handle.status()
-                val info = handle.torrentFile()
+                val info = handle.torrentFile() ?: null
                 return TorrentOverview(
                     name = handle.name(),
                     infoHash = infoHash,
                     progress = state.progress(),
-                    numPiece = info.numPieces(),
-                    pieceLength = info.pieceLength(),
-                    size = info.totalSize(),
-                    userState = TorrentUserState.ACTIVE
+                    numPiece = info?.numPieces() ?: 0,
+                    pieceLength = info?.pieceLength() ?: 0,
+                    size = info?.totalSize() ?: 0,
+                    userState = TorrentUserState.ACTIVE,
+                    creator = info?.creator() ?: "",
+                    comment = info?.comment() ?: "",
+                    createdDate = (info?.creationDate() ?: 0) * 1000,
+                    private = info?.isPrivate ?: false,
+                    lastSeenComplete = state.lastSeenComplete()
                 )
             }
         }
@@ -159,7 +164,12 @@ class TorrentImpl(
                 numPiece = info.numPieces(),
                 pieceLength = info.pieceLength(),
                 size = info.totalSize(),
-                userState = TorrentUserState.PAUSED
+                userState = TorrentUserState.PAUSED,
+                creator = info.creator(),
+                comment = info.comment(),
+                createdDate = info.creationDate() * 1000,
+                private = info.isPrivate,
+                lastSeenComplete = 0
             )
         }
 

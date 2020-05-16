@@ -14,8 +14,16 @@ class InternalTorrentDataSourceImpl(
             return@withContext torrentDao.setTorrentFinished(infoHash, finished)
         }
 
-    override suspend fun setTorrentProgress(infoHash: String, progress: Float) =
+    override suspend fun setTorrentProgress(
+        infoHash: String,
+        progress: Float,
+        lastSeenComplete: Long
+    ) =
         withContext(ioDispatcher) {
-            return@withContext torrentDao.setTorrentProgress(infoHash, progress)
+            return@withContext torrentDao.setTorrentProgress(
+                infoHash,
+                progress,
+                lastSeenComplete
+            )
         }
 }
