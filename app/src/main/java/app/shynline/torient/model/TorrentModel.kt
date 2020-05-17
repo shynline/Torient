@@ -14,6 +14,7 @@ data class TorrentModel(
     var comment: String = ""
     var totalSize: Long = 0L
     var torrentFile: TorrentFile? = null
+    var numFiles: Int = 0
     var userState: TorrentUserState = TorrentUserState.PAUSED
     var downloadingState: TorrentDownloadingState = TorrentDownloadingState.UNKNOWN
     var progress = 0f
@@ -39,6 +40,7 @@ data class TorrentModel(
                 comment = torrentInfo.comment()
                 totalSize = torrentInfo.totalSize()
                 torrentFile = TorrentFile.from(torrentInfo)
+                numFiles = torrentInfo.numFiles()
                 author = torrentInfo.creator()
                 hexHash = torrentInfo.infoHash().toHex().hashCode().toLong()
             }
