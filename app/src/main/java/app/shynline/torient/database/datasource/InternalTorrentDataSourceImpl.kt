@@ -17,13 +17,15 @@ class InternalTorrentDataSourceImpl(
     override suspend fun setTorrentProgress(
         infoHash: String,
         progress: Float,
-        lastSeenComplete: Long
+        lastSeenComplete: Long,
+        fileProgress: LongArray
     ) =
         withContext(ioDispatcher) {
             return@withContext torrentDao.setTorrentProgress(
                 infoHash,
                 progress,
-                lastSeenComplete
+                lastSeenComplete,
+                fileProgress
             )
         }
 }

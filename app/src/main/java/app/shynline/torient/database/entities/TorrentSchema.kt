@@ -22,7 +22,9 @@ data class TorrentSchema(
     @ColumnInfo(name = "name")
     var name: String,
     @ColumnInfo(name = "last_seen_complete")
-    var lastSeenComplete: Long = 0L
+    var lastSeenComplete: Long = 0L,
+    @ColumnInfo(name = "file_progress")
+    var fileProgress: LongArray? = null
 ) {
     fun toIdentifier(): TorrentIdentifier {
         return TorrentIdentifier(

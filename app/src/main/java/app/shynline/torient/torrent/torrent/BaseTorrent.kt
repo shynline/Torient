@@ -64,7 +64,8 @@ abstract class BaseTorrent(
                 internalTorrentDataSource.setTorrentProgress(
                     infoHash,
                     tpe.progress,
-                    lastSeenComplete = status.lastSeenComplete()
+                    lastSeenComplete = status.lastSeenComplete(),
+                    fileProgress = handle.fileProgress()
                 )
                 tpe
             }
