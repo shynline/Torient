@@ -1,4 +1,4 @@
-package app.shynline.torient.database.datasource
+package app.shynline.torient.database.datasource.torrentSchema
 
 interface InternalTorrentDataSource {
     suspend fun setTorrentFinished(infoHash: String, finished: Boolean)
