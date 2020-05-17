@@ -12,32 +12,37 @@ import kotlinx.coroutines.flow.Flow
 interface TorrentDao {
 
     @Query("SELECT * from torrent")
-    fun getTorrents(): Flow<List<TorrentSchema>>
+    suspend fun getTorrents(): Flow<List<TorrentSchema>>
 
     @Query("SELECT * from torrent WHERE info_hash = :infoHash")
-    fun getTorrentByInfoHash(infoHash: String): TorrentSchema
+    suspend fun getTorrentByInfoHash(infoHash: String): TorrentSchema
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertTorrent(torrentSchema: TorrentSchema)
+    suspend fun insertTorrent(torrentSchema: TorrentSchema)
 
     @Query("DELETE FROM torrent")
-    fun deleteAllTorrents()
+    suspend fun deleteAllTorrents()
 
     @Query("SELECT state from torrent WHERE info_hash= :infoHash")
-    fun getTorrentState(infoHash: String): TorrentUserState
+    suspend fun getTorrentState(infoHash: String): TorrentUserState
 
     @Query("UPDATE torrent SET state = :userState WHERE info_hash = :infoHash")
-    fun setTorrentState(infoHash: String, userState: TorrentUserState)
+    suspend fun setTorrentState(infoHash: String, userState: TorrentUserState)
 
     @Query("UPDATE torrent SET is_finished = :finished WHERE info_hash = :infoHash")
-    fun setTorrentFinished(infoHash: String, finished: Boolean)
+    suspend fun setTorrentFinished(infoHash: String, finished: Boolean)
 
-    @Query("UPDATE torrent SET progress = :progress, last_seen_complete = :lastSeenComplete WHERE info_hash = :infoHash")
-    fun setTorrentProgress(infoHash: String, progress: Float, lastSeenComplete: Long)
+    @Query("UPDATE torrent SET progress = :progress, last_seen_complete = :lastSeenComplete, file_progress = :fileProgress WHERE info_hash = :infoHash")
+    suspend fun setTorrentProgress(
+        infoHash: String,
+        progress: Float,
+        lastSeenComplete: Long,
+        fileProgress: LongArray
+    )
 
     @Query("SELECT * from torrent WHERE info_hash = :infoHash")
-    fun getTorrent(infoHash: String): TorrentSchema?
+    suspend fun getTorrent(infoHash: String): TorrentSchema?
 
     @Query("DELETE from torrent WHERE info_hash = :infoHash")
-    fun removeTorrent(infoHash: String)
+    suspend fun removeTorrent(infoHash: String)
 }
