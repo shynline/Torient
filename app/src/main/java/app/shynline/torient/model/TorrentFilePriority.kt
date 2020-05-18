@@ -3,7 +3,8 @@ package app.shynline.torient.model
 enum class FilePriority(val id: Int) {
     NORMAL(0),
     HIGH(1),
-    LOW(2)
+    LOW(2),
+    MIXED(3)
 }
 
 fun getPriority(id: Int): FilePriority {
