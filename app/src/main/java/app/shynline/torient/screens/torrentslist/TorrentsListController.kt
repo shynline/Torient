@@ -1,6 +1,6 @@
 package app.shynline.torient.screens.torrentslist
 
-import app.shynline.torient.database.datasource.TorrentDataSource
+import app.shynline.torient.database.datasource.torrent.TorrentDataSource
 import app.shynline.torient.database.states.TorrentUserState
 import app.shynline.torient.model.TorrentModel
 import app.shynline.torient.screens.common.BaseController

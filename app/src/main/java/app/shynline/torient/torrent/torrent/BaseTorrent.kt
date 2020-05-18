@@ -1,7 +1,7 @@
 package app.shynline.torient.torrent.torrent
 
 import app.shynline.torient.common.observable.BaseObservable
-import app.shynline.torient.database.datasource.InternalTorrentDataSource
+import app.shynline.torient.database.datasource.torrent.InternalTorrentDataSource
 import app.shynline.torient.model.TorrentModel
 import app.shynline.torient.torrent.events.TorrentMetaDataEvent
 import app.shynline.torient.torrent.events.TorrentProgressEvent

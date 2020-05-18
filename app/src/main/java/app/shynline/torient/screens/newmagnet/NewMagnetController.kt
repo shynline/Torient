@@ -1,6 +1,6 @@
 package app.shynline.torient.screens.newmagnet
 
-import app.shynline.torient.database.datasource.TorrentDataSource
+import app.shynline.torient.database.datasource.torrent.TorrentDataSource
 import app.shynline.torient.database.entities.TorrentSchema
 import app.shynline.torient.database.states.TorrentUserState
 import app.shynline.torient.model.TorrentIdentifier

@@ -1,4 +1,4 @@
-package app.shynline.torient.database.datasource.torrentSchema
+package app.shynline.torient.database.datasource.torrent
 
 import app.shynline.torient.database.entities.TorrentSchema
 import app.shynline.torient.database.states.TorrentUserState

@@ -2,10 +2,10 @@ package app.shynline.torient.common.di.koin
 
 import androidx.room.Room
 import app.shynline.torient.database.TorrentDataBase
-import app.shynline.torient.database.datasource.torrentSchema.InternalTorrentDataSource
-import app.shynline.torient.database.datasource.torrentSchema.InternalTorrentDataSourceImpl
-import app.shynline.torient.database.datasource.torrentSchema.TorrentDataSource
-import app.shynline.torient.database.datasource.torrentSchema.TorrentDataSourceImpl
+import app.shynline.torient.database.datasource.torrent.InternalTorrentDataSource
+import app.shynline.torient.database.datasource.torrent.InternalTorrentDataSourceImpl
+import app.shynline.torient.database.datasource.torrent.TorrentDataSource
+import app.shynline.torient.database.datasource.torrent.TorrentDataSourceImpl
 import app.shynline.torient.database.datasource.torrentfilepriority.TorrentFilePriorityDataSource
 import app.shynline.torient.database.datasource.torrentfilepriority.TorrentFilePriorityDataSourceImpl
 import org.koin.android.ext.koin.androidContext

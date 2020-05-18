@@ -8,7 +8,7 @@ import android.os.IBinder
 import app.shynline.torient.common.downloadDir
 import app.shynline.torient.common.observable.Observable
 import app.shynline.torient.common.torrentDir
-import app.shynline.torient.database.datasource.InternalTorrentDataSource
+import app.shynline.torient.database.datasource.torrent.InternalTorrentDataSource
 import app.shynline.torient.database.states.TorrentUserState
 import app.shynline.torient.model.TorrentIdentifier
 import app.shynline.torient.model.TorrentModel
@@ -47,9 +47,8 @@ class TorrentImpl(
     private var periodicTimer: Timer? = null
 
     private fun periodicTask() = torrentScope.launch {
-        if (isActivityRunning) {
-            requestTorrentStats()
-        } else {
+        requestTorrentStats()
+        if (!isActivityRunning) {
             service?.updateNotification(
                 managedTorrents.size,
                 session.stats().downloadRate(),
