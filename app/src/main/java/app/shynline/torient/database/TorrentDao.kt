@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 interface TorrentDao {
 
     @Query("SELECT * from torrent")
-    suspend fun getTorrents(): Flow<List<TorrentSchema>>
+    fun getTorrents(): Flow<List<TorrentSchema>>
 
     @Query("SELECT * from torrent WHERE info_hash = :infoHash")
     suspend fun getTorrentByInfoHash(infoHash: String): TorrentSchema
@@ -32,12 +32,17 @@ interface TorrentDao {
     @Query("UPDATE torrent SET is_finished = :finished WHERE info_hash = :infoHash")
     suspend fun setTorrentFinished(infoHash: String, finished: Boolean)
 
-    @Query("UPDATE torrent SET progress = :progress, last_seen_complete = :lastSeenComplete, file_progress = :fileProgress WHERE info_hash = :infoHash")
+    @Query("UPDATE torrent SET progress = :progress, last_seen_complete = :lastSeenComplete WHERE info_hash = :infoHash")
     suspend fun setTorrentProgress(
         infoHash: String,
         progress: Float,
-        lastSeenComplete: Long,
-        fileProgress: LongArray
+        lastSeenComplete: Long
+    )
+
+    @Query("UPDATE torrent SET file_progress = :fileProgress WHERE info_hash = :infoHash")
+    suspend fun setTorrentFileProgress(
+        infoHash: String,
+        fileProgress: String
     )
 
     @Query("SELECT * from torrent WHERE info_hash = :infoHash")

@@ -1,6 +1,7 @@
 package app.shynline.torient.database.datasource.torrentSchema
 
 import app.shynline.torient.database.TorrentDao
+import app.shynline.torient.database.typeconverter.LongArrayConverter
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
@@ -21,11 +22,15 @@ class InternalTorrentDataSourceImpl(
         fileProgress: LongArray
     ) =
         withContext(ioDispatcher) {
-            return@withContext torrentDao.setTorrentProgress(
+            torrentDao.setTorrentProgress(
                 infoHash,
                 progress,
-                lastSeenComplete,
-                fileProgress
+                lastSeenComplete
+            )
+
+            torrentDao.setTorrentFileProgress(
+                infoHash,
+                LongArrayConverter.toString(fileProgress.toList())!!
             )
         }
 }

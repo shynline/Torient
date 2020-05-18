@@ -6,7 +6,6 @@ import androidx.room.TypeConverters
 import app.shynline.torient.database.entities.TorrentFilePrioritySchema
 import app.shynline.torient.database.entities.TorrentSchema
 import app.shynline.torient.database.typeconverter.FilePriorityConverter
-import app.shynline.torient.database.typeconverter.LongArrayConverter
 import app.shynline.torient.database.typeconverter.TorrentStateConverter
 
 /**
@@ -20,7 +19,6 @@ import app.shynline.torient.database.typeconverter.TorrentStateConverter
 )
 @TypeConverters(
     TorrentStateConverter::class,
-    LongArrayConverter::class,
     FilePriorityConverter::class
 )
 abstract class TorrentDataBase : RoomDatabase() {

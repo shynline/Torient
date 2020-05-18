@@ -6,12 +6,12 @@ import app.shynline.torient.model.TorrentFilePriority
 
 class FilePriorityConverter {
     @TypeConverter
-    fun toFilePriorityArray(filePriority: String?): Array<TorrentFilePriority>? {
-        return filePriority?.split(",")?.map { TorrentFilePriority.fromString(it) }?.toTypedArray()
+    fun toFilePriorityArray(filePriority: String?): List<TorrentFilePriority>? {
+        return filePriority?.split(",")?.map { TorrentFilePriority.fromString(it) }
     }
 
     @TypeConverter
-    fun toString(filePriority: Array<TorrentFilePriority>?): String? {
+    fun toString(filePriority: List<TorrentFilePriority>?): String? {
         return filePriority?.joinToString(",")
     }
 }

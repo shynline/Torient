@@ -11,5 +11,5 @@ data class TorrentFilePrioritySchema(
     @ColumnInfo(name = "info_hash")
     var infoHash: String,
     @ColumnInfo(name = "file_priority")
-    var filePriority: Array<TorrentFilePriority>? = null
+    var filePriority: List<TorrentFilePriority>? = null
 )

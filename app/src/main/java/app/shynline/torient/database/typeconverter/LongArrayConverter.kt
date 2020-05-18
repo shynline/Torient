@@ -1,19 +1,15 @@
 package app.shynline.torient.database.typeconverter
 
-import androidx.room.TypeConverter
 
-
-class LongArrayConverter {
-    @TypeConverter
-    fun toLongArray(str: String?): LongArray? {
+object LongArrayConverter {
+    fun toLongArray(str: String?): List<Long>? {
         str?.let { string ->
-            return string.split(",").map { it.toLong() }.toLongArray()
+            return string.split(",").map { it.toLong() }
         }
         return null
     }
 
-    @TypeConverter
-    fun toString(longArray: LongArray?): String? {
+    fun toString(longArray: List<Long>?): String? {
         longArray?.let {
             return longArray.joinToString(",")
         }

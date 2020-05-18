@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import app.shynline.torient.database.states.TorrentUserState
+import app.shynline.torient.database.typeconverter.LongArrayConverter
 import app.shynline.torient.model.TorrentIdentifier
 
 @Entity(tableName = "torrent")
@@ -24,8 +25,16 @@ data class TorrentSchema(
     @ColumnInfo(name = "last_seen_complete")
     var lastSeenComplete: Long = 0L,
     @ColumnInfo(name = "file_progress")
-    var fileProgress: LongArray? = null
+    var _fileProgress: String? = null
 ) {
+
+    var fileProgress: List<Long>?
+        set(value) {
+            _fileProgress = LongArrayConverter.toString(value)
+        }
+        get() {
+            return LongArrayConverter.toLongArray(_fileProgress)
+        }
     fun toIdentifier(): TorrentIdentifier {
         return TorrentIdentifier(
             infoHash,
