@@ -12,6 +12,7 @@ import app.shynline.torient.model.TorrentFilePriority
 import app.shynline.torient.screens.torrentfiles.TorrentFilesViewMvcImpl
 import app.shynline.torient.utils.FileIcon
 import app.shynline.torient.utils.MetricsUtil
+import app.shynline.torient.utils.toByteRepresentation
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.IParentItem
 import com.mikepenz.fastadapter.ISubItem
@@ -54,6 +55,7 @@ class FileItem(
         private val haveTv: TextView = view.findViewById(R.id.have)
         private val downloadCb: CheckBox = view.findViewById(R.id.download)
         private val priorityTv: TextView = view.findViewById(R.id.priority)
+        private val sizeTv: TextView = view.findViewById(R.id.size)
         private var item: FileItem? = null
 
         init {
@@ -81,6 +83,7 @@ class FileItem(
             // Make sure to assign item before subscribe
             this.item = item
             subscription.subscribe(item.torrentFile.index, this)
+            sizeTv.text = item.torrentFile.size.toByteRepresentation()
             nameTV.text = item.torrentFile.name
             iconIV.setImageResource(FileIcon.iconOf(item.torrentFile.fileType))
             layoutParams.width =
