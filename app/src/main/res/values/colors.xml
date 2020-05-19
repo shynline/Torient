@@ -11,4 +11,6 @@
 
     <color name="textGray">#4A4A4A</color>
     <color name="rootBackground">#fafafa</color>
+
+    <color name="separator">#888888</color>
 </resources>

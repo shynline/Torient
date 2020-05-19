@@ -17,4 +17,8 @@
     <style name="IconStyle" parent="AppTheme">
         <item name="tint">@android:color/white</item>
     </style>
+
+    <style name="Separator" parent="AppTheme">
+        <item name="android:background">@color/separator</item>
+    </style>
 </resources>
