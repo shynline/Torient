@@ -21,12 +21,17 @@ class TorrentFilePriorityDataSourceImpl(
             }
         }
 
-    override suspend fun getPriority(infoHash: String): TorrentFilePrioritySchema {
-        var schema = torrentFilePriorityDao.getTorrentFilePrioritySchema(infoHash)
-        if (schema == null) {
-            schema = TorrentFilePrioritySchema(infoHash)
-            torrentFilePriorityDao.insertTorrent(schema)
+    override suspend fun getPriority(infoHash: String): TorrentFilePrioritySchema =
+        withContext(ioDispatcher) {
+            var schema = torrentFilePriorityDao.getTorrentFilePrioritySchema(infoHash)
+            if (schema == null) {
+                schema = TorrentFilePrioritySchema(infoHash)
+                torrentFilePriorityDao.insertTorrent(schema)
+            }
+            return@withContext requireNotNull(schema)
         }
-        return schema
+
+    override suspend fun removeTorrentFilePriority(infoHash: String) = withContext(ioDispatcher) {
+        torrentFilePriorityDao.removeTorrentFilePriority(infoHash)
     }
 }

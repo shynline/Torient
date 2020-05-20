@@ -20,4 +20,7 @@ interface TorrentFilePriorityDao {
         infoHash: String,
         priorities: List<TorrentFilePriority>?
     ): Int
+
+    @Query("DELETE from torrent_file_priority WHERE info_hash = :infoHash")
+    suspend fun removeTorrentFilePriority(infoHash: String)
 }
