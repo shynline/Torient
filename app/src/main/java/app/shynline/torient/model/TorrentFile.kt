@@ -4,6 +4,7 @@ import app.shynline.torient.utils.FileType
 import app.shynline.torient.utils.FileTypeDetector
 import com.frostwire.jlibtorrent.TorrentInfo
 
+data class TorrentFileData(val filesSize: MutableList<Long>, var torrentFile: TorrentFile? = null)
 data class TorrentFile(
     val name: String,
     var size: Long,
@@ -16,8 +17,12 @@ data class TorrentFile(
             return@lazy FileType.DIR
         FileTypeDetector.getType(name)
     }
+
     companion object {
-        fun from(torrentInfo: TorrentInfo): TorrentFile {
+        fun from(torrentInfo: TorrentInfo): TorrentFileData {
+            val torrentFileData = TorrentFileData(
+                filesSize = MutableList(torrentInfo.numFiles()) { 0L }
+            )
             var fileTree: TorrentFile? = null
             for (index in 0 until torrentInfo.files().numFiles()) {
                 val path = torrentInfo.files().filePath(index).split("/")
@@ -67,28 +72,32 @@ data class TorrentFile(
                         if (fileTree == null) {
                             // If file tree is null and first item is a file
                             // certainly it's a single file torrent
-                            return TorrentFile(
+                            val torrentFile = TorrentFile(
                                 path[0],
                                 torrentInfo.files().fileSize(index),
                                 false,
                                 index = 0
                             )
+                            torrentFileData.filesSize[0] = torrentFile.size
+                            torrentFileData.torrentFile = torrentFile
+                            return torrentFileData
                         } else {
                             // The last part of a branch is the file
-                            current!!.files!!.add(
-                                TorrentFile(
-                                    path[i],
-                                    torrentInfo.files().fileSize(index),
-                                    false,
-                                    index = index
-                                )
+                            val torrentFile = TorrentFile(
+                                path[i],
+                                torrentInfo.files().fileSize(index),
+                                false,
+                                index = index
                             )
+                            current!!.files!!.add(torrentFile)
+                            torrentFileData.filesSize[index] = torrentFile.size
                         }
                     }
                 }
             }
 
-            return fileTree!!
+            torrentFileData.torrentFile = fileTree
+            return torrentFileData
         }
 
     }

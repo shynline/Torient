@@ -23,6 +23,10 @@ data class TorrentModel(
     var finished = false
     var maxPeers = 0
     var connectedPeers = 0
+    var filePriority: List<TorrentFilePriority>? = null
+    var filesSize: List<Long>? = null
+    var selectedFilesBytesDone: Float = 0f
+    var selectedFilesSize: Long = 0L
     fun toIdentifier(): TorrentIdentifier {
         return TorrentIdentifier(
             infoHash,
@@ -32,6 +36,7 @@ data class TorrentModel(
 
     companion object {
         fun from(torrentInfo: TorrentInfo): TorrentModel {
+            val torrentFileData = TorrentFile.from(torrentInfo)
             return TorrentModel(
                 torrentInfo.infoHash().toHex(),
                 torrentInfo.name(),
@@ -39,7 +44,8 @@ data class TorrentModel(
             ).apply {
                 comment = torrentInfo.comment()
                 totalSize = torrentInfo.totalSize()
-                torrentFile = TorrentFile.from(torrentInfo)
+                torrentFile = torrentFileData.torrentFile
+                filesSize = torrentFileData.filesSize
                 numFiles = torrentInfo.numFiles()
                 author = torrentInfo.creator()
                 hexHash = torrentInfo.infoHash().toHex().hashCode().toLong()
