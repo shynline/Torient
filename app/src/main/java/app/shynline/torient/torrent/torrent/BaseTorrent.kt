@@ -2,22 +2,23 @@ package app.shynline.torient.torrent.torrent
 
 import app.shynline.torient.common.observable.BaseObservable
 import app.shynline.torient.database.datasource.torrent.InternalTorrentDataSource
+import app.shynline.torient.database.datasource.torrentfilepriority.TorrentFilePriorityDataSource
+import app.shynline.torient.model.TorrentFilePriority
 import app.shynline.torient.model.TorrentModel
 import app.shynline.torient.torrent.events.TorrentMetaDataEvent
 import app.shynline.torient.torrent.events.TorrentProgressEvent
 import app.shynline.torient.torrent.states.TorrentDownloadingState
-import com.frostwire.jlibtorrent.AlertListener
-import com.frostwire.jlibtorrent.Sha1Hash
-import com.frostwire.jlibtorrent.TorrentHandle
-import com.frostwire.jlibtorrent.TorrentStatus
+import com.frostwire.jlibtorrent.*
 import com.frostwire.jlibtorrent.alerts.AddTorrentAlert
 import com.frostwire.jlibtorrent.alerts.Alert
 import com.frostwire.jlibtorrent.alerts.AlertType
+import com.frostwire.jlibtorrent.alerts.MetadataReceivedAlert
 import kotlinx.coroutines.*
 
 
 abstract class BaseTorrent(
-    protected open val internalTorrentDataSource: InternalTorrentDataSource
+    protected open val internalTorrentDataSource: InternalTorrentDataSource,
+    protected open val torrentFilePriorityDataSource: TorrentFilePriorityDataSource
 ) : BaseObservable<Torrent.Listener>(), Torrent, AlertListener {
     protected val managedTorrents: MutableMap<String, TorrentStatus.State?> = hashMapOf()
 
@@ -78,7 +79,10 @@ abstract class BaseTorrent(
                     handle.infoHash().toHex(),
                     TorrentDownloadingState.FINISHED
                 )
-                internalTorrentDataSource.setTorrentFinished(infoHash, true)
+                internalTorrentDataSource.setTorrentFinished(
+                    infoHash, true,
+                    fileProgress = handle.fileProgress()
+                )
                 tpe
             }
             TorrentStatus.State.SEEDING -> {
@@ -86,7 +90,11 @@ abstract class BaseTorrent(
                 // Also it happens when whole downloading process being done
                 // in background process
                 checkIfMetaDataDownloaded(infoHash, handle)
-                internalTorrentDataSource.setTorrentFinished(infoHash, true)
+                internalTorrentDataSource.setTorrentFinished(
+                    infoHash,
+                    true,
+                    fileProgress = handle.fileProgress()
+                )
                 TorrentProgressEvent(
                     handle.infoHash().toHex(),
                     TorrentDownloadingState.SEEDING,
@@ -142,9 +150,45 @@ abstract class BaseTorrent(
 
 
     private fun onAlertAddTorrentAlert(addTorrentAlert: AddTorrentAlert) {
-        val handle = findHandle(addTorrentAlert.handle().infoHash()) ?: return
+        val infoHash = addTorrentAlert.handle().infoHash()
+        val handle = findHandle(infoHash) ?: return
         if (!addTorrentAlert.error().isError) {
             handle.resume()
+            GlobalScope.launch {
+                val p = torrentFilePriorityDataSource.getPriority(infoHash.toHex())
+                if (handle.torrentFile()?.isValid == true) { // Torrent meta data is present
+                    if (p.filePriority == null) {
+                        // Generate default priorities
+                        p.filePriority = MutableList(
+                            handle.torrentFile().numFiles()
+                        ) { TorrentFilePriority.default() }
+                        // Update database with generated priorities
+                        torrentFilePriorityDataSource.setPriority(p)
+                    }
+                    setFilesPriority(infoHash.toHex(), p.filePriority!!)
+                }
+            }
+        }
+    }
+
+    private fun onAlertMetaDataReceived(metadataReceivedAlert: MetadataReceivedAlert) {
+        val torrentInfo: TorrentInfo? = TorrentInfo(metadataReceivedAlert.torrentData())
+        torrentInfo?.let {
+            val handle = findHandle(it.infoHash()) ?: return
+            GlobalScope.launch {
+                val p = torrentFilePriorityDataSource.getPriority(it.infoHash().toHex())
+                if (handle.torrentFile().isValid) { // Torrent meta data is present
+                    if (p.filePriority == null) {
+                        // Generate default priorities
+                        p.filePriority = MutableList(
+                            handle.torrentFile().numFiles()
+                        ) { TorrentFilePriority.default() }
+                        // Update database with generated priorities
+                        torrentFilePriorityDataSource.setPriority(p)
+                    }
+                    setFilesPriority(it.infoHash().toHex(), p.filePriority!!)
+                }
+            }
         }
     }
 
@@ -161,6 +205,9 @@ abstract class BaseTorrent(
                 AlertType.ADD_TORRENT -> {
                     onAlertAddTorrentAlert(p0 as AddTorrentAlert)
                 }
+                AlertType.METADATA_RECEIVED -> {
+                    onAlertMetaDataReceived(p0 as MetadataReceivedAlert)
+                }
             }
         }
     }
@@ -172,7 +219,7 @@ abstract class BaseTorrent(
      * @return
      */
     override fun types(): IntArray? {
-        return intArrayOf(AlertType.ADD_TORRENT.swig())
+        return intArrayOf(AlertType.ADD_TORRENT.swig(), AlertType.METADATA_RECEIVED.swig())
     }
 
 

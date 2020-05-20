@@ -1,6 +1,7 @@
 package app.shynline.torient.torrent.torrent
 
 import app.shynline.torient.common.observable.Observable
+import app.shynline.torient.model.TorrentFilePriority
 import app.shynline.torient.model.TorrentIdentifier
 import app.shynline.torient.model.TorrentModel
 import app.shynline.torient.model.TorrentOverview
@@ -20,6 +21,13 @@ interface Torrent :
     suspend fun getAllManagedTorrents(): List<String>
     suspend fun getTorrentOverview(infoHash: String): TorrentOverview?
     fun isTorrentFileCached(infoHash: String): Boolean
+    suspend fun setFilePriority(
+        infoHash: String,
+        index: Int,
+        torrentFilePriority: TorrentFilePriority
+    )
+
+    suspend fun setFilesPriority(infoHash: String, torrentFilePriorities: List<TorrentFilePriority>)
 
     /**
      * Remove a torrent from service and cache

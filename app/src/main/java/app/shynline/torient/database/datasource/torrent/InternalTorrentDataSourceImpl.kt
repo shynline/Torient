@@ -10,8 +10,16 @@ class InternalTorrentDataSourceImpl(
     private val ioDispatcher: CoroutineDispatcher
 ) : InternalTorrentDataSource {
 
-    override suspend fun setTorrentFinished(infoHash: String, finished: Boolean) =
+    override suspend fun setTorrentFinished(
+        infoHash: String,
+        finished: Boolean,
+        fileProgress: LongArray
+    ) =
         withContext(ioDispatcher) {
+            torrentDao.setTorrentFileProgress(
+                infoHash,
+                LongArrayConverter.toString(fileProgress.toList())!!
+            )
             return@withContext torrentDao.setTorrentFinished(infoHash, finished)
         }
 

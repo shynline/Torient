@@ -9,10 +9,9 @@ import app.shynline.torient.common.downloadDir
 import app.shynline.torient.common.observable.Observable
 import app.shynline.torient.common.torrentDir
 import app.shynline.torient.database.datasource.torrent.InternalTorrentDataSource
+import app.shynline.torient.database.datasource.torrentfilepriority.TorrentFilePriorityDataSource
 import app.shynline.torient.database.states.TorrentUserState
-import app.shynline.torient.model.TorrentIdentifier
-import app.shynline.torient.model.TorrentModel
-import app.shynline.torient.model.TorrentOverview
+import app.shynline.torient.model.*
 import app.shynline.torient.torrent.service.TorientService
 import com.frostwire.jlibtorrent.*
 import kotlinx.coroutines.*
@@ -25,8 +24,9 @@ import kotlin.concurrent.fixedRateTimer
 class TorrentImpl(
     private val context: Context,
     private val ioDispatcher: CoroutineDispatcher,
-    override val internalTorrentDataSource: InternalTorrentDataSource
-) : BaseTorrent(internalTorrentDataSource),
+    override val internalTorrentDataSource: InternalTorrentDataSource,
+    override val torrentFilePriorityDataSource: TorrentFilePriorityDataSource
+) : BaseTorrent(internalTorrentDataSource, torrentFilePriorityDataSource),
     ServiceConnection,
     TorrentController,
     Observable<Torrent.Listener> {
@@ -120,6 +120,55 @@ class TorrentImpl(
 
     override fun onServiceDisconnected(name: ComponentName?) {
         service = null
+    }
+
+    override suspend fun setFilePriority(
+        infoHash: String,
+        index: Int,
+        torrentFilePriority: TorrentFilePriority
+    ) {
+        session.find(Sha1Hash(infoHash))?.let { handle ->
+            if (handle.isValid) {
+                val p = if (!torrentFilePriority.active) {
+                    Priority.IGNORE
+                } else {
+                    when (torrentFilePriority.priority) {
+                        FilePriority.NORMAL -> Priority.FOUR
+                        FilePriority.HIGH -> Priority.SIX
+                        FilePriority.LOW -> Priority.NORMAL
+                        FilePriority.MIXED -> {
+                            throw IllegalStateException("Files can not have mixed priority.")
+                        }
+                    }
+                }
+                handle.filePriority(index, p)
+            }
+        }
+    }
+
+    override suspend fun setFilesPriority(
+        infoHash: String,
+        torrentFilePriorities: List<TorrentFilePriority>
+    ) {
+        session.find(Sha1Hash(infoHash))?.let { handle ->
+            if (handle.isValid) {
+                torrentFilePriorities.forEachIndexed { index, torrentFilePriority ->
+                    val p = if (!torrentFilePriority.active) {
+                        Priority.IGNORE
+                    } else {
+                        when (torrentFilePriority.priority) {
+                            FilePriority.NORMAL -> Priority.FOUR
+                            FilePriority.HIGH -> Priority.SIX
+                            FilePriority.LOW -> Priority.NORMAL
+                            FilePriority.MIXED -> {
+                                throw IllegalStateException("Files can not have mixed priority.")
+                            }
+                        }
+                    }
+                    handle.filePriority(index, p)
+                }
+            }
+        }
     }
 
     private fun requestTorrentStats() {
