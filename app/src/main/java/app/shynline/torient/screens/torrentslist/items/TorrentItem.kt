@@ -74,14 +74,14 @@ class TorrentItem(
             )
             val bytesDone: Float
             val currentProgress = if (item.torrentModel.finished) {
-                bytesDone = item.torrentModel.totalSize.toFloat()
+                bytesDone = item.torrentModel.selectedFilesSize.toFloat()
                 100
             } else {
-                bytesDone = item.torrentModel.totalSize * item.torrentModel.progress
+                bytesDone = item.torrentModel.selectedFilesBytesDone
                 (item.torrentModel.progress * 100).toInt()
             }
             val progressText = "${bytesDone.toLong().toByteRepresentation()} of " +
-                    "${item.torrentModel.totalSize.toByteRepresentation()} " +
+                    "${item.torrentModel.selectedFilesSize.toByteRepresentation()} " +
                     "($currentProgress%)"
             when (item.torrentModel.userState) {
                 TorrentUserState.PAUSED -> {
@@ -116,11 +116,10 @@ class TorrentItem(
                         }
                         TorrentDownloadingState.DOWNLOADING -> {
                             progressView.isIndeterminate = false
-                            progressView.progress =
-                                (item.torrentModel.progress * 100).toInt()
+                            progressView.progress = currentProgress
                             val downloadRate = item.torrentModel.downloadRate
                             val remainingBytes =
-                                (item.torrentModel.totalSize * (1f - item.torrentModel.progress)).toLong()
+                                (item.torrentModel.selectedFilesSize * (1f - item.torrentModel.progress)).toLong()
                             val remainingTime = if (downloadRate == 0) {
                                 null
                             } else {

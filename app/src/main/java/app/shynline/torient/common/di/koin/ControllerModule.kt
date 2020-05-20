@@ -17,12 +17,12 @@ import org.koin.dsl.module
 val controllerModule = module {
     scope<TorrentsListFragment> {
         scoped {
-            TorrentsListController(get(), get(), get())
+            TorrentsListController(get(), get(), get(), get())
         }
     }
     scope<NewTorrentFragment> {
         scoped {
-            NewTorrentController(get(), get())
+            NewTorrentController(get(), get(), get())
         }
     }
     scope<NewMagnetFragment> {

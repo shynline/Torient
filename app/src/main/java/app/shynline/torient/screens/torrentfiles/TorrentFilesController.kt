@@ -4,7 +4,7 @@ import app.shynline.torient.database.datasource.torrent.TorrentDataSource
 import app.shynline.torient.database.datasource.torrentfilepriority.TorrentFilePriorityDataSource
 import app.shynline.torient.database.entities.TorrentFilePrioritySchema
 import app.shynline.torient.database.entities.TorrentSchema
-import app.shynline.torient.model.TorrentFilePriority
+import app.shynline.torient.model.FilePriority
 import app.shynline.torient.screens.common.BaseController
 import app.shynline.torient.torrent.mediator.TorrentMediator
 import kotlinx.coroutines.launch
@@ -60,14 +60,10 @@ class TorrentFilesController(
             // And its loading if user state is Active
             return@launch
         }
-        if (torrentPriority.filePriority == null) {
-            torrentPriority.filePriority =
-                MutableList(torrentModel.numFiles) { TorrentFilePriority.default() }
-        }
         viewMvc!!.showTorrent(torrentModel)
 
         updateFileProgress(torrentSchema)
-        updateFilePriority()
+        updateFilePriorityUi()
     }
 
     private fun periodicTask() = controllerScope.launch {
@@ -76,8 +72,43 @@ class TorrentFilesController(
     }
 
 
-    private fun updateFilePriority() {
+    private fun updateFilePriorityUi() {
         viewMvc!!.updateFilePriority(torrentPriority.filePriority!!)
+    }
+
+    override fun onDownloadCheckBoxClicked(index: Int, download: Boolean) {
+        controllerScope.launch {
+            if (torrentPriority.filePriority!![index].active != download) {
+                torrentPriority.filePriority!![index].active = download
+                applyPriorityToDataBaseAndTorrent(index)
+            }
+        }
+    }
+
+    override fun onPriorityClicked(index: Int) {
+        controllerScope.launch {
+            when (torrentPriority.filePriority!![index].priority) {
+                FilePriority.NORMAL -> {
+                    torrentPriority.filePriority!![index].priority = FilePriority.HIGH
+                }
+                FilePriority.HIGH -> {
+                    torrentPriority.filePriority!![index].priority = FilePriority.LOW
+                }
+                FilePriority.LOW -> {
+                    torrentPriority.filePriority!![index].priority = FilePriority.NORMAL
+                }
+                FilePriority.MIXED -> {
+                    throw IllegalStateException("Files can not have mixed priority.")
+                }
+            }
+            applyPriorityToDataBaseAndTorrent(index)
+            updateFilePriorityUi()
+        }
+    }
+
+    private suspend fun applyPriorityToDataBaseAndTorrent(index: Int) {
+        torrentFilePriorityDataSource.setPriority(torrentPriority)
+        torrentMediator.setFilePriority(infoHash, index, torrentPriority.filePriority!![index])
     }
 
     private fun updateFileProgress(torrentSchema: TorrentSchema) {

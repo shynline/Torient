@@ -1,6 +1,7 @@
 package app.shynline.torient.screens.torrentfiles
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -11,6 +12,7 @@ import app.shynline.torient.model.TorrentModel
 import app.shynline.torient.screens.common.view.BaseObservableViewMvc
 import app.shynline.torient.screens.torrentfiles.items.FileItem
 import app.shynline.torient.screens.torrentfiles.items.FolderItem
+import com.google.android.material.checkbox.MaterialCheckBox
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.GenericItem
 import com.mikepenz.fastadapter.ISubItem
@@ -18,6 +20,7 @@ import com.mikepenz.fastadapter.adapters.FastItemAdapter
 import com.mikepenz.fastadapter.adapters.GenericFastItemAdapter
 import com.mikepenz.fastadapter.expandable.ExpandableExtension
 import com.mikepenz.fastadapter.expandable.getExpandableExtension
+import com.mikepenz.fastadapter.listeners.ClickEventHook
 
 class TorrentFilesViewMvcImpl(
     inflater: LayoutInflater,
@@ -51,6 +54,49 @@ class TorrentFilesViewMvcImpl(
         expandableExtension = adapter.getExpandableExtension()
         recyclerView.layoutManager = LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false)
         recyclerView.adapter = adapter
+
+        adapter.addEventHook(object : ClickEventHook<FileItem>() {
+            override fun onClick(
+                v: View,
+                position: Int,
+                fastAdapter: FastAdapter<FileItem>,
+                item: FileItem
+            ) {
+                getListeners().forEach { listener ->
+                    listener.onPriorityClicked(item.torrentFile.index)
+                }
+            }
+
+            override fun onBind(viewHolder: RecyclerView.ViewHolder): View? {
+                if (viewHolder is FileItem.ViewHolder) {
+                    return viewHolder.priorityTv
+                }
+                return null
+            }
+        })
+
+        adapter.addEventHook(object : ClickEventHook<FileItem>() {
+            override fun onClick(
+                v: View,
+                position: Int,
+                fastAdapter: FastAdapter<FileItem>,
+                item: FileItem
+            ) {
+                getListeners().forEach { listener ->
+                    listener.onDownloadCheckBoxClicked(
+                        item.torrentFile.index,
+                        (v as MaterialCheckBox).isChecked
+                    )
+                }
+            }
+
+            override fun onBind(viewHolder: RecyclerView.ViewHolder): View? {
+                if (viewHolder is FileItem.ViewHolder) {
+                    return viewHolder.downloadCb
+                }
+                return null
+            }
+        })
 
     }
 

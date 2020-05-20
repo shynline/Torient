@@ -7,7 +7,8 @@ import app.shynline.torient.screens.common.view.ObservableViewMvc
 interface TorrentFilesViewMvc : ObservableViewMvc<TorrentFilesViewMvc.Listener> {
 
     interface Listener {
-
+        fun onPriorityClicked(index: Int)
+        fun onDownloadCheckBoxClicked(index: Int, download: Boolean)
     }
 
     fun showTorrent(torrentModel: TorrentModel)

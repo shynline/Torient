@@ -19,7 +19,7 @@ import com.mikepenz.fastadapter.ISubItem
 import com.mikepenz.fastadapter.items.AbstractItem
 
 class FileItem(
-    private val torrentFile: TorrentFile,
+    val torrentFile: TorrentFile,
     private val subscription: Subscription
 ) : AbstractItem<FileItem.ViewHolder>(),
     ISubItem<FileItem.ViewHolder> {
@@ -53,8 +53,8 @@ class FileItem(
         private val iconIV: ImageView = view.findViewById(R.id.icon)
         private val layoutParams: ViewGroup.LayoutParams
         private val haveTv: TextView = view.findViewById(R.id.have)
-        private val downloadCb: CheckBox = view.findViewById(R.id.download)
-        private val priorityTv: TextView = view.findViewById(R.id.priority)
+        val downloadCb: CheckBox = view.findViewById(R.id.download)
+        val priorityTv: TextView = view.findViewById(R.id.priority)
         private val sizeTv: TextView = view.findViewById(R.id.size)
         private var item: FileItem? = null
 
@@ -80,6 +80,7 @@ class FileItem(
         }
 
         override fun bindView(item: FileItem, payloads: List<Any>) {
+            haveTv.text = "0%"
             // Make sure to assign item before subscribe
             this.item = item
             subscription.subscribe(item.torrentFile.index, this)
@@ -93,7 +94,6 @@ class FileItem(
         override fun unbindView(item: FileItem) {
             subscription.unsubscribe(item.torrentFile.index)
             this.item = null
-            nameTV.text = ""
         }
 
     }

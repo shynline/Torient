@@ -1,6 +1,7 @@
 package app.shynline.torient.screens.torrentslist
 
 import app.shynline.torient.database.datasource.torrent.TorrentDataSource
+import app.shynline.torient.database.datasource.torrentfilepriority.TorrentFilePriorityDataSource
 import app.shynline.torient.database.states.TorrentUserState
 import app.shynline.torient.model.TorrentModel
 import app.shynline.torient.screens.common.BaseController
@@ -20,7 +21,8 @@ import kotlinx.coroutines.launch
 class TorrentsListController(
     private val subscriptionMediator: SubscriptionMediator,
     private val torrentDataSource: TorrentDataSource,
-    private val torrentMediator: TorrentMediator
+    private val torrentMediator: TorrentMediator,
+    private val torrentFilePriorityDataSource: TorrentFilePriorityDataSource
 ) : BaseController(), TorrentListViewMvc.Listener, SubscriptionMediator.Listener {
 
     private var viewMvc: TorrentListViewMvc? = null
@@ -104,6 +106,7 @@ class TorrentsListController(
                         it.comment = torrentEvent.torrentModel.comment
                         it.hexHash = torrentEvent.torrentModel.hexHash
                         it.torrentFile = torrentEvent.torrentModel.torrentFile
+                        it.filesSize = torrentEvent.torrentModel.filesSize
                     }
                 }
             }
@@ -133,6 +136,7 @@ class TorrentsListController(
 
     private fun queryDataBaseForChange() = controllerScope.launch {
         torrentDataSource.getTorrents().collect { torrentSchemas ->
+            val torrentFilesProgress: MutableMap<String, List<Long>?> = mutableMapOf()
             // The Torrents which are being managed by the service so we shouldn't add them again
             val serviceManagedTorrents = torrentMediator.getAllManagedTorrents()
             // It's a flow so it will be called on each database transaction
@@ -140,6 +144,7 @@ class TorrentsListController(
             val removedTorrents = managedTorrents.keys.toMutableList()
             // Traversing through torrents in database
             torrentSchemas.forEach {
+                torrentFilesProgress[it.infoHash] = it.fileProgress
                 if (!managedTorrents.containsKey(it.infoHash)) {
                     val torrentDetail = torrentMediator.getTorrentModel(
                         infoHash = it.infoHash
@@ -217,9 +222,36 @@ class TorrentsListController(
                     torrentMediator.removeTorrent(it)
                 }
             }
-
+            managedTorrents.values.forEach { torrentModel ->
+                torrentModel.filePriority =
+                    torrentFilePriorityDataSource.getPriority(torrentModel.infoHash).filePriority
+                calculateProgressData(torrentModel, torrentFilesProgress)
+            }
             viewMvc!!.showTorrents(managedTorrents.values.toList())
         }
+    }
+
+    private fun calculateProgressData(
+        torrentModel: TorrentModel,
+        torrentFilesProgress: MutableMap<String, List<Long>?>
+    ) {
+        val filePriority = torrentModel.filePriority
+        if (torrentModel.torrentFile == null || filePriority == null) { // Meta data is not available
+            torrentModel.selectedFilesBytesDone = 0f
+            torrentModel.selectedFilesSize = torrentModel.totalSize
+            return
+        }
+        var selectedBytesDone = 0f
+        var selectedSize = 0L
+        val fileProgress = torrentFilesProgress[torrentModel.infoHash]
+        filePriority.forEachIndexed { index, torrentFilePriority ->
+            if (torrentFilePriority.active) {
+                selectedSize += torrentModel.filesSize!![index]
+                selectedBytesDone += fileProgress?.get(index) ?: 0
+            }
+        }
+        torrentModel.selectedFilesSize = selectedSize
+        torrentModel.selectedFilesBytesDone = selectedBytesDone
     }
 
     override fun addTorrentMagnet() {
@@ -245,6 +277,8 @@ class TorrentsListController(
             torrentMediator.removeTorrentFiles(torrentModel.name)
             // Remove from database
             torrentDataSource.removeTorrent(torrentModel.infoHash)
+            // Remove priorities
+            torrentFilePriorityDataSource.removeTorrentFilePriority(torrentModel.infoHash)
         }
     }
 

@@ -1,8 +1,11 @@
 package app.shynline.torient.screens.newtorrent
 
+import android.util.Log
 import app.shynline.torient.database.datasource.torrent.TorrentDataSource
+import app.shynline.torient.database.datasource.torrentfilepriority.TorrentFilePriorityDataSource
 import app.shynline.torient.database.entities.TorrentSchema
 import app.shynline.torient.database.states.TorrentUserState
+import app.shynline.torient.model.TorrentFilePriority
 import app.shynline.torient.model.TorrentModel
 import app.shynline.torient.screens.common.BaseController
 import app.shynline.torient.screens.common.navigationhelper.PageNavigationHelper
@@ -12,7 +15,8 @@ import kotlinx.coroutines.launch
 
 class NewTorrentController(
     private val torrentMediator: TorrentMediator,
-    private val torrentDataSource: TorrentDataSource
+    private val torrentDataSource: TorrentDataSource,
+    private val torrentFilePriorityDataSource: TorrentFilePriorityDataSource
 ) : BaseController(), NewTorrentViewMvc.Listener {
     private var viewMvc: NewTorrentViewMvc? = null
     private var pageNavigationHelper: PageNavigationHelper? = null
@@ -58,12 +62,14 @@ class NewTorrentController(
                         userState = TorrentUserState.ACTIVE
                     )
                 )
+                initiateFilePriority(it.infoHash, it.numFiles)
             }
             close()
         }
     }
 
     override fun addTorrent() {
+        Log.d("asldnkj7ad894894da", "here")
         controllerScope.launch {
             currentTorrent?.let {
                 torrentDataSource.insertTorrent(
@@ -74,8 +80,19 @@ class NewTorrentController(
                         userState = TorrentUserState.PAUSED
                     )
                 )
+                initiateFilePriority(it.infoHash, it.numFiles)
             }
             close()
+        }
+    }
+
+    private suspend fun initiateFilePriority(infoHash: String, numFile: Int) {
+        val p = torrentFilePriorityDataSource.getPriority(infoHash)
+        if (p.filePriority == null) {
+            // Generate default priorities
+            p.filePriority = MutableList(numFile) { TorrentFilePriority.default() }
+            // Update database with generated priorities
+            torrentFilePriorityDataSource.setPriority(p)
         }
     }
 

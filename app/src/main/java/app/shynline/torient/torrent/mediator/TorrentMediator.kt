@@ -1,5 +1,6 @@
 package app.shynline.torient.torrent.mediator
 
+import app.shynline.torient.model.TorrentFilePriority
 import app.shynline.torient.model.TorrentIdentifier
 import app.shynline.torient.model.TorrentModel
 import app.shynline.torient.model.TorrentOverview
@@ -51,5 +52,13 @@ class TorrentMediator(
 
     suspend fun torrentOverview(infoHash: String): TorrentOverview? {
         return torrent.getTorrentOverview(infoHash)
+    }
+
+    suspend fun setFilePriority(
+        infoHash: String,
+        index: Int,
+        torrentFilePriority: TorrentFilePriority
+    ) {
+        return torrent.setFilePriority(infoHash, index, torrentFilePriority)
     }
 }
