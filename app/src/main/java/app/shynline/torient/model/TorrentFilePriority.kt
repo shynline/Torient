@@ -29,7 +29,7 @@ data class TorrentFilePriority(
         fun fromString(str: String): TorrentFilePriority {
             val s = str.split("|")
             return TorrentFilePriority(
-                active = s[0].toBoolean(),
+                active = s[0] == "1",
                 priority = getPriority(s[1].toInt())
             )
         }
