@@ -2,7 +2,6 @@ package app.shynline.torient.screens.torrentslist
 
 import android.app.Activity
 import android.content.Intent
-import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,15 +16,13 @@ import org.koin.androidx.scope.lifecycleScope
 import java.io.BufferedInputStream
 
 
-class TorrentsListFragment : BaseFragment() {
+class TorrentsListFragment : BaseFragment<TorrentsListController>() {
     private val viewMvcFactory by inject<ViewMvcFactory>()
-    private val controller by lifecycleScope.inject<TorrentsListController>()
+    override val controller: TorrentsListController
+        get() = lifecycleScope.get()
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?): View {
         val viewMvc = viewMvcFactory.getTorrentListViewMvc(inflater, container)
         controller.bind(
             viewMvc,
@@ -33,26 +30,6 @@ class TorrentsListFragment : BaseFragment() {
             PageNavigationHelper(findNavController())
         )
         return viewMvc.getRootView()
-    }
-
-    override fun onStart() {
-        super.onStart()
-        controller.onStart()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        controller.onStop()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        controller.unbind()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        controller.onDestroy()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

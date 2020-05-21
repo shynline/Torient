@@ -1,6 +1,5 @@
 package app.shynline.torient.screens.torrentpreference
 
-import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,18 +9,14 @@ import app.shynline.torient.screens.common.BaseFragment
 import org.koin.android.ext.android.inject
 import org.koin.androidx.scope.lifecycleScope
 
-class TorrentPreferenceFragment : BaseFragment() {
+class TorrentPreferenceFragment : BaseFragment<TorrentPreferenceController>() {
 
     private val viewMvcFactory by inject<ViewMvcFactory>()
-    private val controller by lifecycleScope.inject<TorrentPreferenceController>()
+    override val controller: TorrentPreferenceController
+        get() = lifecycleScope.get()
     private val navArgs by navArgs<TorrentPreferenceFragmentArgs>()
 
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?): View {
         val viewMvc = viewMvcFactory.getTorrentPreferenceViewMvc(inflater, container)
         controller.bind(
             viewMvc
@@ -30,23 +25,4 @@ class TorrentPreferenceFragment : BaseFragment() {
         return viewMvc.getRootView()
     }
 
-    override fun onStart() {
-        super.onStart()
-        controller.onStart()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        controller.onStop()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        controller.unbind()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        controller.onDestroy()
-    }
 }

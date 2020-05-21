@@ -113,7 +113,14 @@ class TorrentsListController(
         }
     }
 
-    fun unbind() {
+    override fun loadState(state: HashMap<String, Any>?) {
+    }
+
+    override fun saveState(): HashMap<String, Any>? {
+        return null
+    }
+
+    override fun unbind() {
         viewMvc = null
         fragmentRequestHelper = null
         pageNavigationHelper = null

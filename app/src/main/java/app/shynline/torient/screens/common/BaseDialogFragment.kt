@@ -1,17 +1,24 @@
 package app.shynline.torient.screens.common
 
+import android.graphics.PointF
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
+import androidx.fragment.app.DialogFragment
 
-abstract class BaseFragment<CONTROLLER : BaseController> : Fragment() {
+abstract class BaseDialogFragment<CONTROLLER : BaseController> : DialogFragment() {
     abstract val controller: CONTROLLER
+    open val backGroundColor = android.R.color.transparent
 
     companion object {
         const val CONTROLLER_STATE = "controllerstate"
     }
+
+    private var width = 0
+    private var height = 0
+    abstract val portraitRatioWH: PointF
+    abstract val landscapeRatioWH: PointF
 
     abstract fun onCreateView(inflater: LayoutInflater, container: ViewGroup?): View
 
@@ -21,6 +28,12 @@ abstract class BaseFragment<CONTROLLER : BaseController> : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         controller.onCreateView()
+        requireActivity().resources.displayMetrics.let {
+            width =
+                (it.widthPixels * if (it.widthPixels > it.heightPixels) landscapeRatioWH.x else portraitRatioWH.x).toInt()
+            height =
+                (it.heightPixels * if (it.widthPixels > it.heightPixels) landscapeRatioWH.y else portraitRatioWH.y).toInt()
+        }
         return onCreateView(inflater, container)
     }
 
@@ -28,18 +41,15 @@ abstract class BaseFragment<CONTROLLER : BaseController> : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         if (savedInstanceState != null) {
             // Load state
-            savedInstanceState.getSerializable(CONTROLLER_STATE)?.let {
-                @Suppress("UNCHECKED_CAST")
-                controller.loadState(it as HashMap<String, Any>)
+            (savedInstanceState.getSerializable(CONTROLLER_STATE) as? HashMap<String, Any>)?.let {
+                controller.loadState(it)
             }
         }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        controller.saveState()?.let {
-            outState.putSerializable(CONTROLLER_STATE, it)
-        }
+        outState.putSerializable(CONTROLLER_STATE, controller.saveState())
     }
 
     override fun onStart() {
@@ -57,4 +67,11 @@ abstract class BaseFragment<CONTROLLER : BaseController> : Fragment() {
         super.onDestroyView()
         controller.onViewDestroy()
     }
+
+    override fun onResume() {
+        dialog!!.window!!.setLayout(width, height)
+        dialog!!.window!!.setBackgroundDrawableResource(backGroundColor)
+        super.onResume()
+    }
+
 }

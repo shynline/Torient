@@ -26,7 +26,7 @@
         <argument
             android:name="infoHash"
             app:argType="string"
-            app:nullable="true" />
+            app:nullable="false" />
     </dialog>
     <dialog
         android:id="@+id/newMagnetFragment"
@@ -35,7 +35,7 @@
         <argument
             android:name="magnet"
             app:argType="string"
-            app:nullable="true" />
+            app:nullable="false" />
     </dialog>
     <dialog
         android:id="@+id/addMagnetFragment"

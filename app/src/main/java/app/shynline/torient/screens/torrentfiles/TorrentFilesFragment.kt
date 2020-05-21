@@ -10,42 +10,26 @@ import app.shynline.torient.screens.common.BaseFragment
 import org.koin.android.ext.android.inject
 import org.koin.androidx.scope.lifecycleScope
 
-class TorrentFilesFragment : BaseFragment() {
+class TorrentFilesFragment : BaseFragment<TorrentFilesController>() {
 
     private val viewMvcFactory by inject<ViewMvcFactory>()
-    private val controller by lifecycleScope.inject<TorrentFilesController>()
-    private val navArgs by navArgs<TorrentFilesFragmentArgs>()
+    override val controller: TorrentFilesController
+        get() = lifecycleScope.get()
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    private val navArgs by navArgs<TorrentFilesFragmentArgs>()
+    private lateinit var infoHash: String
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        infoHash = navArgs.infohash
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?): View {
         val viewMvc = viewMvcFactory.getTorrentFilesViewMvc(inflater, container)
         controller.bind(
             viewMvc
         )
-        controller.setTorrent(navArgs.infohash)
+        controller.setTorrent(infoHash)
         return viewMvc.getRootView()
-    }
-
-    override fun onStart() {
-        super.onStart()
-        controller.onStart()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        controller.onStop()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        controller.unbind()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        controller.onDestroy()
     }
 }
