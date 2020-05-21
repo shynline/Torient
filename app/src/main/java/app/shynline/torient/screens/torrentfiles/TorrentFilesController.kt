@@ -9,6 +9,7 @@ import app.shynline.torient.screens.common.BaseController
 import app.shynline.torient.torrent.mediator.TorrentMediator
 import kotlinx.coroutines.launch
 import java.util.*
+import kotlin.collections.HashMap
 import kotlin.concurrent.fixedRateTimer
 
 class TorrentFilesController(
@@ -17,20 +18,40 @@ class TorrentFilesController(
     private val torrentFilePriorityDataSource: TorrentFilePriorityDataSource
 ) : BaseController(), TorrentFilesViewMvc.Listener {
 
+    companion object {
+        private const val INFO_HASH = "infohash"
+        private const val VIEW_STATE = "viewstate"
+    }
+
     private var viewMvc: TorrentFilesViewMvc? = null
     private lateinit var infoHash: String
     private var periodicTimer: Timer? = null
     private var lastProgressHashCode = 0
+    private var savedState: HashMap<String, Any>? = null
 
     fun bind(viewMvc: TorrentFilesViewMvc) {
         this.viewMvc = viewMvc
     }
 
     override fun loadState(state: HashMap<String, Any>?) {
+        if (state != null) {
+            if (state[INFO_HASH] != infoHash)
+                return
+            savedState = state
+        }
+    }
+
+    private fun applyViewState() {
+        @Suppress("UNCHECKED_CAST")
+        viewMvc!!.loadState(savedState?.get(VIEW_STATE) as? HashMap<String, Any>)
+        savedState = null
     }
 
     override fun saveState(): HashMap<String, Any>? {
-        return null
+        val state = HashMap<String, Any>()
+        state[INFO_HASH] = infoHash
+        state[VIEW_STATE] = viewMvc!!.saveState()
+        return state
     }
 
     override fun unbind() {
@@ -71,6 +92,7 @@ class TorrentFilesController(
 
         updateFileProgress(torrentSchema)
         updateFilePriorityUi()
+        applyViewState()
     }
 
     private fun periodicTask() = controllerScope.launch {

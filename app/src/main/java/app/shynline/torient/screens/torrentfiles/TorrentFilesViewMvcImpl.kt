@@ -100,6 +100,65 @@ class TorrentFilesViewMvcImpl(
 
     }
 
+    override fun saveState(): HashMap<String, Any> {
+        val state = HashMap<String, Any>()
+        val foldersState = HashMap<Long, Boolean>()
+        fastItemAdapter.adapterItems.forEach {
+            if (it is FolderItem) {
+                foldersState[it.identifier] = it.isExpanded
+                saveFolderState(it.subItems, foldersState)
+            }
+        }
+        state["folders_state"] = foldersState
+        return state
+    }
+
+    private fun saveFolderState(items: List<ISubItem<*>>, foldersState: HashMap<Long, Boolean>) {
+        items.forEach {
+            if (it is FolderItem) {
+                foldersState[it.identifier] = it.isExpanded
+                saveFolderState(it.subItems, foldersState)
+            }
+        }
+    }
+
+    private fun loadFolderState(items: List<ISubItem<*>>, foldersState: HashMap<Long, Boolean>?) {
+        items.forEach { item ->
+            if (item is FolderItem) {
+                val position = fastItemAdapter.getPosition(item.identifier)
+                if (position != -1) {
+                    val expand = foldersState?.get(item.identifier) ?: true
+                    if (expand) {
+                        expandableExtension.expand(position)
+                    } else {
+                        expandableExtension.collapse(position)
+                    }
+                }
+                loadFolderState(item.subItems, foldersState)
+            }
+        }
+    }
+
+    override fun loadState(state: HashMap<String, Any>?) {
+        @Suppress("UNCHECKED_CAST")
+        val foldersState = state?.get("folders_state") as? HashMap<Long, Boolean>
+        fastItemAdapter.adapterItems.forEach { item ->
+            if (item is FolderItem) {
+                val position = fastItemAdapter.getPosition(item.identifier)
+                if (position != -1) {
+                    val expand = foldersState?.get(item.identifier) ?: true
+                    if (expand) {
+                        expandableExtension.expand(position)
+                    } else {
+                        expandableExtension.collapse(position)
+                    }
+                }
+                loadFolderState(item.subItems, foldersState)
+            }
+        }
+
+    }
+
     override fun subscribe(index: Int, listener: TorrentFileUpdateListener) {
         torrentFileUpdateListeners[index] = listener
         queuedFilePriorities[index]?.let {

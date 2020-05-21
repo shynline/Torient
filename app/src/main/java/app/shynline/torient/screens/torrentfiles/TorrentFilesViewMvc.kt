@@ -14,4 +14,6 @@ interface TorrentFilesViewMvc : ObservableViewMvc<TorrentFilesViewMvc.Listener> 
     fun showTorrent(torrentModel: TorrentModel)
     fun updateFileProgress(fileProgress: List<Long>)
     fun updateFilePriority(torrentFilePriorities: List<TorrentFilePriority>)
+    fun saveState(): HashMap<String, Any>
+    fun loadState(state: HashMap<String, Any>?)
 }
