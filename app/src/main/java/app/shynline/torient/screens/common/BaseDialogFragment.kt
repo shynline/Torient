@@ -41,6 +41,7 @@ abstract class BaseDialogFragment<CONTROLLER : BaseController> : DialogFragment(
         super.onViewCreated(view, savedInstanceState)
         if (savedInstanceState != null) {
             // Load state
+            @Suppress("UNCHECKED_CAST")
             (savedInstanceState.getSerializable(CONTROLLER_STATE) as? HashMap<String, Any>)?.let {
                 controller.loadState(it)
             }
