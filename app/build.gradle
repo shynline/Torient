@@ -143,4 +143,9 @@ dependencies {
     implementation 'me.zhanghai.android.materialprogressbar:library:1.6.1'
 
     implementation 'com.cheekiat:fabmenu:1.1'
+
+    // Mockk
+    testImplementation "io.mockk:mockk:$mockk"
+    androidTestImplementation "io.mockk:mockk-android:$mockk"
+
 }

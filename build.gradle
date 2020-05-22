@@ -7,6 +7,7 @@ buildscript {
     ext.fastadapter = "5.0.0"
     ext.room_version = "2.2.5"
     ext.google_truth = "1.0.1"
+    ext.mockk = "1.10.0"
     repositories {
         google()
         jcenter()
