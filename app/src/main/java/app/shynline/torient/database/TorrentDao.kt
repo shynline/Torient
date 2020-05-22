@@ -14,9 +14,6 @@ interface TorrentDao {
     @Query("SELECT * from torrent")
     fun getTorrents(): Flow<List<TorrentSchema>>
 
-    @Query("SELECT * from torrent WHERE info_hash = :infoHash")
-    suspend fun getTorrentByInfoHash(infoHash: String): TorrentSchema
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTorrent(torrentSchema: TorrentSchema)
 
