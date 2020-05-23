@@ -54,9 +54,19 @@ class TorrentFilePriorityDaoTest {
             val sample = TorrentFilePrioritySchemaUtils.getFilePrioritySchema()
             SUT.insertTorrent(sample)
             val newPriority = TorrentFilePrioritySchemaUtils.getARandomFilePriorityList()
-            SUT.setTorrentFilePriorities(sample.infoHash, newPriority)
+            val result = SUT.setTorrentFilePriorities(sample.infoHash, newPriority)
             val schema = SUT.getTorrentFilePrioritySchema(sample.infoHash)!!
+            assertThat(result).isEqualTo(1)
             assertThat(schema.filePriority).isEqualTo(newPriority)
+        }
+
+    @Test
+    fun test_setTorrentFilePriorities_returnsZeroWhenThereIsNoSchemaInDataBase() =
+        runBlocking {
+            val sample = TorrentFilePrioritySchemaUtils.getFilePrioritySchema()
+            val newPriority = TorrentFilePrioritySchemaUtils.getARandomFilePriorityList()
+            val result = SUT.setTorrentFilePriorities(sample.infoHash, newPriority)
+            assertThat(result).isEqualTo(0)
         }
 
 }
