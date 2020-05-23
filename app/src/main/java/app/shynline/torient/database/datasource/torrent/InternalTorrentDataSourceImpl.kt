@@ -20,7 +20,7 @@ class InternalTorrentDataSourceImpl(
                 infoHash,
                 LongArrayConverter.toString(fileProgress.toList())!!
             )
-            return@withContext torrentDao.setTorrentFinished(infoHash, finished)
+            torrentDao.setTorrentFinished(infoHash, finished)
         }
 
     override suspend fun setTorrentProgress(
