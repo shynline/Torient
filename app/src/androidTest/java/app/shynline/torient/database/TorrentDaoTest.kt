@@ -8,7 +8,9 @@ import app.shynline.torient.database.states.TorrentUserState
 import app.shynline.torient.database.typeconverter.LongArrayConverter
 import com.google.common.truth.Truth.assertThat
 import dataset.TorrentSchemaUtils
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -115,15 +117,14 @@ class TorrentDaoTest {
         assertThat(torrentSchema.lastSeenComplete).isEqualTo(lastSeen)
     }
 
+    @ExperimentalCoroutinesApi
     @Test
     fun test_getTorrents_returnAllTorrents() = runBlocking {
         val sample = TorrentSchemaUtils.getSchema()
         SUT.insertTorrent(sample)
-        val flow = SUT.getTorrents()
-        flow.collect { schemas ->
-            assertThat(schemas.size).isEqualTo(1)
-            assertThat(schemas[0]).isEqualTo(sample)
-        }
+        val schemas = SUT.getTorrents().take(1).toList().first()
+        assertThat(schemas.size).isEqualTo(1)
+        assertThat(schemas[0]).isEqualTo(sample)
     }
 
 }
