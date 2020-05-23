@@ -18,14 +18,17 @@ class TorrentDataSourceImpl(
     @FlowPreview
     override suspend fun getTorrents(): Flow<List<TorrentSchema>> = withContext(ioDispatcher) {
         return@withContext torrentDao.getTorrents().distinctUntilChanged { old, new ->
+            // Returns true if both lists are equivalent
             val o = old.map { it.infoHash }.toMutableList()
             new.map { it.infoHash }.forEach {
                 if (o.contains(it)) {
                     o.remove(it)
                 } else {
+                    // There is at least one new object in new list
                     return@distinctUntilChanged false
                 }
             }
+            // There is at least on object which is not in new list
             o.isEmpty()
         }
     }
