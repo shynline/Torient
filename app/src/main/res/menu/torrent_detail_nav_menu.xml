@@ -1,14 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/torrentOverviewFragment"
-        android:title="OverView" />
+        android:icon="@drawable/icon_overview"
+        android:title="Overview"
+        app:iconTint="@color/menuIconTint" />
     <item
         android:id="@+id/torrentFilesFragment"
-        android:title="File" />
+        android:icon="@drawable/icon_files"
+        android:title="Files"
+        app:iconTint="@color/menuIconTint" />
     <item
         android:id="@+id/torrentPreferenceFragment"
-        android:title="Pref" />
+        android:icon="@drawable/icon_preference"
+        android:title="Preference"
+        app:iconTint="@color/menuIconTint" />
 
 </menu>

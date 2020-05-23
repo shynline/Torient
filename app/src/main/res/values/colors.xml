@@ -13,4 +13,5 @@
     <color name="rootBackground">#fafafa</color>
 
     <color name="separator">#888888</color>
+    <color name="menuIconTint">@color/colorPrimaryDark</color>
 </resources>

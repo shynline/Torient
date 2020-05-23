@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="rootBackground">#fafafa</color>
+    <color name="menuIconTint">@color/colorPrimaryDark</color>
 </resources>
