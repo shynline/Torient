@@ -1,7 +1,11 @@
 package app.shynline.torient.common.di.koin
 
+import android.content.Context
+import android.content.SharedPreferences
 import app.shynline.torient.common.di.viewfactory.ViewMvcFactory
 import app.shynline.torient.common.di.viewfactory.ViewMvcFactoryImpl
+import app.shynline.torient.common.userpreference.UserPreference
+import app.shynline.torient.common.userpreference.UserPreferenceImpl
 import app.shynline.torient.torrent.mediator.SubscriptionMediator
 import app.shynline.torient.torrent.mediator.TorrentMediator
 import app.shynline.torient.torrent.torrent.Torrent
@@ -26,4 +30,11 @@ val mainModule = module {
     single {
         TorrentMediator(get())
     }
+    single<SharedPreferences> {
+        androidContext().getSharedPreferences("user_preference", Context.MODE_PRIVATE)
+    }
+    single<UserPreference> {
+        UserPreferenceImpl(get())
+    }
+
 }
