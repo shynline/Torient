@@ -5,17 +5,17 @@
     <item
         android:id="@+id/torrentOverviewFragment"
         android:icon="@drawable/icon_overview"
-        android:title="Overview"
+        android:title="@string/overview"
         app:iconTint="@color/menuIconTint" />
     <item
         android:id="@+id/torrentFilesFragment"
         android:icon="@drawable/icon_files"
-        android:title="Files"
+        android:title="@string/files"
         app:iconTint="@color/menuIconTint" />
     <item
         android:id="@+id/torrentPreferenceFragment"
         android:icon="@drawable/icon_preference"
-        android:title="Preference"
+        android:title="@string/preference"
         app:iconTint="@color/menuIconTint" />
 
 </menu>

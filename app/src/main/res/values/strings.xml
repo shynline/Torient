@@ -15,4 +15,7 @@
     <string name="submit">Submit</string>
     <string name="enter_your_magnet">Enter your magnet</string>
     <string name="nothing_here_add_a_torrent_to_start">Nothing here..\nAdd a torrent to start</string>
+    <string name="overview">Overview</string>
+    <string name="files">Files</string>
+    <string name="preference">Preference</string>
 </resources>
