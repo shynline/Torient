@@ -1,7 +1,7 @@
-package app.shynline.torient.database.typeconverter
+package app.shynline.torient.database.common.typeconverter
 
 import androidx.room.TypeConverter
-import app.shynline.torient.database.states.TorrentUserState
+import app.shynline.torient.database.common.states.TorrentUserState
 import java.util.*
 
 

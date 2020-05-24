@@ -1,4 +1,4 @@
-package app.shynline.torient.database.states
+package app.shynline.torient.database.common.states
 
 enum class TorrentUserState(val id: Int) {
     PAUSED(0),

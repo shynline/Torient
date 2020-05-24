@@ -1,6 +1,6 @@
 package app.shynline.torient.database.datasource.torrentfilepriority
 
-import app.shynline.torient.database.TorrentFilePriorityDao
+import app.shynline.torient.database.dao.TorrentFilePriorityDao
 import com.google.common.truth.Truth.assertThat
 import dataset.TorrentFilePrioritySchemaUtils
 import io.mockk.coEvery

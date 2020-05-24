@@ -1,4 +1,4 @@
-package app.shynline.torient.database.typeconverter
+package app.shynline.torient.database.common.typeconverter
 
 import app.shynline.torient.model.FilePriority
 import app.shynline.torient.model.TorrentFilePriority

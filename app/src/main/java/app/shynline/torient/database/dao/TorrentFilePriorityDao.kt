@@ -1,4 +1,4 @@
-package app.shynline.torient.database
+package app.shynline.torient.database.dao
 
 import androidx.room.Dao
 import androidx.room.Insert

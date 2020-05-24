@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import app.shynline.torient.R
-import app.shynline.torient.database.states.TorrentUserState
+import app.shynline.torient.database.common.states.TorrentUserState
 import app.shynline.torient.model.TorrentOverview
 import app.shynline.torient.screens.common.view.BaseObservableViewMvc
 import app.shynline.torient.utils.toByteRepresentation

@@ -1,4 +1,4 @@
-package app.shynline.torient.database.typeconverter
+package app.shynline.torient.database.common.typeconverter
 
 import androidx.room.TypeConverter
 import app.shynline.torient.model.TorrentFilePriority

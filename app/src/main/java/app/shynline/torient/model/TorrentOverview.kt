@@ -1,6 +1,6 @@
 package app.shynline.torient.model
 
-import app.shynline.torient.database.states.TorrentUserState
+import app.shynline.torient.database.common.states.TorrentUserState
 
 data class TorrentOverview(
     var name: String, val infoHash: String, val size: Long, val numPiece: Int,

@@ -1,7 +1,7 @@
 package app.shynline.torient.database.datasource.torrent
 
+import app.shynline.torient.database.common.states.TorrentUserState
 import app.shynline.torient.database.entities.TorrentSchema
-import app.shynline.torient.database.states.TorrentUserState
 import kotlinx.coroutines.flow.Flow
 
 interface TorrentDataSource {

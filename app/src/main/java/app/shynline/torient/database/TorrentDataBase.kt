@@ -3,10 +3,12 @@ package app.shynline.torient.database
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import app.shynline.torient.database.common.typeconverter.FilePriorityConverter
+import app.shynline.torient.database.common.typeconverter.TorrentStateConverter
+import app.shynline.torient.database.dao.TorrentDao
+import app.shynline.torient.database.dao.TorrentFilePriorityDao
 import app.shynline.torient.database.entities.TorrentFilePrioritySchema
 import app.shynline.torient.database.entities.TorrentSchema
-import app.shynline.torient.database.typeconverter.FilePriorityConverter
-import app.shynline.torient.database.typeconverter.TorrentStateConverter
 
 /**
  *

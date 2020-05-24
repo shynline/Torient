@@ -1,7 +1,7 @@
 package app.shynline.torient.database.datasource.torrent
 
-import app.shynline.torient.database.TorrentDao
-import app.shynline.torient.database.typeconverter.LongArrayConverter
+import app.shynline.torient.database.common.typeconverter.LongArrayConverter
+import app.shynline.torient.database.dao.TorrentDao
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 

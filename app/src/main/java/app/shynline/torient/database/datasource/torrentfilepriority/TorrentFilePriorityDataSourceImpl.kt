@@ -1,6 +1,6 @@
 package app.shynline.torient.database.datasource.torrentfilepriority
 
-import app.shynline.torient.database.TorrentFilePriorityDao
+import app.shynline.torient.database.dao.TorrentFilePriorityDao
 import app.shynline.torient.database.entities.TorrentFilePrioritySchema
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext

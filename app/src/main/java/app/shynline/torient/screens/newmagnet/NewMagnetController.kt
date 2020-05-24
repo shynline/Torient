@@ -1,8 +1,8 @@
 package app.shynline.torient.screens.newmagnet
 
+import app.shynline.torient.database.common.states.TorrentUserState
 import app.shynline.torient.database.datasource.torrent.TorrentDataSource
 import app.shynline.torient.database.entities.TorrentSchema
-import app.shynline.torient.database.states.TorrentUserState
 import app.shynline.torient.model.TorrentIdentifier
 import app.shynline.torient.screens.common.BaseController
 import app.shynline.torient.screens.common.navigationhelper.PageNavigationHelper

@@ -1,6 +1,6 @@
-package app.shynline.torient.database.typeconverter
+package app.shynline.torient.database.common.typeconverter
 
-import app.shynline.torient.database.states.TorrentUserState
+import app.shynline.torient.database.common.states.TorrentUserState
 import com.google.common.truth.Truth
 import org.junit.Assert.fail
 import org.junit.Before

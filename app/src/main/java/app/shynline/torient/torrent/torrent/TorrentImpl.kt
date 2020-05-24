@@ -8,9 +8,9 @@ import android.os.IBinder
 import app.shynline.torient.common.downloadDir
 import app.shynline.torient.common.observable.Observable
 import app.shynline.torient.common.torrentDir
+import app.shynline.torient.database.common.states.TorrentUserState
 import app.shynline.torient.database.datasource.torrent.InternalTorrentDataSource
 import app.shynline.torient.database.datasource.torrentfilepriority.TorrentFilePriorityDataSource
-import app.shynline.torient.database.states.TorrentUserState
 import app.shynline.torient.model.*
 import app.shynline.torient.torrent.service.TorientService
 import com.frostwire.jlibtorrent.*

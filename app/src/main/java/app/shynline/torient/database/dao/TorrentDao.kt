@@ -1,11 +1,11 @@
-package app.shynline.torient.database
+package app.shynline.torient.database.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import app.shynline.torient.database.common.states.TorrentUserState
 import app.shynline.torient.database.entities.TorrentSchema
-import app.shynline.torient.database.states.TorrentUserState
 import kotlinx.coroutines.flow.Flow
 
 @Dao

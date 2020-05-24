@@ -1,4 +1,4 @@
-package app.shynline.torient.database.typeconverter
+package app.shynline.torient.database.common.typeconverter
 
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before

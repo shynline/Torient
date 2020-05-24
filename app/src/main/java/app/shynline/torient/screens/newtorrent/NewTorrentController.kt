@@ -1,10 +1,10 @@
 package app.shynline.torient.screens.newtorrent
 
 import android.util.Log
+import app.shynline.torient.database.common.states.TorrentUserState
 import app.shynline.torient.database.datasource.torrent.TorrentDataSource
 import app.shynline.torient.database.datasource.torrentfilepriority.TorrentFilePriorityDataSource
 import app.shynline.torient.database.entities.TorrentSchema
-import app.shynline.torient.database.states.TorrentUserState
 import app.shynline.torient.model.TorrentFilePriority
 import app.shynline.torient.model.TorrentModel
 import app.shynline.torient.screens.common.BaseController

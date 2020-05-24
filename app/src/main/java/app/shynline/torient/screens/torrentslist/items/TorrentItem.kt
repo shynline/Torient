@@ -5,7 +5,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import app.shynline.torient.R
-import app.shynline.torient.database.states.TorrentUserState
+import app.shynline.torient.database.common.states.TorrentUserState
 import app.shynline.torient.model.TorrentModel
 import app.shynline.torient.screens.torrentslist.TorrentListViewMvcImpl
 import app.shynline.torient.torrent.states.TorrentDownloadingState
