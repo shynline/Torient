@@ -13,5 +13,5 @@ interface TorrentPreferenceDao {
     suspend fun getPreference(infoHash: String): TorrentPreferenceSchema?
 
     @Update
-    suspend fun updateSchema(preference: TorrentPreferenceSchema): Int
+    fun updateSchema(preference: TorrentPreferenceSchema): Int
 }

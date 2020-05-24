@@ -18,13 +18,11 @@ class TorrentPreferenceDataSourceImpl(
                 schema = TorrentPreferenceSchema(infoHash)
                 torrentPreferenceDao.insertPreference(schema)
             }
-            return@withContext schema
+            return@withContext requireNotNull(schema)
         }
 
-    override suspend fun updateTorrentPreference(schema: TorrentPreferenceSchema) =
-        withContext(ioDispatcher) {
-            torrentPreferenceDao.updateSchema(schema)
-            Unit
-        }
+    override fun updateTorrentPreference(schema: TorrentPreferenceSchema) {
+        torrentPreferenceDao.updateSchema(schema)
+    }
 
 }
