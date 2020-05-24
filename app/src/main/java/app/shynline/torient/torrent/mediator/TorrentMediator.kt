@@ -61,4 +61,8 @@ class TorrentMediator(
     ) {
         return torrent.setFilePriority(infoHash, index, torrentFilePriority)
     }
+
+    fun updateTorrentPreference(infoHash: String) {
+        torrent.updateTorrentPreference(infoHash)
+    }
 }

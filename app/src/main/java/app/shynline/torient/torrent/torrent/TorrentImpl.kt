@@ -122,6 +122,10 @@ class TorrentImpl(
         service = null
     }
 
+    override fun updateTorrentPreference(infoHash: String) {
+        // Todo
+    }
+
     override suspend fun setFilePriority(
         infoHash: String,
         index: Int,
@@ -145,6 +149,7 @@ class TorrentImpl(
             }
         }
     }
+
 
     override suspend fun setFilesPriority(
         infoHash: String,
