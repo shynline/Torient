@@ -1,12 +1,12 @@
-package app.shynline.torient.database
+package app.shynline.torient.database.dao
 
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.shynline.torient.database.TorrentDataBase
 import app.shynline.torient.database.common.states.TorrentUserState
 import app.shynline.torient.database.common.typeconverter.LongArrayConverter
-import app.shynline.torient.database.dao.TorrentDao
 import com.google.common.truth.Truth.assertThat
 import dataset.TorrentSchemaUtils
 import kotlinx.coroutines.ExperimentalCoroutinesApi
