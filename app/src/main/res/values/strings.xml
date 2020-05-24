@@ -19,4 +19,12 @@
     <string name="files">Files</string>
     <string name="preference">Preference</string>
     <string name="speed">Speed</string>
+    <string name="maximum_peers">Maximum peers</string>
+    <string name="honor_global_maximum_peers">Honor global maximum peers</string>
+    <string name="connections">Connections</string>
+    <string name="upload_speed_limit">Upload speed limit</string>
+    <string name="limit_upload_rate_kb_s">Limit upload rate (KB/s)</string>
+    <string name="download_speed_limit">Download speed limit</string>
+    <string name="limit_download_rate_kb_s">Limit download rate (KB/s)</string>
+    <string name="honor_global_limit">Honor global limit</string>
 </resources>
