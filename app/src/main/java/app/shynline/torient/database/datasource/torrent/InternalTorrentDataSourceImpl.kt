@@ -20,7 +20,7 @@ class InternalTorrentDataSourceImpl(
                 infoHash,
                 LongArrayConverter.toString(fileProgress.toList())!!
             )
-            torrentDao.setTorrentFinished(infoHash, finished)
+            torrentDao.setTorrentProgress(infoHash, 100f)
         }
 
     override suspend fun setTorrentProgress(
@@ -30,11 +30,9 @@ class InternalTorrentDataSourceImpl(
         fileProgress: LongArray
     ) =
         withContext(ioDispatcher) {
-            torrentDao.setTorrentProgress(
-                infoHash,
-                progress,
-                lastSeenComplete
-            )
+            torrentDao.setTorrentProgress(infoHash, progress)
+
+            torrentDao.setTorrentLastSeenComplete(infoHash, lastSeenComplete)
 
             torrentDao.setTorrentFileProgress(
                 infoHash,

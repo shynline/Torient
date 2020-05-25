@@ -16,8 +16,6 @@ data class TorrentSchema(
     var magnet: String,
     @ColumnInfo(name = "state")
     var userState: TorrentUserState,
-    @ColumnInfo(name = "is_finished")
-    var isFinished: Boolean = false,
     @ColumnInfo(name = "progress")
     var progress: Float = 0f,
     @ColumnInfo(name = "name")
@@ -27,6 +25,11 @@ data class TorrentSchema(
     @ColumnInfo(name = "file_progress")
     var _fileProgress: String? = null
 ) {
+
+    val isFinished: Boolean
+        get() {
+            return 100f == progress
+        }
 
     var fileProgress: List<Long>?
         set(value) {

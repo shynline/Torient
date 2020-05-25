@@ -87,13 +87,13 @@ class TorrentDaoTest {
     }
 
     @Test
-    fun test_setTorrentFinished_torrentFinishedFlagShouldBeTrue() = runBlocking {
+    fun test_setTorrentLastSeenComplete_updateLastSeenComeplete() = runBlocking {
         val sample = TorrentSchemaUtils.getSchema()
-        sample.isFinished = false
+        val lastSeen = Date().time + 100
         SUT.insertTorrent(sample)
-        SUT.setTorrentFinished(sample.infoHash, true)
+        SUT.setTorrentLastSeenComplete(sample.infoHash, lastSeen)
         val torrentSchema = SUT.getTorrent(sample.infoHash)!!
-        assertThat(torrentSchema.isFinished).isTrue()
+        assertThat(torrentSchema.lastSeenComplete).isEqualTo(lastSeen)
     }
 
     @Test
@@ -111,11 +111,9 @@ class TorrentDaoTest {
         val sample = TorrentSchemaUtils.getSchema()
         sample.progress = 80f
         SUT.insertTorrent(sample)
-        val lastSeen = Date().time + 100
-        SUT.setTorrentProgress(sample.infoHash, 90f, lastSeen)
+        SUT.setTorrentProgress(sample.infoHash, 90f)
         val torrentSchema = SUT.getTorrent(sample.infoHash)!!
         assertThat(torrentSchema.progress).isEqualTo(90f)
-        assertThat(torrentSchema.lastSeenComplete).isEqualTo(lastSeen)
     }
 
     @ExperimentalCoroutinesApi

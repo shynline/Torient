@@ -26,7 +26,8 @@ class InternalTorrentDataSourceImplTest {
     fun test_setTorrentProgress_shouldCallSetTorrentProgressAndSetTorrentFileProgressFromDao() =
         runBlocking {
             // Arrange
-            coEvery { torrentDao.setTorrentProgress(any(), any(), any()) }.returns(Unit)
+            coEvery { torrentDao.setTorrentProgress(any(), any()) }.returns(Unit)
+            coEvery { torrentDao.setTorrentLastSeenComplete(any(), any()) }.returns(Unit)
             coEvery { torrentDao.setTorrentFileProgress(any(), any()) }.returns(Unit)
             // Act
             SUT.setTorrentProgress(INFO_HASH, PROGRESS, LAST_SEEN_COMPLETE, FILE_PROGRESS)
@@ -34,7 +35,12 @@ class InternalTorrentDataSourceImplTest {
             coVerify(exactly = 1) {
                 torrentDao.setTorrentProgress(
                     INFO_HASH,
-                    PROGRESS,
+                    PROGRESS
+                )
+            }
+            coVerify(exactly = 1) {
+                torrentDao.setTorrentLastSeenComplete(
+                    INFO_HASH,
                     LAST_SEEN_COMPLETE
                 )
             }
@@ -52,9 +58,9 @@ class InternalTorrentDataSourceImplTest {
         runBlocking {
             // Arrange
             coEvery {
-                torrentDao.setTorrentFinished(
+                torrentDao.setTorrentProgress(
                     infoHash = any(),
-                    finished = any()
+                    progress = any()
                 )
             }.returns(Unit)
             coEvery {
@@ -67,9 +73,9 @@ class InternalTorrentDataSourceImplTest {
             SUT.setTorrentFinished(INFO_HASH, FINISHED, FILE_PROGRESS)
             // Assert
             coVerify(exactly = 1) {
-                torrentDao.setTorrentFinished(
+                torrentDao.setTorrentProgress(
                     infoHash = INFO_HASH,
-                    finished = FINISHED
+                    progress = 100f
                 )
             }
             coVerify(exactly = 1) {

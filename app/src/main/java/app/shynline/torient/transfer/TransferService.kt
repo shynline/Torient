@@ -79,6 +79,7 @@ class TransferService : Service() {
             return
         }
         GlobalScope.launch(Dispatchers.IO) {
+            var path = "" // TODO
             name = src
             val srcFile = File(downloadDir, src)
             // Trying to open the file and see if it exists or not
