@@ -1,4 +1,4 @@
-package app.shynline.torient.screens.common
+package app.shynline.torient.common
 
 import android.text.Editable
 import android.text.TextWatcher
