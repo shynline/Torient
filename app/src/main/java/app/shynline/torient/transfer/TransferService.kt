@@ -10,6 +10,8 @@ import android.os.IBinder
 import android.provider.MediaStore
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.database.getLongOrNull
+import androidx.core.database.getStringOrNull
 import androidx.navigation.NavDeepLinkBuilder
 import app.shynline.torient.R
 import app.shynline.torient.common.downloadDir
@@ -155,15 +157,14 @@ class TransferService : Service() {
             // File is not complete yet
             return
         }
-        // TODO check if file is already exists to replace maybe
+        val relativePath =
+            Environment.DIRECTORY_DOWNLOADS + (if (parent.isBlank()) "" else File.separator + parent)
         val resolver = contentResolver
         val contentValues = ContentValues().apply {
             put(MediaStore.DownloadColumns.DISPLAY_NAME, file.name)
             put(MediaStore.DownloadColumns.IS_PENDING, 1)
-            put(
-                MediaStore.DownloadColumns.RELATIVE_PATH,
-                Environment.DIRECTORY_DOWNLOADS + (if (parent.isBlank()) "" else File.separator + parent)
-            )
+            put(MediaStore.DownloadColumns.SIZE, file.length())
+            put(MediaStore.DownloadColumns.RELATIVE_PATH, relativePath)
         }
         FileMimeDetector.getType(file.name)?.let {
             contentValues.put(MediaStore.DownloadColumns.MIME_TYPE, it)
@@ -171,6 +172,24 @@ class TransferService : Service() {
 
         val collection = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
 
+        val selection =
+            "${MediaStore.MediaColumns.RELATIVE_PATH}='${relativePath + File.separator}' AND " +
+                    "${MediaStore.MediaColumns.DISPLAY_NAME}='${file.name}' "
+        val projection: Array<String> = arrayOf(
+            MediaStore.DownloadColumns.DISPLAY_NAME,
+            MediaStore.DownloadColumns.SIZE
+        )
+
+        // Query to see if it already exists
+        resolver.query(collection, projection, selection, null, null)?.use {
+            if (it.count != 0) {
+                val nameIndex = it.getColumnIndex(MediaStore.DownloadColumns.DISPLAY_NAME)
+                val sizeIndex = it.getColumnIndex(MediaStore.DownloadColumns.SIZE)
+                it.moveToFirst()
+                if (it.getStringOrNull(nameIndex) == file.name && it.getLongOrNull(sizeIndex) == file.length())
+                    return
+            }
+        }
         val item = resolver.insert(collection, contentValues)!!
         try {
             resolver.openOutputStream(item)!!.use { os ->
