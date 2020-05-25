@@ -300,7 +300,7 @@ class TorrentsListController(
     }
 
     override fun onTorrentClicked(torrentModel: TorrentModel) {
-        pageNavigationHelper!!.showTorrentOverView(torrentModel.infoHash)
+        pageNavigationHelper!!.showTorrentOverView(torrentModel.infoHash, torrentModel.name)
     }
 
     override fun onCopyMagnetRequested(torrentModel: TorrentModel) {

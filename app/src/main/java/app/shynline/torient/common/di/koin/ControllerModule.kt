@@ -4,6 +4,8 @@ import app.shynline.torient.screens.newmagnet.NewMagnetController
 import app.shynline.torient.screens.newmagnet.NewMagnetFragment
 import app.shynline.torient.screens.newtorrent.NewTorrentController
 import app.shynline.torient.screens.newtorrent.NewTorrentFragment
+import app.shynline.torient.screens.preference.PreferenceController
+import app.shynline.torient.screens.preference.PreferenceFragment
 import app.shynline.torient.screens.torrentfiles.TorrentFilesController
 import app.shynline.torient.screens.torrentfiles.TorrentFilesFragment
 import app.shynline.torient.screens.torrentoverview.TorrentOverviewController
@@ -43,6 +45,12 @@ val controllerModule = module {
     scope<TorrentPreferenceFragment> {
         scoped {
             TorrentPreferenceController(get(), get())
+        }
+    }
+
+    scope<PreferenceFragment> {
+        scoped {
+            PreferenceController(get(), get())
         }
     }
 }

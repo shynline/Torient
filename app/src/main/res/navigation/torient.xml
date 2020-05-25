@@ -18,6 +18,9 @@
         <action
             android:id="@+id/action_torrent_list_fragment_to_torrentDetailFragment"
             app:destination="@id/torrentDetailFragment" />
+        <action
+            android:id="@+id/action_torrent_list_fragment_to_preferenceFragment"
+            app:destination="@id/preferenceFragment" />
     </fragment>
     <dialog
         android:id="@+id/newTorrentFragment"
@@ -56,6 +59,9 @@
         <argument
             android:name="infohash"
             app:argType="string" />
+        <argument
+            android:name="name"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/torrentOverviewFragment"
@@ -63,6 +69,9 @@
         android:label="TorrentOverviewFragment">
         <argument
             android:name="infohash"
+            app:argType="string" />
+        <argument
+            android:name="name"
             app:argType="string" />
     </fragment>
     <fragment
@@ -72,6 +81,13 @@
         <argument
             android:name="infohash"
             app:argType="string" />
+        <argument
+            android:name="name"
+            app:argType="string" />
     </fragment>
+    <fragment
+        android:id="@+id/preferenceFragment"
+        android:name="app.shynline.torient.screens.preference.PreferenceFragment"
+        android:label="PreferenceFragment" />
 
 </navigation>

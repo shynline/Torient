@@ -27,7 +27,7 @@ class PageNavigationHelper(
             navController.navigate(action)
     }
 
-    fun showTorrentOverView(infoHash: String) {
+    fun showTorrentOverView(infoHash: String, name: String) {
         if (navController.currentDestination!!.id in listOf(
                 R.id.torrentFilesFragment, R.id.torrentPreferenceFragment
             )
@@ -35,10 +35,13 @@ class PageNavigationHelper(
             navController.navigateUp()
         }
         if (navController.currentDestination?.id != R.id.torrentOverviewFragment)
-            navController.navigate(R.id.torrentOverviewFragment, bundleOf("infohash" to infoHash))
+            navController.navigate(
+                R.id.torrentOverviewFragment,
+                bundleOf("infohash" to infoHash, "name" to name)
+            )
     }
 
-    fun showTorrentFiles(infoHash: String) {
+    fun showTorrentFiles(infoHash: String, name: String) {
         if (navController.currentDestination!!.id in listOf(
                 R.id.torrentOverviewFragment,
                 R.id.torrentPreferenceFragment
@@ -47,10 +50,13 @@ class PageNavigationHelper(
             navController.navigateUp()
         }
         if (navController.currentDestination?.id != R.id.torrentFilesFragment)
-            navController.navigate(R.id.torrentFilesFragment, bundleOf("infohash" to infoHash))
+            navController.navigate(
+                R.id.torrentFilesFragment,
+                bundleOf("infohash" to infoHash, "name" to name)
+            )
     }
 
-    fun showTorrentPreference(infoHash: String) {
+    fun showTorrentPreference(infoHash: String, name: String) {
         if (navController.currentDestination!!.id in listOf(
                 R.id.torrentOverviewFragment,
                 R.id.torrentFilesFragment
@@ -59,7 +65,17 @@ class PageNavigationHelper(
             navController.navigateUp()
         }
         if (navController.currentDestination?.id != R.id.torrentPreferenceFragment)
-            navController.navigate(R.id.torrentPreferenceFragment, bundleOf("infohash" to infoHash))
+            navController.navigate(
+                R.id.torrentPreferenceFragment,
+                bundleOf("infohash" to infoHash, "name" to name)
+            )
+    }
+
+    fun showPreference() {
+        if (navController.currentDestination?.id != R.id.preferenceFragment)
+            navController.navigate(
+                R.id.preferenceFragment
+            )
     }
 
     fun back() {

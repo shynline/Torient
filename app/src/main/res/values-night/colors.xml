@@ -2,4 +2,5 @@
 <resources>
     <color name="rootBackground">#202020</color>
     <color name="menuIconTint">#fff</color>
+    <color name="toolbarBackground">#99000000</color>
 </resources>

@@ -20,4 +20,6 @@
     <style name="Separator" parent="AppTheme">
         <item name="android:background">@color/separator</item>
     </style>
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
 </resources>

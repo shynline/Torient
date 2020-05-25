@@ -65,4 +65,8 @@ class TorrentMediator(
     fun updateTorrentPreference(infoHash: String) {
         torrent.updateTorrentPreference(infoHash)
     }
+
+    fun onUpdateGlobalPreference() {
+
+    }
 }

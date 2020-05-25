@@ -8,6 +8,8 @@ import app.shynline.torient.screens.newmagnet.NewMagnetViewMvc
 import app.shynline.torient.screens.newmagnet.NewMagnetViewMvcImpl
 import app.shynline.torient.screens.newtorrent.NewTorrentViewMvc
 import app.shynline.torient.screens.newtorrent.NewTorrentViewMvcImpl
+import app.shynline.torient.screens.preference.PreferenceViewMvc
+import app.shynline.torient.screens.preference.PreferenceViewMvcImpl
 import app.shynline.torient.screens.torrentfiles.TorrentFilesViewMvc
 import app.shynline.torient.screens.torrentfiles.TorrentFilesViewMvcImpl
 import app.shynline.torient.screens.torrentoverview.TorrentOverviewViewMvc
@@ -68,5 +70,12 @@ class ViewMvcFactoryImpl :
         parent: ViewGroup?
     ): TorrentPreferenceViewMvc {
         return TorrentPreferenceViewMvcImpl(inflater, parent)
+    }
+
+    override fun getPreferenceViewMvc(
+        inflater: LayoutInflater,
+        parent: ViewGroup?
+    ): PreferenceViewMvc {
+        return PreferenceViewMvcImpl(inflater, parent)
     }
 }

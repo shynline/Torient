@@ -3,9 +3,12 @@ package app.shynline.torient.common
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
+import androidx.navigation.ui.NavigationUI
 import app.shynline.torient.R
 import app.shynline.torient.screens.common.navigationhelper.PageNavigationHelper
 import app.shynline.torient.torrent.mediator.TorrentMediator
@@ -21,10 +24,13 @@ import java.io.BufferedInputStream
 
 class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedListener {
 
+    data class LastTorrentArgs(val infoHash: String, val name: String)
+
     private lateinit var torrentController: TorrentController
     private val torrentMediator by inject<TorrentMediator>()
     private lateinit var bottomNavigation: BottomNavigationView
-    private lateinit var lastTorrentInfoHash: String
+    private lateinit var lastTorrentArgs: LastTorrentArgs
+    private lateinit var toolbar: Toolbar
     private val navController by lazy {
         findNavController(R.id.nav_host_fragment)
     }
@@ -35,6 +41,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        setupToolbar()
         torrentController = get<Torrent>() as TorrentController
         handleIntent()
 
@@ -43,18 +50,41 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         bottomNavigation.setOnNavigationItemSelectedListener {
             when (it.itemId) {
                 R.id.torrentOverviewFragment -> pageNavigationHelper.showTorrentOverView(
-                    lastTorrentInfoHash
+                    lastTorrentArgs.infoHash,
+                    lastTorrentArgs.name
                 )
                 R.id.torrentFilesFragment -> pageNavigationHelper.showTorrentFiles(
-                    lastTorrentInfoHash
+                    lastTorrentArgs.infoHash,
+                    lastTorrentArgs.name
                 )
                 R.id.torrentPreferenceFragment -> pageNavigationHelper.showTorrentPreference(
-                    lastTorrentInfoHash
+                    lastTorrentArgs.infoHash,
+                    lastTorrentArgs.name
                 )
             }
             true
         }
         navController.addOnDestinationChangedListener(this)
+    }
+
+    private fun setupToolbar() {
+        toolbar = findViewById(R.id.toolbar)
+        toolbar.title = "Torient"
+        NavigationUI.setupWithNavController(toolbar, navController)
+        toolbar.inflateMenu(R.menu.main_menu)
+        toolbar.setOnMenuItemClickListener {
+            lifecycleScope.launch {
+                when (it.itemId) {
+                    R.id.main_menu_preference -> {
+                        pageNavigationHelper.showPreference()
+                    }
+                    R.id.main_menu_about -> {
+
+                    }
+                }
+            }
+            true
+        }
     }
 
     override fun onDestinationChanged(
@@ -64,17 +94,43 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     ) {
         if (destination.id in listOf(
                 R.id.torrentOverviewFragment,
-                R.id.torrentFilesFragment,
-                R.id.torrentPreferenceFragment
+                R.id.torrentFilesFragment, R.id.torrentPreferenceFragment
             )
         ) {
             if (arguments?.containsKey("infohash") == true) {
-                lastTorrentInfoHash = arguments.getString("infohash")!!
+                lastTorrentArgs = LastTorrentArgs(
+                    infoHash = arguments.getString("infohash")!!,
+                    name = arguments.getString("name")!!
+                )
                 bottomNavigation.menu.getItem(0).isChecked = true
             }
             bottomNavigation.visibility = View.VISIBLE
         } else {
             bottomNavigation.visibility = View.GONE
+        }
+        updateToolbar(destination.id)
+
+    }
+
+    private fun updateToolbar(destination: Int) {
+        when (destination) {
+            R.id.torrentOverviewFragment,
+            R.id.torrentFilesFragment,
+            R.id.torrentPreferenceFragment -> {
+                toolbar.title = lastTorrentArgs.name
+                toolbar.menu.findItem(R.id.main_menu_preference).isVisible = false
+                toolbar.menu.findItem(R.id.main_menu_about).isVisible = false
+            }
+            R.id.preferenceFragment -> {
+                toolbar.menu.findItem(R.id.main_menu_preference).isVisible = false
+                toolbar.menu.findItem(R.id.main_menu_about).isVisible = false
+                toolbar.title = "Preference"
+            }
+            R.id.torrent_list_fragment -> {
+                toolbar.title = getString(R.string.app_name)
+                toolbar.menu.findItem(R.id.main_menu_about).isVisible = false
+                toolbar.menu.findItem(R.id.main_menu_preference).isVisible = true
+            }
         }
     }
 
