@@ -4,7 +4,12 @@ import app.shynline.torient.utils.FileType
 import app.shynline.torient.utils.FileTypeDetector
 import com.frostwire.jlibtorrent.TorrentInfo
 
-data class TorrentFileData(val filesSize: MutableList<Long>, var torrentFile: TorrentFile? = null)
+data class TorrentFileData(
+    val filesSize: MutableList<Long>,
+    val filesPath: MutableList<String>,
+    var torrentFile: TorrentFile? = null
+)
+
 data class TorrentFile(
     val name: String,
     var size: Long,
@@ -21,7 +26,8 @@ data class TorrentFile(
     companion object {
         fun from(torrentInfo: TorrentInfo): TorrentFileData {
             val torrentFileData = TorrentFileData(
-                filesSize = MutableList(torrentInfo.numFiles()) { 0L }
+                filesSize = MutableList(torrentInfo.numFiles()) { 0L },
+                filesPath = MutableList(torrentInfo.numFiles()) { "" }
             )
             var fileTree: TorrentFile? = null
             for (index in 0 until torrentInfo.files().numFiles()) {
@@ -79,6 +85,7 @@ data class TorrentFile(
                                 index = 0
                             )
                             torrentFileData.filesSize[0] = torrentFile.size
+                            torrentFileData.filesPath[0] = torrentInfo.files().filePath(0)
                             torrentFileData.torrentFile = torrentFile
                             return torrentFileData
                         } else {
@@ -91,6 +98,7 @@ data class TorrentFile(
                             )
                             current!!.files!!.add(torrentFile)
                             torrentFileData.filesSize[index] = torrentFile.size
+                            torrentFileData.filesPath[index] = torrentInfo.files().filePath(index)
                         }
                     }
                 }

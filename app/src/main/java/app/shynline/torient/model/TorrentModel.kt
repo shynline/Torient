@@ -25,6 +25,7 @@ data class TorrentModel(
     var connectedPeers = 0
     var filePriority: List<TorrentFilePriority>? = null
     var filesSize: List<Long>? = null
+    var filesPath: List<String>? = null
     var selectedFilesBytesDone: Float = 0f
     var selectedFilesSize: Long = 0L
     fun toIdentifier(): TorrentIdentifier {
@@ -46,6 +47,7 @@ data class TorrentModel(
                 totalSize = torrentInfo.totalSize()
                 torrentFile = torrentFileData.torrentFile
                 filesSize = torrentFileData.filesSize
+                filesPath = torrentFileData.filesPath
                 numFiles = torrentInfo.numFiles()
                 author = torrentInfo.creator()
                 hexHash = torrentInfo.infoHash().toHex().hashCode().toLong()

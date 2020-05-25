@@ -308,7 +308,7 @@ class TorrentsListController(
     }
 
     override fun onSaveToDownloadRequested(torrentModel: TorrentModel) {
-        fragmentRequestHelper!!.saveToDownload(torrentModel.name)
+        fragmentRequestHelper!!.saveToDownload(torrentModel.name, torrentModel.infoHash)
     }
 
     override fun handleClicked(position: Int, torrentModel: TorrentModel) {

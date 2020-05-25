@@ -21,8 +21,8 @@ class FragmentRequestHelperImpl(private val fragment: Fragment) :
         fragment.startActivityForResult(intent, requestId)
     }
 
-    override fun saveToDownload(name: String) {
-        TransferService.copyFile(fragment.requireContext(), name)
+    override fun saveToDownload(name: String, infoHash: String) {
+        TransferService.copyFile(fragment.requireContext(), name, infoHash)
     }
 
     override fun copyMagnetToClipBoard(name: String, magnet: String) {
