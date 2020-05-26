@@ -117,7 +117,11 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
             R.id.torrentOverviewFragment,
             R.id.torrentFilesFragment,
             R.id.torrentPreferenceFragment -> {
-                toolbar.title = lastTorrentArgs.name
+                var title = lastTorrentArgs.name
+                if (title.length > 30) {
+                    title = title.substring(0, 25) + "..."
+                }
+                toolbar.title = title
                 toolbar.menu.findItem(R.id.main_menu_preference).isVisible = false
                 toolbar.menu.findItem(R.id.main_menu_about).isVisible = false
             }
