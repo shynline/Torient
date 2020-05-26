@@ -22,7 +22,7 @@ class AboutFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val ver = requireContext().packageManager.getPackageInfo(requireContext().packageName, 0)
-        version.text = "Version ${ver.versionName}(${ver.longVersionCode})"
+        version.text = "Version ${ver.versionName} (${ver.longVersionCode})"
 
         description.text =
             "Torient is a free and open source torrent client \nfor Android 5.0 and above."
