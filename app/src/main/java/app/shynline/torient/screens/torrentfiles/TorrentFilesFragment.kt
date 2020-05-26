@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.navArgs
 import app.shynline.torient.common.di.viewfactory.ViewMvcFactory
-import app.shynline.torient.screens.common.BaseFragment
+import app.shynline.torient.screens.common.basefragment.BaseFragment
 import org.koin.android.ext.android.inject
 import org.koin.androidx.scope.lifecycleScope
 

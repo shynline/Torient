@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import app.shynline.torient.common.di.viewfactory.ViewMvcFactory
-import app.shynline.torient.screens.common.BaseFragment
+import app.shynline.torient.screens.common.basefragment.BaseFragment
 import app.shynline.torient.screens.common.navigationhelper.PageNavigationHelper
 import app.shynline.torient.screens.common.requesthelper.FragmentRequestHelperImpl
 import app.shynline.torient.screens.common.requesthelper.REQUEST_ID_OPEN_TORRENT_FILE

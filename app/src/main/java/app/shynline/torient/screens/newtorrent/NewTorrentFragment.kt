@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import app.shynline.torient.common.di.viewfactory.ViewMvcFactory
-import app.shynline.torient.screens.common.BaseDialogFragment
+import app.shynline.torient.screens.common.basefragment.BaseDialogFragment
 import app.shynline.torient.screens.common.navigationhelper.PageNavigationHelper
 import app.shynline.torient.screens.common.requesthelper.FragmentRequestHelperImpl
 import org.koin.android.ext.android.inject

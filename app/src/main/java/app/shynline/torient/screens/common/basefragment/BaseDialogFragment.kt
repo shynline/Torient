@@ -1,4 +1,4 @@
-package app.shynline.torient.screens.common
+package app.shynline.torient.screens.common.basefragment
 
 import android.graphics.PointF
 import android.os.Bundle
@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
+import app.shynline.torient.screens.common.BaseController
 
 abstract class BaseDialogFragment<CONTROLLER : BaseController> : DialogFragment() {
     abstract val controller: CONTROLLER
