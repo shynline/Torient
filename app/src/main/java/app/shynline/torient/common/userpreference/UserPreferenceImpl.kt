@@ -63,7 +63,7 @@ class UserPreferenceImpl(
         }
 
     override fun resetToDefault() {
-        globalMaxConnection = 50
+        globalMaxConnection = 200
         globalDownloadRateLimit = false
         globalDownloadRate = 100
         globalUploadRateLimit = false
