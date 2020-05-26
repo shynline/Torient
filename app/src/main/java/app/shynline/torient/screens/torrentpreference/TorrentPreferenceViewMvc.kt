@@ -7,11 +7,9 @@ interface TorrentPreferenceViewMvc : ObservableViewMvc<TorrentPreferenceViewMvc.
     interface Listener {
         fun onDownloadLimitChanged(rate: Int)
         fun onUploadLimitChanged(rate: Int)
-        fun onMaximumPeerChanged(rate: Int)
         fun onHonorGlobalLimitChanged(checked: Boolean)
         fun onLimitDownloadRateChanged(checked: Boolean)
         fun onLimitUploadRateChanged(checked: Boolean)
-        fun onHonorGlobalMaximumPeerChanged(checked: Boolean)
     }
 
     fun updateUi(preferenceSchema: TorrentPreferenceSchema)

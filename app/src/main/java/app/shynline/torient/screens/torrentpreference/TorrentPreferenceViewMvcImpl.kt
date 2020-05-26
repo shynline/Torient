@@ -22,11 +22,8 @@ class TorrentPreferenceViewMvcImpl(
     private val uploadRateLimit: MaterialCheckBox
     private val downloadRateET: TextInputEditText
     private val uploadRateET: TextInputEditText
-    private val maximumPeerET: TextInputEditText
-    private val honorGlobalMaximumPeer: MaterialCheckBox
     private lateinit var downloadRateTextWatcher: TextWatcher
     private lateinit var uploadRateTextWatcher: TextWatcher
-    private lateinit var maximumPeerTextWatcher: TextWatcher
 
     init {
         setRootView(inflater.inflate(R.layout.fragment_torrent_preference, parent, false))
@@ -35,12 +32,9 @@ class TorrentPreferenceViewMvcImpl(
         uploadRateLimit = findViewById(R.id.limitUploadLimitCheckBox)
         downloadRateET = findViewById(R.id.limitDownloadRateTextInputEditText)
         uploadRateET = findViewById(R.id.limitUploadRateTextInputEditText)
-        maximumPeerET = findViewById(R.id.maximumPeerTextInputEditText)
-        honorGlobalMaximumPeer = findViewById(R.id.honorGlobalPeerConnection)
         honorGlobalSpeed.setOnCheckedChangeListener(this)
         downloadRateLimit.setOnCheckedChangeListener(this)
         uploadRateLimit.setOnCheckedChangeListener(this)
-        honorGlobalMaximumPeer.setOnCheckedChangeListener(this)
         initiateTextWatchers()
     }
 
@@ -70,24 +64,11 @@ class TorrentPreferenceViewMvcImpl(
                 }
             }
         }
-        maximumPeerTextWatcher = object : DefaultTextWatcher() {
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val str = maximumPeerET.text.toString()
-                try {
-                    getListeners().forEach { listener ->
-                        listener.onMaximumPeerChanged(str.toString().toInt())
-                    }
-                } catch (e: Exception) {
-
-                }
-            }
-        }
     }
 
     override fun addListeners() {
         downloadRateET.addTextChangedListener(downloadRateTextWatcher)
         uploadRateET.addTextChangedListener(uploadRateTextWatcher)
-        maximumPeerET.addTextChangedListener(maximumPeerTextWatcher)
     }
 
     override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
@@ -109,18 +90,12 @@ class TorrentPreferenceViewMvcImpl(
                     listener.onLimitUploadRateChanged(isChecked)
                 }
             }
-            R.id.honorGlobalPeerConnection -> {
-                getListeners().forEach { listener ->
-                    listener.onHonorGlobalMaximumPeerChanged(isChecked)
-                }
-            }
         }
     }
 
     override fun removeListeners() {
         downloadRateET.removeTextChangedListener(downloadRateTextWatcher)
         uploadRateET.removeTextChangedListener(uploadRateTextWatcher)
-        maximumPeerET.removeTextChangedListener(maximumPeerTextWatcher)
     }
 
 
@@ -130,7 +105,5 @@ class TorrentPreferenceViewMvcImpl(
         uploadRateLimit.isChecked = preferenceSchema.uploadRateLimit
         downloadRateET.setText(preferenceSchema.downloadRate.toString())
         uploadRateET.setText(preferenceSchema.uploadRate.toString())
-        honorGlobalMaximumPeer.isChecked = preferenceSchema.honorMaxConnection
-        maximumPeerET.setText(preferenceSchema.maxConnection.toString())
     }
 }

@@ -67,6 +67,6 @@ class TorrentMediator(
     }
 
     fun onUpdateGlobalPreference() {
-
+        torrent.onUpdateGlobalPreference()
     }
 }

@@ -61,7 +61,6 @@ class TorrentPreferenceDaoTest {
         SUT.insertPreference(sample)
         // Act
         sample.downloadRateLimit = true
-        sample.maxConnection = 1000
         sample.uploadRateLimit = false
         sample.uploadRate = 340
         val row = SUT.updateSchema(sample)

@@ -31,6 +31,8 @@ abstract class BaseTorrent(
         torrentScope.cancel()
     }
 
+    protected abstract fun applyPreference(infoHash: String?)
+
     protected abstract fun findHandle(sha1: Sha1Hash): TorrentHandle?
 
     protected abstract fun saveTorrentFileToCache(infoHash: String, data: ByteArray)
@@ -154,6 +156,7 @@ abstract class BaseTorrent(
         val handle = findHandle(infoHash) ?: return
         if (!addTorrentAlert.error().isError) {
             handle.resume()
+            applyPreference(infoHash.toHex())
             GlobalScope.launch {
                 val p = torrentFilePriorityDataSource.getPriority(infoHash.toHex())
                 if (handle.torrentFile()?.isValid == true) { // Torrent meta data is present

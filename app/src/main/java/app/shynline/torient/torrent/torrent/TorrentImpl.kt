@@ -8,9 +8,11 @@ import android.os.IBinder
 import app.shynline.torient.common.downloadDir
 import app.shynline.torient.common.observable.Observable
 import app.shynline.torient.common.torrentDir
+import app.shynline.torient.common.userpreference.UserPreference
 import app.shynline.torient.database.common.states.TorrentUserState
 import app.shynline.torient.database.datasource.torrent.InternalTorrentDataSource
 import app.shynline.torient.database.datasource.torrentfilepriority.TorrentFilePriorityDataSource
+import app.shynline.torient.database.datasource.torrentpreference.TorrentPreferenceDataSource
 import app.shynline.torient.model.*
 import app.shynline.torient.torrent.service.TorientService
 import com.frostwire.jlibtorrent.*
@@ -24,6 +26,8 @@ import kotlin.concurrent.fixedRateTimer
 class TorrentImpl(
     private val context: Context,
     private val ioDispatcher: CoroutineDispatcher,
+    private val userPreference: UserPreference,
+    private val torrentPreferenceDataSource: TorrentPreferenceDataSource,
     override val internalTorrentDataSource: InternalTorrentDataSource,
     override val torrentFilePriorityDataSource: TorrentFilePriorityDataSource
 ) : BaseTorrent(internalTorrentDataSource, torrentFilePriorityDataSource),
@@ -123,7 +127,41 @@ class TorrentImpl(
     }
 
     override fun updateTorrentPreference(infoHash: String) {
-        // Todo
+        applyPreference(infoHash)
+    }
+
+    override fun onUpdateGlobalPreference() {
+        applyPreference(null)
+    }
+
+    override fun applyPreference(infoHash: String?) {
+        // If infoHash is null all managed torrents will be updated
+        GlobalScope.launch {
+            val torrents = if (infoHash != null) listOf(infoHash) else managedTorrents.keys
+            torrents.forEach { ih ->
+                session.find(Sha1Hash(ih))?.let { handle ->
+                    if (handle.isValid) {
+                        applyPreference(handle, ih)
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun applyPreference(handle: TorrentHandle, infoHash: String) {
+        val torrentPreference = torrentPreferenceDataSource.getTorrentPreference(infoHash)
+        if (torrentPreference.honorGlobalRate) {
+            handle.uploadLimit =
+                if (userPreference.globalUploadRateLimit) userPreference.globalUploadRate * 1024 else 0
+            handle.downloadLimit =
+                if (userPreference.globalDownloadRateLimit) userPreference.globalDownloadRate * 1024 else 0
+        } else {
+            handle.uploadLimit =
+                if (torrentPreference.uploadRateLimit) torrentPreference.uploadRate * 1024 else 0
+            handle.downloadLimit =
+                if (torrentPreference.downloadRateLimit) torrentPreference.downloadRate * 1024 else 0
+        }
+        session.maxConnections(userPreference.globalMaxConnection)
     }
 
     override suspend fun setFilePriority(

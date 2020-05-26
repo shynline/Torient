@@ -22,6 +22,7 @@ interface Torrent :
     suspend fun getTorrentOverview(infoHash: String): TorrentOverview?
     fun isTorrentFileCached(infoHash: String): Boolean
     fun updateTorrentPreference(infoHash: String)
+    fun onUpdateGlobalPreference()
     suspend fun setFilePriority(
         infoHash: String,
         index: Int,

@@ -80,10 +80,6 @@ class TorrentPreferenceController(
         torrentPreference!!.uploadRate = rate
     }
 
-    override fun onMaximumPeerChanged(rate: Int) {
-        torrentPreference!!.maxConnection = rate
-    }
-
     override fun onHonorGlobalLimitChanged(checked: Boolean) {
         torrentPreference!!.honorGlobalRate = checked
     }
@@ -94,9 +90,5 @@ class TorrentPreferenceController(
 
     override fun onLimitUploadRateChanged(checked: Boolean) {
         torrentPreference!!.uploadRateLimit = checked
-    }
-
-    override fun onHonorGlobalMaximumPeerChanged(checked: Boolean) {
-        torrentPreference!!.honorMaxConnection = checked
     }
 }

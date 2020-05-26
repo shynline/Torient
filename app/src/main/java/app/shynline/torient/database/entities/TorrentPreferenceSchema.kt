@@ -9,10 +9,6 @@ data class TorrentPreferenceSchema(
     @PrimaryKey
     @ColumnInfo(name = "info_hash")
     var infoHash: String,
-    @ColumnInfo(name = "honor_max_connection")
-    var honorMaxConnection: Boolean = true,
-    @ColumnInfo(name = "max_connection")
-    var maxConnection: Int = 50,
     @ColumnInfo(name = "honor_global_rate")
     var honorGlobalRate: Boolean = true,
     @ColumnInfo(name = "download_rate_limit")
