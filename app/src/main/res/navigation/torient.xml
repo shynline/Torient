@@ -21,6 +21,9 @@
         <action
             android:id="@+id/action_torrent_list_fragment_to_preferenceFragment"
             app:destination="@id/preferenceFragment" />
+        <action
+            android:id="@+id/action_torrent_list_fragment_to_aboutFragment"
+            app:destination="@id/aboutFragment" />
     </fragment>
     <dialog
         android:id="@+id/newTorrentFragment"
@@ -89,5 +92,9 @@
         android:id="@+id/preferenceFragment"
         android:name="app.shynline.torient.screens.preference.PreferenceFragment"
         android:label="PreferenceFragment" />
+    <fragment
+        android:id="@+id/aboutFragment"
+        android:name="app.shynline.torient.screens.about.AboutFragment"
+        android:label="AboutFragment" />
 
 </navigation>

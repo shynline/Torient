@@ -78,6 +78,13 @@ class PageNavigationHelper(
             )
     }
 
+    fun showAbout() {
+        if (navController.currentDestination?.id != R.id.aboutFragment)
+            navController.navigate(
+                R.id.aboutFragment
+            )
+    }
+
     fun back() {
         navController.navigateUp()
     }

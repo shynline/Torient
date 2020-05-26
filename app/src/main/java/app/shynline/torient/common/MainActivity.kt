@@ -79,7 +79,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
                         pageNavigationHelper.showPreference()
                     }
                     R.id.main_menu_about -> {
-
+                        pageNavigationHelper.showAbout()
                     }
                 }
             }
@@ -125,6 +125,11 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
                 toolbar.menu.findItem(R.id.main_menu_preference).isVisible = false
                 toolbar.menu.findItem(R.id.main_menu_about).isVisible = false
             }
+            R.id.aboutFragment -> {
+                toolbar.menu.findItem(R.id.main_menu_preference).isVisible = false
+                toolbar.menu.findItem(R.id.main_menu_about).isVisible = false
+                toolbar.title = "About"
+            }
             R.id.preferenceFragment -> {
                 toolbar.menu.findItem(R.id.main_menu_preference).isVisible = false
                 toolbar.menu.findItem(R.id.main_menu_about).isVisible = false
@@ -132,7 +137,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
             }
             R.id.torrent_list_fragment -> {
                 toolbar.title = getString(R.string.app_name)
-                toolbar.menu.findItem(R.id.main_menu_about).isVisible = false
+                toolbar.menu.findItem(R.id.main_menu_about).isVisible = true
                 toolbar.menu.findItem(R.id.main_menu_preference).isVisible = true
             }
         }
