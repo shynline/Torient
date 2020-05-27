@@ -75,14 +75,16 @@ class NewMagnetController(
 
     override fun onDownloadClicked() {
         controllerScope.launch {
-            torrentDataSource.insertTorrent(
-                TorrentSchema(
-                    infoHash = currentMagnet!!.infoHash!!,
-                    magnet = magnet,
-                    userState = TorrentUserState.ACTIVE,
-                    name = currentMagnet!!.name!!
+            if (torrentDataSource.getTorrent(currentMagnet!!.infoHash!!) == null) {
+                torrentDataSource.insertTorrent(
+                    TorrentSchema(
+                        infoHash = currentMagnet!!.infoHash!!,
+                        magnet = magnet,
+                        userState = TorrentUserState.ACTIVE,
+                        name = currentMagnet!!.name!!
+                    )
                 )
-            )
+            }
             close()
         }
     }

@@ -1,6 +1,5 @@
 package app.shynline.torient.screens.newtorrent
 
-import android.util.Log
 import app.shynline.torient.database.common.states.TorrentUserState
 import app.shynline.torient.database.datasource.torrent.TorrentDataSource
 import app.shynline.torient.database.datasource.torrentfilepriority.TorrentFilePriorityDataSource
@@ -54,33 +53,36 @@ class NewTorrentController(
     override fun downloadTorrent() {
         controllerScope.launch {
             currentTorrent?.let {
-                torrentDataSource.insertTorrent(
-                    TorrentSchema(
-                        infoHash = it.infoHash,
-                        name = it.name,
-                        magnet = it.magnet,
-                        userState = TorrentUserState.ACTIVE
+                if (torrentDataSource.getTorrent(it.infoHash) == null) {
+                    torrentDataSource.insertTorrent(
+                        TorrentSchema(
+                            infoHash = it.infoHash,
+                            name = it.name,
+                            magnet = it.magnet,
+                            userState = TorrentUserState.ACTIVE
+                        )
                     )
-                )
-                initiateFilePriority(it.infoHash, it.numFiles)
+                    initiateFilePriority(it.infoHash, it.numFiles)
+                }
             }
             close()
         }
     }
 
     override fun addTorrent() {
-        Log.d("asldnkj7ad894894da", "here")
         controllerScope.launch {
             currentTorrent?.let {
-                torrentDataSource.insertTorrent(
-                    TorrentSchema(
-                        infoHash = it.infoHash,
-                        magnet = it.magnet,
-                        name = it.name,
-                        userState = TorrentUserState.PAUSED
+                if (torrentDataSource.getTorrent(it.infoHash) == null) {
+                    torrentDataSource.insertTorrent(
+                        TorrentSchema(
+                            infoHash = it.infoHash,
+                            magnet = it.magnet,
+                            name = it.name,
+                            userState = TorrentUserState.PAUSED
+                        )
                     )
-                )
-                initiateFilePriority(it.infoHash, it.numFiles)
+                    initiateFilePriority(it.infoHash, it.numFiles)
+                }
             }
             close()
         }
