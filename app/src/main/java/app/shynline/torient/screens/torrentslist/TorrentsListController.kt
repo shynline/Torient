@@ -74,6 +74,7 @@ class TorrentsListController(
                                 torrent.progress = torrentEvent.progress
                                 torrent.connectedPeers = torrentEvent.connectedPeers
                                 torrent.maxPeers = torrentEvent.maxPeers
+                                calculateProgressData(torrent, torrentEvent.fileProgress)
                                 viewMvc?.notifyItemUpdate(torrent.infoHash)
                             }
                             TorrentDownloadingState.DOWNLOADING_METADATA -> {
@@ -99,6 +100,7 @@ class TorrentsListController(
                     }
                 }
                 is TorrentMetaDataEvent -> {
+                    val schema = torrentDataSource.getTorrent(torrentEvent.infoHash)!!
                     managedTorrents[torrentEvent.infoHash]?.let {
                         it.name = torrentEvent.torrentModel.name
                         it.totalSize = torrentEvent.torrentModel.totalSize
@@ -107,6 +109,10 @@ class TorrentsListController(
                         it.hexHash = torrentEvent.torrentModel.hexHash
                         it.torrentFile = torrentEvent.torrentModel.torrentFile
                         it.filesSize = torrentEvent.torrentModel.filesSize
+                        // File priority should not be null here
+                        it.filePriority =
+                            torrentFilePriorityDataSource.getPriority(it.infoHash).filePriority!!
+                        calculateProgressData(it, schema.fileProgress)
                     }
                 }
             }
@@ -232,7 +238,7 @@ class TorrentsListController(
             managedTorrents.values.forEach { torrentModel ->
                 torrentModel.filePriority =
                     torrentFilePriorityDataSource.getPriority(torrentModel.infoHash).filePriority
-                calculateProgressData(torrentModel, torrentFilesProgress)
+                calculateProgressData(torrentModel, torrentFilesProgress[torrentModel.infoHash])
             }
             viewMvc!!.showTorrents(managedTorrents.values.toList())
         }
@@ -240,7 +246,7 @@ class TorrentsListController(
 
     private fun calculateProgressData(
         torrentModel: TorrentModel,
-        torrentFilesProgress: MutableMap<String, List<Long>?>
+        fileProgress: List<Long>?
     ) {
         val filePriority = torrentModel.filePriority
         if (torrentModel.torrentFile == null || filePriority == null) { // Meta data is not available
@@ -250,7 +256,6 @@ class TorrentsListController(
         }
         var selectedBytesDone = 0f
         var selectedSize = 0L
-        val fileProgress = torrentFilesProgress[torrentModel.infoHash]
         filePriority.forEachIndexed { index, torrentFilePriority ->
             if (torrentFilePriority.active) {
                 selectedSize += torrentModel.filesSize!![index]

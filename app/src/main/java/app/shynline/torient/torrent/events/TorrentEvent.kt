@@ -11,7 +11,8 @@ class TorrentProgressEvent(
     val downloadRate: Int = 0,
     val uploadRate: Int = 0,
     val maxPeers: Int = 0,
-    val connectedPeers: Int = 0
+    val connectedPeers: Int = 0,
+    val fileProgress: List<Long>? = null
 ) : TorrentEvent(infoHash)
 
 class TorrentMetaDataEvent(infoHash: String, val torrentModel: TorrentModel) :

@@ -51,10 +51,6 @@ abstract class BaseTorrent(
                 TorrentDownloadingState.DOWNLOADING_METADATA
             )
             TorrentStatus.State.DOWNLOADING -> {
-                // If the last state was Downloading meta data
-                // It means we have the meta data now
-                // and we have to show it to user
-                checkIfMetaDataDownloaded(infoHash, handle)
                 val tpe = TorrentProgressEvent(
                     infoHash,
                     TorrentDownloadingState.DOWNLOADING,
@@ -62,7 +58,8 @@ abstract class BaseTorrent(
                     downloadRate = status.downloadPayloadRate(),
                     uploadRate = status.uploadPayloadRate(),
                     maxPeers = status.listPeers(),
-                    connectedPeers = status.numPeers()
+                    connectedPeers = status.numPeers(),
+                    fileProgress = handle.fileProgress().toList()
                 )
                 internalTorrentDataSource.setTorrentProgress(
                     infoHash,
@@ -70,9 +67,17 @@ abstract class BaseTorrent(
                     lastSeenComplete = status.lastSeenComplete(),
                     fileProgress = handle.fileProgress()
                 )
+                // If the last state was Downloading meta data
+                // It means we have the meta data now
+                // and we have to show it to user
+                checkIfMetaDataDownloaded(infoHash, handle)
                 tpe
             }
             TorrentStatus.State.FINISHED -> {
+                internalTorrentDataSource.setTorrentFinished(
+                    infoHash, true,
+                    fileProgress = handle.fileProgress()
+                )
                 // This is a rare case when the file is so small
                 // Also it happens when whole downloading process being done
                 // in background process
@@ -81,22 +86,18 @@ abstract class BaseTorrent(
                     handle.infoHash().toHex(),
                     TorrentDownloadingState.FINISHED
                 )
-                internalTorrentDataSource.setTorrentFinished(
-                    infoHash, true,
-                    fileProgress = handle.fileProgress()
-                )
                 tpe
             }
             TorrentStatus.State.SEEDING -> {
-                // This is a rare case when the file is so small
-                // Also it happens when whole downloading process being done
-                // in background process
-                checkIfMetaDataDownloaded(infoHash, handle)
                 internalTorrentDataSource.setTorrentFinished(
                     infoHash,
                     true,
                     fileProgress = handle.fileProgress()
                 )
+                // This is a rare case when the file is so small
+                // Also it happens when whole downloading process being done
+                // in background process
+                checkIfMetaDataDownloaded(infoHash, handle)
                 TorrentProgressEvent(
                     handle.infoHash().toHex(),
                     TorrentDownloadingState.SEEDING,
@@ -177,6 +178,8 @@ abstract class BaseTorrent(
     private fun onAlertMetaDataReceived(metadataReceivedAlert: MetadataReceivedAlert) {
         val torrentInfo: TorrentInfo? = TorrentInfo(metadataReceivedAlert.torrentData())
         torrentInfo?.let {
+            // Cache it in torrent storage
+            saveTorrentFileToCache(it.infoHash().toHex(), metadataReceivedAlert.torrentData())
             val handle = findHandle(it.infoHash()) ?: return
             GlobalScope.launch {
                 val p = torrentFilePriorityDataSource.getPriority(it.infoHash().toHex())
