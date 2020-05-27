@@ -15,6 +15,7 @@ import androidx.core.database.getStringOrNull
 import androidx.navigation.NavDeepLinkBuilder
 import app.shynline.torient.R
 import app.shynline.torient.common.downloadDir
+import app.shynline.torient.database.datasource.torrent.TorrentDataSource
 import app.shynline.torient.torrent.torrent.Torrent
 import app.shynline.torient.utils.FileMimeDetector
 import app.shynline.torient.utils.calculateTotalCompletedSize
@@ -39,6 +40,7 @@ data class FilesQueueItem(
 
 class TransferService : Service() {
 
+    private val torrentDataSource by inject<TorrentDataSource>()
 
     private val pendingIntent: PendingIntent by lazy {
         NavDeepLinkBuilder(this)
@@ -103,14 +105,18 @@ class TransferService : Service() {
             }
 
             val model = torrent.getTorrentModelFromInfoHash(filesQueueItem.infoHash)
-            if (model == null) {
+            val schema = torrentDataSource.getTorrent(filesQueueItem.infoHash)
+            if (model == null || schema == null || schema.fileProgress == null) {
                 copyNextOrStop()
                 return@launch
             }
-            // Map path to size of all files
-            val fileSize = HashMap<String, Long>()
+            // Get a list of completed files via comparing the expected size from meta data
+            // and file progress field in database
+            val completedFiles: MutableList<String> = mutableListOf()
             model.filesSize!!.forEachIndexed { index, l ->
-                fileSize[model.filesPath!![index]] = l
+                if (schema.fileProgress!![index] == l) {
+                    completedFiles.add(model.filesPath!![index])
+                }
             }
 
             val srcFile = File(downloadDir, filesQueueItem.src)
@@ -123,14 +129,14 @@ class TransferService : Service() {
                 return@launch
             }
             // Calculate the total size for calculating the progress in notification
-            size = srcFile.calculateTotalCompletedSize(parent, fileSize)
+            size = srcFile.calculateTotalCompletedSize(parent, completedFiles)
             overallProgress = 0L
 
             // bring the service in foreground with overallProgress = 0
             foreground()
 
             // Copy the file(s)
-            cp(srcFile, parent = parent, filesSize = fileSize)
+            cp(srcFile, parent = parent, completedFiles = completedFiles)
 
             showFileCopiedNotification()
             // cleaning up includes stopping foreground
@@ -144,16 +150,16 @@ class TransferService : Service() {
         return null
     }
 
-    private fun cp(file: File, parent: String = "", filesSize: HashMap<String, Long>) {
+    private fun cp(file: File, parent: String = "", completedFiles: List<String>) {
         val path = parent + (if (parent.isBlank()) "" else File.separator) + file.name
         // If this file is a directory we recall this function recursively for each file inside
         if (file.isDirectory) {
             file.listFiles()?.forEach {
-                cp(it, path, filesSize)
+                cp(it, path, completedFiles)
             }
             return
         }
-        if (file.length() != filesSize[path]) {
+        if (!completedFiles.contains(path)) {
             // File is not complete yet
             return
         }

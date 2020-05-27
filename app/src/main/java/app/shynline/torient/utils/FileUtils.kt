@@ -4,21 +4,19 @@ import app.shynline.torient.Config
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
-import java.util.*
 
-fun File.calculateTotalCompletedSize(parent: String, fileSize: HashMap<String, Long>): Long {
+fun File.calculateTotalCompletedSize(parent: String, completedFiles: List<String>): Long {
     val path = parent + (if (parent.isBlank()) "" else File.separator) + this.name
     if (this.isDirectory) {
         var s = 0L
         this.listFiles()?.forEach {
-            s += it.calculateTotalCompletedSize(path, fileSize)
+            s += it.calculateTotalCompletedSize(path, completedFiles)
         }
         return s
     }
-    if (fileSize[path] == this.length()) {
-        return this.length()
-    }
-    return 0
+    if (!completedFiles.contains(path))
+        return 0
+    return this.length()
 }
 
 fun InputStream.copyTo(
