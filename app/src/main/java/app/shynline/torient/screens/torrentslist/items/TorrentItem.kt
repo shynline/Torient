@@ -78,7 +78,7 @@ class TorrentItem(
                 100
             } else {
                 bytesDone = item.torrentModel.selectedFilesBytesDone
-                (item.torrentModel.progress * 100).toInt()
+                (bytesDone * 100 / item.torrentModel.selectedFilesSize).toInt()
             }
             val progressText = "${bytesDone.toLong().toByteRepresentation()} of " +
                     "${item.torrentModel.selectedFilesSize.toByteRepresentation()} " +
