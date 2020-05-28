@@ -9,6 +9,8 @@ interface TorrentFilesViewMvc : ObservableViewMvc<TorrentFilesViewMvc.Listener> 
     interface Listener {
         fun onPriorityClicked(index: Int)
         fun onDownloadCheckBoxClicked(index: Int, download: Boolean)
+        fun isFileCompleted(index: Int): Boolean
+        fun saveFile(index: Int)
     }
 
     fun showTorrent(torrentModel: TorrentModel)

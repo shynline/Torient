@@ -5,7 +5,9 @@ import app.shynline.torient.database.datasource.torrentfilepriority.TorrentFileP
 import app.shynline.torient.database.entities.TorrentFilePrioritySchema
 import app.shynline.torient.database.entities.TorrentSchema
 import app.shynline.torient.model.FilePriority
+import app.shynline.torient.model.TorrentModel
 import app.shynline.torient.screens.common.BaseController
+import app.shynline.torient.screens.common.requesthelper.FragmentRequestHelper
 import app.shynline.torient.torrent.mediator.TorrentMediator
 import kotlinx.coroutines.launch
 import java.util.*
@@ -27,10 +29,14 @@ class TorrentFilesController(
     private lateinit var infoHash: String
     private var periodicTimer: Timer? = null
     private var lastProgressHashCode = 0
+    private var lastProgress: List<Long>? = null
+    private var torrentModel: TorrentModel? = null
     private var savedState: HashMap<String, Any>? = null
+    private var fragmentRequestHelper: FragmentRequestHelper? = null
 
-    fun bind(viewMvc: TorrentFilesViewMvc) {
+    fun bind(viewMvc: TorrentFilesViewMvc, fragmentRequestHelper: FragmentRequestHelper) {
         this.viewMvc = viewMvc
+        this.fragmentRequestHelper = fragmentRequestHelper
     }
 
     override fun loadState(state: HashMap<String, Any>?) {
@@ -80,7 +86,7 @@ class TorrentFilesController(
     private lateinit var torrentPriority: TorrentFilePrioritySchema
 
     private fun loadTorrentFiles() = controllerScope.launch {
-        val torrentModel = torrentMediator.getTorrentModel(infoHash = infoHash)
+        torrentModel = torrentMediator.getTorrentModel(infoHash = infoHash)
         val torrentSchema = torrentDataSource.getTorrent(infoHash)!! // It's not null
         torrentPriority = torrentFilePriorityDataSource.getPriority(infoHash)
         if (torrentModel == null) {
@@ -88,7 +94,7 @@ class TorrentFilesController(
             // And its loading if user state is Active
             return@launch
         }
-        viewMvc!!.showTorrent(torrentModel)
+        viewMvc!!.showTorrent(torrentModel!!)
 
         updateFileProgress(torrentSchema)
         updateFilePriorityUi()
@@ -140,12 +146,29 @@ class TorrentFilesController(
         torrentMediator.setFilePriority(infoHash, index, torrentPriority.filePriority!![index])
     }
 
+    override fun isFileCompleted(index: Int): Boolean {
+        if (torrentModel?.filesSize == null || lastProgress == null) {
+            return false
+        }
+        return torrentModel!!.filesSize!![index] == lastProgress!![index]
+    }
+
+    override fun saveFile(index: Int) {
+        if (torrentModel == null)
+            return
+        fragmentRequestHelper!!.saveToDownload(
+            torrentModel!!.filesPath!![index],
+            torrentModel!!.infoHash
+        )
+    }
+
     private fun updateFileProgress(torrentSchema: TorrentSchema) {
         torrentSchema.fileProgress?.let { fileProgress ->
             val hash = fileProgress.hashCode()
             if (hash != lastProgressHashCode) {
                 viewMvc!!.updateFileProgress(fileProgress)
             }
+            lastProgress = fileProgress
             lastProgressHashCode = hash
         }
     }

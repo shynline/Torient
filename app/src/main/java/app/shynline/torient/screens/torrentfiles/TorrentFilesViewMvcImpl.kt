@@ -3,6 +3,7 @@ package app.shynline.torient.screens.torrentfiles
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import app.shynline.torient.R
@@ -21,6 +22,7 @@ import com.mikepenz.fastadapter.adapters.GenericFastItemAdapter
 import com.mikepenz.fastadapter.expandable.ExpandableExtension
 import com.mikepenz.fastadapter.expandable.getExpandableExtension
 import com.mikepenz.fastadapter.listeners.ClickEventHook
+import com.mikepenz.fastadapter.listeners.LongClickEventHook
 
 class TorrentFilesViewMvcImpl(
     inflater: LayoutInflater,
@@ -54,6 +56,53 @@ class TorrentFilesViewMvcImpl(
         expandableExtension = adapter.getExpandableExtension()
         recyclerView.layoutManager = LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false)
         recyclerView.adapter = adapter
+
+        adapter.addEventHook(object : LongClickEventHook<FileItem>() {
+            override fun onLongClick(
+                v: View,
+                position: Int,
+                fastAdapter: FastAdapter<FileItem>,
+                item: FileItem
+            ): Boolean {
+                val menu = PopupMenu(getContext(), v)
+                menu.inflate(R.menu.torrent_files_file_menu)
+                var fileDownloaded = false
+                getListeners().forEach { listener ->
+                    fileDownloaded =
+                        fileDownloaded or listener.isFileCompleted(item.torrentFile.index)
+                }
+                // Only show the menu if file is downloaded
+                // Because it's the only option available in menu for now
+                if (!fileDownloaded) {
+                    return false
+                }
+
+                menu.menu.findItem(R.id.save_file_to_download).apply {
+                    isVisible = fileDownloaded
+                }
+
+                menu.setOnMenuItemClickListener {
+                    when (it.itemId) {
+                        R.id.save_file_to_download -> {
+                            getListeners().forEach { listener ->
+                                listener.saveFile(item.torrentFile.index)
+                            }
+                            true
+                        }
+                        else -> false
+                    }
+                }
+                menu.show()
+                return true
+            }
+
+            override fun onBind(viewHolder: RecyclerView.ViewHolder): View? {
+                if (viewHolder is FileItem.ViewHolder) {
+                    return viewHolder.itemView
+                }
+                return null
+            }
+        })
 
         adapter.addEventHook(object : ClickEventHook<FileItem>() {
             override fun onClick(

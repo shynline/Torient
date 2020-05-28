@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.navigation.fragment.navArgs
 import app.shynline.torient.common.di.viewfactory.ViewMvcFactory
 import app.shynline.torient.screens.common.basefragment.BaseFragment
+import app.shynline.torient.screens.common.requesthelper.FragmentRequestHelperImpl
 import org.koin.android.ext.android.inject
 import org.koin.androidx.scope.lifecycleScope
 
@@ -27,7 +28,8 @@ class TorrentFilesFragment : BaseFragment<TorrentFilesController>() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?): View {
         val viewMvc = viewMvcFactory.getTorrentFilesViewMvc(inflater, container)
         controller.bind(
-            viewMvc
+            viewMvc,
+            FragmentRequestHelperImpl(this)
         )
         controller.setTorrent(infoHash)
         return viewMvc.getRootView()
