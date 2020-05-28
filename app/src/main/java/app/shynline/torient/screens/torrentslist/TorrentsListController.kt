@@ -256,14 +256,21 @@ class TorrentsListController(
         }
         var selectedBytesDone = 0f
         var selectedSize = 0L
+        var numCompletedSize = 0
         filePriority.forEachIndexed { index, torrentFilePriority ->
+            val fileSize = torrentModel.filesSize!![index]
+            val progress = fileProgress?.get(index) ?: 0
+            if (fileSize == progress) {
+                numCompletedSize += 1
+            }
             if (torrentFilePriority.active) {
-                selectedSize += torrentModel.filesSize!![index]
-                selectedBytesDone += fileProgress?.get(index) ?: 0
+                selectedSize += fileSize
+                selectedBytesDone += progress
             }
         }
         torrentModel.selectedFilesSize = selectedSize
         torrentModel.selectedFilesBytesDone = selectedBytesDone
+        torrentModel.numCompletedFiles = numCompletedSize
     }
 
     override fun addTorrentMagnet() {

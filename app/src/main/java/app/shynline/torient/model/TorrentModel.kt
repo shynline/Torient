@@ -15,6 +15,7 @@ data class TorrentModel(
     var totalSize: Long = 0L
     var torrentFile: TorrentFile? = null
     var numFiles: Int = 0
+    var numCompletedFiles: Int = 0
     var userState: TorrentUserState = TorrentUserState.PAUSED
     var downloadingState: TorrentDownloadingState = TorrentDownloadingState.UNKNOWN
     var progress = 0f

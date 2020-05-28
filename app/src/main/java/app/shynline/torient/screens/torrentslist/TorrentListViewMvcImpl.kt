@@ -88,7 +88,8 @@ class TorrentListViewMvcImpl(
                 } else {
                     "Start"
                 }
-                menu.menu.findItem(R.id.torrent_save).isVisible = item.torrentModel.finished
+                menu.menu.findItem(R.id.torrent_save).isVisible =
+                    item.torrentModel.numCompletedFiles > 0
 
                 menu.setOnMenuItemClickListener {
                     when (it.itemId) {
