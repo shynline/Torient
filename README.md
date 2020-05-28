@@ -9,9 +9,9 @@ Features include:
 * On demand service to minimize battery usage
 * Global download/upload rate restriction
 * Torrent specific download/upload rate restriction
-* Choose which file to download
+* Support selective downloads
 * Support priority for each file
 * Caching metadata to load magnets faster
 * Support dark mode
 * No ads or In-app purchases
-* More incoming..
+* More coming..
