@@ -82,14 +82,22 @@ class TorrentListViewMvcImpl(
             ) {
                 val menu = PopupMenu(getContext(), v)
                 menu.inflate(R.menu.torrent_item_menu)
-                val cItem = menu.menu.findItem(R.id.torrent_control)
-                cItem.title = if (item.torrentModel.userState == TorrentUserState.ACTIVE) {
-                    "Pause"
-                } else {
-                    "Start"
+                menu.menu.findItem(R.id.torrent_control).apply {
+                    title = if (item.torrentModel.userState == TorrentUserState.ACTIVE) {
+                        "Pause"
+                    } else {
+                        "Start"
+                    }
                 }
-                menu.menu.findItem(R.id.torrent_save).isVisible =
-                    item.torrentModel.numCompletedFiles > 0
+
+                menu.menu.findItem(R.id.torrent_save).apply {
+                    isVisible = item.torrentModel.numCompletedFiles > 0
+                    title = if (item.torrentModel.numFiles == item.torrentModel.numCompletedFiles) {
+                        getString(R.string.save_to_downloads)
+                    } else {
+                        getString(R.string.save_downloaded_files)
+                    }
+                }
 
                 menu.setOnMenuItemClickListener {
                     when (it.itemId) {

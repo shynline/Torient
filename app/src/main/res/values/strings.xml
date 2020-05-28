@@ -27,4 +27,7 @@
     <string name="download_speed_limit">Download speed limit</string>
     <string name="limit_download_rate_kb_s">Limit download rate (KB/s)</string>
     <string name="honor_global_limit">Honor global limit</string>
+    <string name="copy_magnet">Copy magnet</string>
+    <string name="save_to_downloads">Save to Downloads</string>
+    <string name="save_downloaded_files">Save downloaded files</string>
 </resources>
