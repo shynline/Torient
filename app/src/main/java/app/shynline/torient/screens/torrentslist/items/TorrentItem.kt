@@ -37,7 +37,7 @@ class TorrentItem(
 
     override var identifier: Long
         get() = torrentModel.hexHash
-        set(value) {
+        set(@Suppress("UNUSED_PARAMETER") value) {
             throw RuntimeException("It's not modifiable.")
         }
 

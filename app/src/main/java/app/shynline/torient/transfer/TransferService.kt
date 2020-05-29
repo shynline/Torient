@@ -200,7 +200,7 @@ class TransferService : Service() {
         try {
             resolver.openOutputStream(item)!!.use { os ->
                 file.inputStream().use { fis ->
-                    fis.copyTo(os) { delta, progress ->
+                    fis.copyTo(os) { delta, _ ->
                         overallProgress += delta
                         showProgressNotification(true)
                     }
