@@ -140,7 +140,42 @@
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginBottom="?actionBarSize"
         app:layout_constraintTop_toBottomOf="@id/nameLabel" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/emptyPlaceHolder"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginBottom="?actionBarSize"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/nameLabel">
+
+        <ImageView
+            android:id="@+id/emptyIcon"
+            style="@style/IconStyle"
+            android:layout_width="46dp"
+            android:layout_height="46dp"
+            android:layout_marginBottom="32dp"
+            android:src="@drawable/icon_empty"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="@string/meta_data_not_loaded_files_will_appear"
+            android:textAlignment="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/emptyIcon" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

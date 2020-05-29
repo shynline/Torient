@@ -70,7 +70,7 @@ abstract class BaseTorrent(
                 // If the last state was Downloading meta data
                 // It means we have the meta data now
                 // and we have to show it to user
-                checkIfMetaDataDownloaded(infoHash, handle)
+                checkIfMetaDataDownloaded(infoHash, handle.torrentFile())
                 tpe
             }
             TorrentStatus.State.FINISHED -> {
@@ -81,7 +81,7 @@ abstract class BaseTorrent(
                 // This is a rare case when the file is so small
                 // Also it happens when whole downloading process being done
                 // in background process
-                checkIfMetaDataDownloaded(infoHash, handle)
+                checkIfMetaDataDownloaded(infoHash, handle.torrentFile())
                 val tpe = TorrentProgressEvent(
                     handle.infoHash().toHex(),
                     TorrentDownloadingState.FINISHED
@@ -97,7 +97,7 @@ abstract class BaseTorrent(
                 // This is a rare case when the file is so small
                 // Also it happens when whole downloading process being done
                 // in background process
-                checkIfMetaDataDownloaded(infoHash, handle)
+                checkIfMetaDataDownloaded(infoHash, handle.torrentFile())
                 TorrentProgressEvent(
                     handle.infoHash().toHex(),
                     TorrentDownloadingState.SEEDING,
@@ -133,14 +133,14 @@ abstract class BaseTorrent(
         }
     }
 
-    private fun checkIfMetaDataDownloaded(infoHash: String, handle: TorrentHandle) {
+    private fun checkIfMetaDataDownloaded(infoHash: String, torrentInfo: TorrentInfo) {
         if (managedTorrents[infoHash] == TorrentStatus.State.DOWNLOADING_METADATA) {
             val metaDataEvent = TorrentMetaDataEvent(
                 infoHash,
-                TorrentModel.from(handle.torrentFile())
+                TorrentModel.from(torrentInfo)
             )
             // Cache it in torrent storage
-            saveTorrentFileToCache(infoHash, handle.torrentFile().bencode())
+            saveTorrentFileToCache(infoHash, torrentInfo.bencode())
             getListeners().forEach {
                 it.onStatReceived(metaDataEvent)
             }
@@ -178,22 +178,21 @@ abstract class BaseTorrent(
     private fun onAlertMetaDataReceived(metadataReceivedAlert: MetadataReceivedAlert) {
         val torrentInfo: TorrentInfo? = TorrentInfo(metadataReceivedAlert.torrentData())
         torrentInfo?.let {
+            val infoHash = it.infoHash().toHex()
             // Cache it in torrent storage
-            saveTorrentFileToCache(it.infoHash().toHex(), metadataReceivedAlert.torrentData())
-            val handle = findHandle(it.infoHash()) ?: return
             GlobalScope.launch {
-                val p = torrentFilePriorityDataSource.getPriority(it.infoHash().toHex())
-                if (handle.torrentFile().isValid) { // Torrent meta data is present
-                    if (p.filePriority == null) {
-                        // Generate default priorities
-                        p.filePriority = MutableList(
-                            handle.torrentFile().numFiles()
-                        ) { TorrentFilePriority.default() }
-                        // Update database with generated priorities
-                        torrentFilePriorityDataSource.setPriority(p)
-                    }
-                    setFilesPriority(it.infoHash().toHex(), p.filePriority!!)
+                val p = torrentFilePriorityDataSource.getPriority(infoHash)
+                if (p.filePriority == null) {
+                    // Generate default priorities
+                    p.filePriority = MutableList(
+                        it.numFiles()
+                    ) { TorrentFilePriority.default() }
+                    // Update database with generated priorities
+                    torrentFilePriorityDataSource.setPriority(p)
                 }
+                setFilesPriority(infoHash, p.filePriority!!)
+
+                checkIfMetaDataDownloaded(infoHash, it)
             }
         }
     }
@@ -213,6 +212,8 @@ abstract class BaseTorrent(
                 }
                 AlertType.METADATA_RECEIVED -> {
                     onAlertMetaDataReceived(p0 as MetadataReceivedAlert)
+                }
+                else -> {
                 }
             }
         }

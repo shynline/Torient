@@ -33,6 +33,7 @@ class TorrentFilesController(
     private var torrentModel: TorrentModel? = null
     private var savedState: HashMap<String, Any>? = null
     private var fragmentRequestHelper: FragmentRequestHelper? = null
+    private var isFileLoaded = false
 
     fun bind(viewMvc: TorrentFilesViewMvc, fragmentRequestHelper: FragmentRequestHelper) {
         this.viewMvc = viewMvc
@@ -89,11 +90,12 @@ class TorrentFilesController(
         torrentModel = torrentMediator.getTorrentModel(infoHash = infoHash)
         val torrentSchema = torrentDataSource.getTorrent(infoHash)!! // It's not null
         torrentPriority = torrentFilePriorityDataSource.getPriority(infoHash)
-        if (torrentModel == null) {
+        if (torrentModel == null || torrentPriority.filePriority == null) {
             // Meta data is not available
             // And its loading if user state is Active
             return@launch
         }
+        isFileLoaded = true
         viewMvc!!.showTorrent(torrentModel!!)
 
         updateFileProgress(torrentSchema)
@@ -103,7 +105,11 @@ class TorrentFilesController(
 
     private fun periodicTask() = controllerScope.launch {
         val torrentSchema = torrentDataSource.getTorrent(infoHash)!! // It's not null
-        updateFileProgress(torrentSchema)
+        if (isFileLoaded) {
+            updateFileProgress(torrentSchema)
+        } else {
+            loadTorrentFiles()
+        }
     }
 
 

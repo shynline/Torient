@@ -31,6 +31,7 @@ class TorrentFilesViewMvcImpl(
     FileItem.Subscription {
 
     private val recyclerView: RecyclerView
+    private val emptyPlaceHolder: ViewGroup
     private val fastItemAdapter: GenericFastItemAdapter
     private val expandableExtension: ExpandableExtension<GenericItem>
     private val torrentFileUpdateListeners: MutableMap<Int, TorrentFileUpdateListener> =
@@ -51,6 +52,7 @@ class TorrentFilesViewMvcImpl(
     init {
         setRootView(inflater.inflate(R.layout.fragment_torrent_files, parent, false))
         recyclerView = findViewById(R.id.recyclerView)
+        emptyPlaceHolder = findViewById(R.id.emptyPlaceHolder)
         fastItemAdapter = FastItemAdapter()
         val adapter = FastAdapter.with(listOf(fastItemAdapter))
         expandableExtension = adapter.getExpandableExtension()
@@ -259,6 +261,8 @@ class TorrentFilesViewMvcImpl(
         fileIdentifier = 0L
         val files = parseTorrentFile(torrentModel.torrentFile!!)
         fastItemAdapter.add(files)
+        emptyPlaceHolder.visibility = View.GONE
+        recyclerView.visibility = View.VISIBLE
     }
 
     override fun updateFilePriority(torrentFilePriorities: List<TorrentFilePriority>) {
