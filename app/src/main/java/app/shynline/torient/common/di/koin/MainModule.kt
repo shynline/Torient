@@ -10,6 +10,7 @@ import app.shynline.torient.torrent.mediator.SubscriptionMediator
 import app.shynline.torient.torrent.mediator.TorrentMediator
 import app.shynline.torient.torrent.torrent.Torrent
 import app.shynline.torient.torrent.torrent.TorrentImpl
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.qualifier.named
@@ -20,7 +21,7 @@ val mainModule = module {
         ViewMvcFactoryImpl()
     }
     single<Torrent> {
-        TorrentImpl(androidContext(), get(), get(), get(), get(), get())
+        TorrentImpl(androidContext(), get(named("io")), get(), get(), get(), get())
     }
     single {
         SubscriptionMediator(get())
@@ -28,7 +29,7 @@ val mainModule = module {
     single(named(name = "io")) {
         Dispatchers.IO
     }
-    single(named(name = "main")) {
+    single<CoroutineDispatcher>(named(name = "main")) {
         Dispatchers.Main
     }
     single {
