@@ -8,12 +8,14 @@ import app.shynline.torient.screens.common.BaseController
 import app.shynline.torient.screens.common.navigationhelper.PageNavigationHelper
 import app.shynline.torient.torrent.mediator.TorrentMediator
 import app.shynline.torient.torrent.utils.Magnet
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 
 class NewMagnetController(
+    coroutineDispatcher: CoroutineDispatcher,
     private val torrentMediator: TorrentMediator,
     private val torrentDataSource: TorrentDataSource
-) : BaseController(), NewMagnetViewMvc.Listener {
+) : BaseController(coroutineDispatcher), NewMagnetViewMvc.Listener {
 
     private var viewMvc: NewMagnetViewMvc? = null
     private var pageNavigationHelper: PageNavigationHelper? = null

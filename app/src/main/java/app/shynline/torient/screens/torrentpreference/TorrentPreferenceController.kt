@@ -4,14 +4,16 @@ import app.shynline.torient.database.datasource.torrentpreference.TorrentPrefere
 import app.shynline.torient.database.entities.TorrentPreferenceSchema
 import app.shynline.torient.screens.common.BaseController
 import app.shynline.torient.torrent.mediator.TorrentMediator
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.concurrent.fixedRateTimer
 
 class TorrentPreferenceController(
+    coroutineDispatcher: CoroutineDispatcher,
     private val torrentMediator: TorrentMediator,
     private val torrentPreferenceDataSource: TorrentPreferenceDataSource
-) : BaseController(), TorrentPreferenceViewMvc.Listener {
+) : BaseController(coroutineDispatcher), TorrentPreferenceViewMvc.Listener {
 
     private var viewMvc: TorrentPreferenceViewMvc? = null
     private lateinit var infoHash: String

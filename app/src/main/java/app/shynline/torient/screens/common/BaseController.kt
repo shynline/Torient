@@ -1,11 +1,13 @@
 package app.shynline.torient.screens.common
 
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 
-abstract class BaseController {
+abstract class BaseController(
+    private val coroutineDispatcher: CoroutineDispatcher
+) {
     protected lateinit var controllerScope: CoroutineScope
 
     abstract fun saveState(): HashMap<String, Any>?
@@ -15,7 +17,7 @@ abstract class BaseController {
     abstract fun unbind()
 
     fun onCreateView() {
-        controllerScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+        controllerScope = CoroutineScope(SupervisorJob() + coroutineDispatcher)
     }
 
     abstract fun onStart()

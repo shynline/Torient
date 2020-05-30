@@ -14,43 +14,44 @@ import app.shynline.torient.screens.torrentpreference.TorrentPreferenceControlle
 import app.shynline.torient.screens.torrentpreference.TorrentPreferenceFragment
 import app.shynline.torient.screens.torrentslist.TorrentsListController
 import app.shynline.torient.screens.torrentslist.TorrentsListFragment
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val controllerModule = module {
     scope<TorrentsListFragment> {
         scoped {
-            TorrentsListController(get(), get(), get(), get())
+            TorrentsListController(get(named("main")), get(), get(), get(), get())
         }
     }
     scope<NewTorrentFragment> {
         scoped {
-            NewTorrentController(get(), get(), get())
+            NewTorrentController(get(named("main")), get(), get(), get())
         }
     }
     scope<NewMagnetFragment> {
         scoped {
-            NewMagnetController(get(), get())
+            NewMagnetController(get(named("main")), get(), get())
         }
     }
     scope<TorrentOverviewFragment> {
         scoped {
-            TorrentOverviewController(get(), get())
+            TorrentOverviewController(get(named("main")), get(), get())
         }
     }
     scope<TorrentFilesFragment> {
         scoped {
-            TorrentFilesController(get(), get(), get())
+            TorrentFilesController(get(named("main")), get(), get(), get())
         }
     }
     scope<TorrentPreferenceFragment> {
         scoped {
-            TorrentPreferenceController(get(), get())
+            TorrentPreferenceController(get(named("main")), get(), get())
         }
     }
 
     scope<PreferenceFragment> {
         scoped {
-            PreferenceController(get(), get())
+            PreferenceController(get(named("main")), get(), get())
         }
     }
 }

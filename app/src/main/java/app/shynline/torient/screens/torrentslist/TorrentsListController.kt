@@ -14,16 +14,19 @@ import app.shynline.torient.torrent.events.TorrentProgressEvent
 import app.shynline.torient.torrent.mediator.SubscriptionMediator
 import app.shynline.torient.torrent.mediator.TorrentMediator
 import app.shynline.torient.torrent.states.TorrentDownloadingState
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class TorrentsListController(
+    coroutineDispatcher: CoroutineDispatcher,
     private val subscriptionMediator: SubscriptionMediator,
     private val torrentDataSource: TorrentDataSource,
     private val torrentMediator: TorrentMediator,
     private val torrentFilePriorityDataSource: TorrentFilePriorityDataSource
-) : BaseController(), TorrentListViewMvc.Listener, SubscriptionMediator.Listener {
+) : BaseController(coroutineDispatcher), TorrentListViewMvc.Listener,
+    SubscriptionMediator.Listener {
 
     private var viewMvc: TorrentListViewMvc? = null
     private var fragmentRequestHelper: FragmentRequestHelper? = null

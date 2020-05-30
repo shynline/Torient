@@ -3,11 +3,13 @@ package app.shynline.torient.screens.preference
 import app.shynline.torient.common.userpreference.UserPreference
 import app.shynline.torient.screens.common.BaseController
 import app.shynline.torient.torrent.mediator.TorrentMediator
+import kotlinx.coroutines.CoroutineDispatcher
 
 class PreferenceController(
+    coroutineDispatcher: CoroutineDispatcher,
     private val userPreference: UserPreference,
     private val torrentMediator: TorrentMediator
-) : BaseController(), PreferenceViewMvc.Listener {
+) : BaseController(coroutineDispatcher), PreferenceViewMvc.Listener {
 
     private var viewMvc: PreferenceViewMvc? = null
 

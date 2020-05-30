@@ -10,13 +10,15 @@ import app.shynline.torient.screens.common.BaseController
 import app.shynline.torient.screens.common.navigationhelper.PageNavigationHelper
 import app.shynline.torient.screens.common.requesthelper.FragmentRequestHelper
 import app.shynline.torient.torrent.mediator.TorrentMediator
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 
 class NewTorrentController(
+    coroutineDispatcher: CoroutineDispatcher,
     private val torrentMediator: TorrentMediator,
     private val torrentDataSource: TorrentDataSource,
     private val torrentFilePriorityDataSource: TorrentFilePriorityDataSource
-) : BaseController(), NewTorrentViewMvc.Listener {
+) : BaseController(coroutineDispatcher), NewTorrentViewMvc.Listener {
     private var viewMvc: NewTorrentViewMvc? = null
     private var pageNavigationHelper: PageNavigationHelper? = null
     private var fragmentRequestHelper: FragmentRequestHelper? = null

@@ -9,16 +9,18 @@ import app.shynline.torient.model.TorrentModel
 import app.shynline.torient.screens.common.BaseController
 import app.shynline.torient.screens.common.requesthelper.FragmentRequestHelper
 import app.shynline.torient.torrent.mediator.TorrentMediator
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.collections.HashMap
 import kotlin.concurrent.fixedRateTimer
 
 class TorrentFilesController(
+    coroutineDispatcher: CoroutineDispatcher,
     private val torrentMediator: TorrentMediator,
     private val torrentDataSource: TorrentDataSource,
     private val torrentFilePriorityDataSource: TorrentFilePriorityDataSource
-) : BaseController(), TorrentFilesViewMvc.Listener {
+) : BaseController(coroutineDispatcher), TorrentFilesViewMvc.Listener {
 
     companion object {
         private const val INFO_HASH = "infohash"
