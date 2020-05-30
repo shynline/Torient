@@ -51,6 +51,7 @@ abstract class BaseTorrent(
                 TorrentDownloadingState.DOWNLOADING_METADATA
             )
             TorrentStatus.State.DOWNLOADING -> {
+                val fileProgress = handle.fileProgress()
                 val tpe = TorrentProgressEvent(
                     infoHash,
                     TorrentDownloadingState.DOWNLOADING,
@@ -59,13 +60,13 @@ abstract class BaseTorrent(
                     uploadRate = status.uploadRate(),
                     maxPeers = status.listPeers(),
                     connectedPeers = status.numPeers(),
-                    fileProgress = handle.fileProgress().toList()
+                    fileProgress = fileProgress.toList()
                 )
                 internalTorrentDataSource.setTorrentProgress(
                     infoHash,
                     tpe.progress,
                     lastSeenComplete = status.lastSeenComplete(),
-                    fileProgress = handle.fileProgress()
+                    fileProgress = fileProgress
                 )
                 // If the last state was Downloading meta data
                 // It means we have the meta data now
