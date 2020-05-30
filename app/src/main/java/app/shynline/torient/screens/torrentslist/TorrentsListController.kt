@@ -158,14 +158,14 @@ class TorrentsListController(
             // Traversing through torrents in database
             torrentSchemas.forEach {
                 torrentFilesProgress[it.infoHash] = it.fileProgress
+                val torrentDetail = torrentMediator.getTorrentModel(
+                    infoHash = it.infoHash
+                ) ?: TorrentModel(
+                    infoHash = it.infoHash,
+                    name = it.name,
+                    magnet = it.magnet
+                )
                 if (!managedTorrents.containsKey(it.infoHash)) {
-                    val torrentDetail = torrentMediator.getTorrentModel(
-                        infoHash = it.infoHash
-                    ) ?: TorrentModel(
-                        infoHash = it.infoHash,
-                        name = it.name,
-                        magnet = it.magnet
-                    )
                     // We add it to our managed list
                     managedTorrents[it.infoHash] = torrentDetail.apply {
                         userState = it.userState
@@ -190,8 +190,9 @@ class TorrentsListController(
                 } else {
                     // We have the torrent so we remove it from our removedTorrent
                     removedTorrents.remove(it.infoHash)
+                    managedTorrents[it.infoHash] = torrentDetail
                     // Update state if we have it in our managed cache
-                    managedTorrents[it.infoHash]!!.apply {
+                    torrentDetail.apply {
                         userState = it.userState
                         finished = it.isFinished
                         progress = it.progress
