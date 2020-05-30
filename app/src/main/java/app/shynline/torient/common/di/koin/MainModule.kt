@@ -12,6 +12,7 @@ import app.shynline.torient.torrent.torrent.Torrent
 import app.shynline.torient.torrent.torrent.TorrentImpl
 import kotlinx.coroutines.Dispatchers
 import org.koin.android.ext.koin.androidContext
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val mainModule = module {
@@ -24,8 +25,11 @@ val mainModule = module {
     single {
         SubscriptionMediator(get())
     }
-    single {
+    single(named(name = "io")) {
         Dispatchers.IO
+    }
+    single(named(name = "main")) {
+        Dispatchers.Main
     }
     single {
         TorrentMediator(get())

@@ -11,6 +11,7 @@ import app.shynline.torient.database.datasource.torrentfilepriority.TorrentFileP
 import app.shynline.torient.database.datasource.torrentpreference.TorrentPreferenceDataSource
 import app.shynline.torient.database.datasource.torrentpreference.TorrentPreferenceDataSourceImpl
 import org.koin.android.ext.koin.androidContext
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val databaseModule = module {
@@ -31,27 +32,27 @@ val databaseModule = module {
     }
 
     single<TorrentPreferenceDataSource> {
-        TorrentPreferenceDataSourceImpl(get(), get())
+        TorrentPreferenceDataSourceImpl(get(), get(named("io")))
     }
 
     single<TorrentDataSource> {
         TorrentDataSourceImpl(
             get(),
-            get()
+            get(named("io"))
         )
     }
 
     single<InternalTorrentDataSource> {
         InternalTorrentDataSourceImpl(
             get(),
-            get()
+            get(named("io"))
         )
     }
 
     single<TorrentFilePriorityDataSource> {
         TorrentFilePriorityDataSourceImpl(
             get(),
-            get()
+            get(named("io"))
         )
     }
 }
