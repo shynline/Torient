@@ -104,7 +104,9 @@ class NewTorrentControllerTest {
     @Test
     fun add_paused_torrent_and_navigate_back() {
         // Arrange
-        val model = TorrentModelUtils.getTorrentModel(INFO_HASH, NAME, MAGNET)
+        val model = TorrentModelUtils.getTorrentModel(INFO_HASH, NAME, MAGNET).apply {
+            numFiles = NUM_FILES
+        }
         setupCurrentTorrentModel(model)
         pageNavigationBackSuccess()
         setUpAddTorrentToDataBaseUseCase()
@@ -117,8 +119,12 @@ class NewTorrentControllerTest {
         coVerify(exactly = 1) {
             addTorrentToDataBaseUseCase.invoke(
                 AddTorrentToDataBaseUseCase.In(
-                    model,
-                    TorrentUserState.PAUSED
+                    model.infoHash,
+                    model.name,
+                    model.magnet,
+                    TorrentUserState.PAUSED,
+                    true,
+                    model.numFiles
                 )
             )
         }
@@ -128,12 +134,14 @@ class NewTorrentControllerTest {
     }
 
     @Test
-    fun add_active_torrent_and_navigate_back() {
+    fun add_active_torrent_and_navigate_back() = runBlocking {
         // Arrange
-        val model = TorrentModelUtils.getTorrentModel(INFO_HASH, NAME, MAGNET)
+        val model = TorrentModelUtils.getTorrentModel(INFO_HASH, NAME, MAGNET).apply {
+            numFiles = NUM_FILES
+        }
         setupCurrentTorrentModel(model)
         pageNavigationBackSuccess()
-        setUpAddTorrentToDataBaseUseCase()
+        val arg = setUpAddTorrentToDataBaseUseCase()
 
         // Act
         sut.downloadTorrent()
@@ -141,16 +149,15 @@ class NewTorrentControllerTest {
         // Assert
         coVerify(exactly = 1) { pageNavigationHelper.back() }
         coVerify(exactly = 1) {
-            addTorrentToDataBaseUseCase.invoke(
+            addTorrentToDataBaseUseCase(
                 AddTorrentToDataBaseUseCase.In(
-                    model,
-                    TorrentUserState.ACTIVE
+                    model.infoHash, model.name, model.magnet,
+                    TorrentUserState.ACTIVE, true, model.numFiles
                 )
             )
         }
 
-        confirmVerified(pageNavigationHelper)
-        confirmVerified(addTorrentToDataBaseUseCase)
+        confirmVerified(pageNavigationHelper, addTorrentToDataBaseUseCase)
     }
 
 
@@ -170,7 +177,9 @@ class NewTorrentControllerTest {
     }
 
     private fun setUpAddTorrentToDataBaseUseCase() {
-        coEvery { addTorrentToDataBaseUseCase.invoke(any()) }.returns(
+        coEvery {
+            addTorrentToDataBaseUseCase.invoke(any())
+        }.returns(
             AddTorrentToDataBaseUseCase.Out(
                 true
             )
@@ -188,7 +197,7 @@ class NewTorrentControllerTest {
     companion object {
         private const val INFO_HASH = "6ca8b71b3dfc217fc2420b7b07a97117740f6f03"
         private const val NAME = "torrent_name"
-        private const val NUM_FILE = 666
+        private const val NUM_FILES = 666
         private const val MAGNET = "magnet:?xt=urn:btih:$INFO_HASH&dn=$NAME"
     }
 }

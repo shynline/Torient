@@ -55,8 +55,12 @@ class NewTorrentController(
         controllerScope.launch {
             addTorrentToDataBaseUseCase(
                 AddTorrentToDataBaseUseCase.In(
-                    currentTorrent,
-                    TorrentUserState.ACTIVE
+                    currentTorrent.infoHash,
+                    currentTorrent.name,
+                    currentTorrent.magnet,
+                    TorrentUserState.ACTIVE,
+                    true,
+                    currentTorrent.numFiles
                 )
             )
             close()
@@ -67,8 +71,12 @@ class NewTorrentController(
         controllerScope.launch {
             addTorrentToDataBaseUseCase(
                 AddTorrentToDataBaseUseCase.In(
-                    currentTorrent,
-                    TorrentUserState.PAUSED
+                    currentTorrent.infoHash,
+                    currentTorrent.name,
+                    currentTorrent.magnet,
+                    TorrentUserState.PAUSED,
+                    true,
+                    currentTorrent.numFiles
                 )
             )
             close()

@@ -6,5 +6,5 @@ abstract class UseCase<INPUT, OUTPUT> {
         return execute(input)
     }
 
-    abstract suspend fun execute(input: INPUT): OUTPUT
+    protected abstract suspend fun execute(input: INPUT): OUTPUT
 }

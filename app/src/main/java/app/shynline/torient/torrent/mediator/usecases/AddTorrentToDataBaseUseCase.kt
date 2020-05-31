@@ -3,32 +3,41 @@ package app.shynline.torient.torrent.mediator.usecases
 import app.shynline.torient.database.common.states.TorrentUserState
 import app.shynline.torient.database.datasource.torrent.TorrentDataSource
 import app.shynline.torient.database.entities.TorrentSchema
-import app.shynline.torient.model.TorrentModel
 import app.shynline.torient.torrent.mediator.UseCase
 
 class AddTorrentToDataBaseUseCase(
     private val torrentDataSource: TorrentDataSource,
     private val initiateFilePriorityUseCase: InitiateFilePriorityUseCase
 ) : UseCase<AddTorrentToDataBaseUseCase.In, AddTorrentToDataBaseUseCase.Out>() {
-    data class In(val torrentModel: TorrentModel, val state: TorrentUserState)
+    data class In(
+        val infoHash: String,
+        val name: String,
+        val magnet: String,
+        val state: TorrentUserState,
+        val initiateFilePriorities: Boolean = false,
+        val numFiles: Int = 0
+    )
+
     data class Out(val created: Boolean)
 
     override suspend fun execute(input: In): Out {
-        if (torrentDataSource.getTorrent(input.torrentModel.infoHash) == null) {
+        if (torrentDataSource.getTorrent(input.infoHash) == null) {
             torrentDataSource.insertTorrent(
                 TorrentSchema(
-                    infoHash = input.torrentModel.infoHash,
-                    name = input.torrentModel.name,
-                    magnet = input.torrentModel.magnet,
+                    infoHash = input.infoHash,
+                    name = input.name,
+                    magnet = input.magnet,
                     userState = input.state
                 )
             )
-            initiateFilePriorityUseCase(
-                InitiateFilePriorityUseCase.In(
-                    input.torrentModel.infoHash,
-                    input.torrentModel.numFiles
+            if (input.initiateFilePriorities) {
+                initiateFilePriorityUseCase(
+                    InitiateFilePriorityUseCase.In(
+                        input.infoHash,
+                        input.numFiles
+                    )
                 )
-            )
+            }
             return Out(
                 true
             )
