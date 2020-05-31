@@ -4,6 +4,7 @@ import android.app.Application
 import app.shynline.torient.common.di.koin.controllerModule
 import app.shynline.torient.common.di.koin.databaseModule
 import app.shynline.torient.common.di.koin.mainModule
+import app.shynline.torient.common.di.koin.useCaseModule
 import app.shynline.torient.torrent.service.TorientService
 import app.shynline.torient.transfer.TransferService
 import org.koin.android.ext.koin.androidContext
@@ -23,7 +24,8 @@ class BaseApplication : Application() {
             modules(
                 mainModule,
                 databaseModule,
-                controllerModule
+                controllerModule,
+                useCaseModule
             )
         }
     }

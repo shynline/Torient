@@ -25,7 +25,7 @@ val controllerModule = module {
     }
     scope<NewTorrentFragment> {
         scoped {
-            NewTorrentController(get(named("main")), get(), get(), get())
+            NewTorrentController(get(named("main")), get(), get())
         }
     }
     scope<NewMagnetFragment> {

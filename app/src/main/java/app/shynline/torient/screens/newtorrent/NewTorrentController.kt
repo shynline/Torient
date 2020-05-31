@@ -1,23 +1,19 @@
 package app.shynline.torient.screens.newtorrent
 
 import app.shynline.torient.database.common.states.TorrentUserState
-import app.shynline.torient.database.datasource.torrent.TorrentDataSource
-import app.shynline.torient.database.datasource.torrentfilepriority.TorrentFilePriorityDataSource
-import app.shynline.torient.database.entities.TorrentSchema
-import app.shynline.torient.model.TorrentFilePriority
 import app.shynline.torient.model.TorrentModel
 import app.shynline.torient.screens.common.BaseController
 import app.shynline.torient.screens.common.navigationhelper.PageNavigationHelper
 import app.shynline.torient.screens.common.requesthelper.FragmentRequestHelper
-import app.shynline.torient.torrent.mediator.TorrentMediator
+import app.shynline.torient.torrent.mediator.usecases.AddTorrentToDataBaseUseCase
+import app.shynline.torient.torrent.mediator.usecases.GetTorrentModelUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 
 class NewTorrentController(
     coroutineDispatcher: CoroutineDispatcher,
-    private val torrentMediator: TorrentMediator,
-    private val torrentDataSource: TorrentDataSource,
-    private val torrentFilePriorityDataSource: TorrentFilePriorityDataSource
+    val getTorrentModelUseCase: GetTorrentModelUseCase,
+    val addTorrentToDataBaseUseCase: AddTorrentToDataBaseUseCase
 ) : BaseController(coroutineDispatcher), NewTorrentViewMvc.Listener {
 
     private lateinit var viewMvc: NewTorrentViewMvc
@@ -38,7 +34,7 @@ class NewTorrentController(
 
     fun showTorrent(infoHash: String) = controllerScope.launch {
         // Initiate currentTorrent and Update the UI if torrent model ( meta data ) exists
-        torrentMediator.getTorrentModel(infoHash = infoHash)?.let {
+        getTorrentModelUseCase(GetTorrentModelUseCase.In(infoHash = infoHash)).torrentModel?.let {
             currentTorrent = it
             viewMvc.showTorrent(currentTorrent)
             return@launch
@@ -57,39 +53,25 @@ class NewTorrentController(
 
     override fun downloadTorrent() {
         controllerScope.launch {
-            createAndInitiateIfDoesNotExists(TorrentUserState.ACTIVE)
-            close()
-        }
-    }
-
-    private suspend fun createAndInitiateIfDoesNotExists(state: TorrentUserState) {
-        if (torrentDataSource.getTorrent(currentTorrent.infoHash) == null) {
-            torrentDataSource.insertTorrent(
-                TorrentSchema(
-                    infoHash = currentTorrent.infoHash,
-                    name = currentTorrent.name,
-                    magnet = currentTorrent.magnet,
-                    userState = state
+            addTorrentToDataBaseUseCase(
+                AddTorrentToDataBaseUseCase.In(
+                    currentTorrent,
+                    TorrentUserState.ACTIVE
                 )
             )
-            initiateFilePriority(currentTorrent.infoHash, currentTorrent.numFiles)
+            close()
         }
     }
 
     override fun addTorrent() {
         controllerScope.launch {
-            createAndInitiateIfDoesNotExists(TorrentUserState.PAUSED)
+            addTorrentToDataBaseUseCase(
+                AddTorrentToDataBaseUseCase.In(
+                    currentTorrent,
+                    TorrentUserState.PAUSED
+                )
+            )
             close()
-        }
-    }
-
-    private suspend fun initiateFilePriority(infoHash: String, numFile: Int) {
-        val p = torrentFilePriorityDataSource.getPriority(infoHash)
-        if (p.filePriority == null) {
-            // Generate default priorities
-            p.filePriority = MutableList(numFile) { TorrentFilePriority.default() }
-            // Update database with generated priorities
-            torrentFilePriorityDataSource.setPriority(p)
         }
     }
 
