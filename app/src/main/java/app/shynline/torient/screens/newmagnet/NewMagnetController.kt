@@ -1,25 +1,24 @@
 package app.shynline.torient.screens.newmagnet
 
 import app.shynline.torient.database.common.states.TorrentUserState
-import app.shynline.torient.database.datasource.torrent.TorrentDataSource
-import app.shynline.torient.database.entities.TorrentSchema
 import app.shynline.torient.model.TorrentIdentifier
 import app.shynline.torient.screens.common.BaseController
 import app.shynline.torient.screens.common.navigationhelper.PageNavigationHelper
-import app.shynline.torient.torrent.mediator.TorrentMediator
+import app.shynline.torient.torrent.mediator.usecases.AddTorrentToDataBaseUseCase
+import app.shynline.torient.torrent.mediator.usecases.GetTorrentModelUseCase
 import app.shynline.torient.torrent.utils.Magnet
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 
 class NewMagnetController(
     coroutineDispatcher: CoroutineDispatcher,
-    private val torrentMediator: TorrentMediator,
-    private val torrentDataSource: TorrentDataSource
+    private val getTorrentModelUseCase: GetTorrentModelUseCase,
+    private val addTorrentToDataBaseUseCase: AddTorrentToDataBaseUseCase
 ) : BaseController(coroutineDispatcher), NewMagnetViewMvc.Listener {
 
-    private var viewMvc: NewMagnetViewMvc? = null
-    private var pageNavigationHelper: PageNavigationHelper? = null
-    private var currentMagnet: Magnet? = null
+    private lateinit var viewMvc: NewMagnetViewMvc
+    private lateinit var pageNavigationHelper: PageNavigationHelper
+    private lateinit var currentMagnet: Magnet
     private lateinit var magnet: String
 
     fun bind(
@@ -32,11 +31,11 @@ class NewMagnetController(
 
 
     override fun onStart() {
-        viewMvc!!.registerListener(this)
+        viewMvc.registerListener(this)
     }
 
     override fun onStop() {
-        viewMvc!!.unRegisterListener(this)
+        viewMvc.unRegisterListener(this)
     }
 
     override fun loadState(state: HashMap<String, Any>?) {
@@ -48,45 +47,44 @@ class NewMagnetController(
 
     fun showTorrent(magnet: String) = controllerScope.launch {
         this@NewMagnetController.magnet = magnet
-        currentMagnet = Magnet.parse(magnet)
-        if (currentMagnet == null) {
-            close()
+        Magnet.parse(magnet)?.let {
+            currentMagnet = it
+
+            viewMvc.showMagnet(currentMagnet)
+            // Attempting to get the torrent metaData
+            getTorrentModelUseCase(
+                GetTorrentModelUseCase.In(
+                    identifier = TorrentIdentifier(
+                        currentMagnet.infoHash!!,
+                        magnet
+                    )
+                )
+            ).torrentModel?.let { torrentModel ->
+                // If we found the metadata we navigate to NewTorrentFragment
+                close()
+                pageNavigationHelper.showNewTorrentDialog(torrentModel.infoHash)
+            }
             return@launch
         }
-        viewMvc!!.showMagnet(currentMagnet!!)
-        // Attempting to get the torrent metaData
-        val torrentDetail =
-            torrentMediator.getTorrentModel(
-                identifier = TorrentIdentifier(
-                    currentMagnet!!.infoHash!!,
-                    magnet
-                )
-            )
-
-        torrentDetail?.let {
-            // If we found the metadata we navigate to NewTorrentFragment
-            close()
-            pageNavigationHelper!!.showNewTorrentDialog(it.infoHash)
-        }
+        close()
     }
 
     override fun onDownloadClicked() {
         controllerScope.launch {
-            if (torrentDataSource.getTorrent(currentMagnet!!.infoHash!!) == null) {
-                torrentDataSource.insertTorrent(
-                    TorrentSchema(
-                        infoHash = currentMagnet!!.infoHash!!,
-                        magnet = magnet,
-                        userState = TorrentUserState.ACTIVE,
-                        name = currentMagnet!!.name!!
-                    )
+            addTorrentToDataBaseUseCase(
+                AddTorrentToDataBaseUseCase.In(
+                    currentMagnet.infoHash!!,
+                    currentMagnet.name ?: "",
+                    magnet,
+                    TorrentUserState.ACTIVE
                 )
-            }
+            )
             close()
         }
     }
 
     private fun close() {
-        pageNavigationHelper!!.back()
+        pageNavigationHelper.back()
     }
+
 }

@@ -141,7 +141,7 @@ class NewTorrentControllerTest {
         }
         setupCurrentTorrentModel(model)
         pageNavigationBackSuccess()
-        val arg = setUpAddTorrentToDataBaseUseCase()
+        setUpAddTorrentToDataBaseUseCase()
 
         // Act
         sut.downloadTorrent()
