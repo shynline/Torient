@@ -22,7 +22,7 @@ class NewTorrentController(
     private var viewMvc: NewTorrentViewMvc? = null
     private var pageNavigationHelper: PageNavigationHelper? = null
     private var fragmentRequestHelper: FragmentRequestHelper? = null
-    private var currentTorrent: TorrentModel? = null
+    private lateinit var currentTorrent: TorrentModel
 
 
     fun bind(
@@ -36,12 +36,12 @@ class NewTorrentController(
     }
 
     fun showTorrent(infoHash: String) = controllerScope.launch {
-        currentTorrent = torrentMediator.getTorrentModel(infoHash = infoHash)
-        if (currentTorrent != null) {
-            viewMvc!!.showTorrent(currentTorrent!!)
-        } else {
-            close()
+        torrentMediator.getTorrentModel(infoHash = infoHash)?.let {
+            currentTorrent = it
+            viewMvc!!.showTorrent(currentTorrent)
+            return@launch
         }
+        close()
     }
 
     override fun onStart() {
@@ -54,18 +54,17 @@ class NewTorrentController(
 
     override fun downloadTorrent() {
         controllerScope.launch {
-            currentTorrent?.let {
-                if (torrentDataSource.getTorrent(it.infoHash) == null) {
-                    torrentDataSource.insertTorrent(
-                        TorrentSchema(
-                            infoHash = it.infoHash,
-                            name = it.name,
-                            magnet = it.magnet,
-                            userState = TorrentUserState.ACTIVE
-                        )
+            if (torrentDataSource.getTorrent(currentTorrent.infoHash) == null) {
+                torrentDataSource.insertTorrent(
+                    TorrentSchema(
+                        infoHash = currentTorrent.infoHash,
+                        name = currentTorrent.name,
+                        magnet = currentTorrent.magnet,
+                        userState = TorrentUserState.ACTIVE
                     )
-                    initiateFilePriority(it.infoHash, it.numFiles)
-                }
+                )
+                initiateFilePriority(currentTorrent.infoHash, currentTorrent.numFiles)
+
             }
             close()
         }
@@ -73,19 +72,18 @@ class NewTorrentController(
 
     override fun addTorrent() {
         controllerScope.launch {
-            currentTorrent?.let {
-                if (torrentDataSource.getTorrent(it.infoHash) == null) {
-                    torrentDataSource.insertTorrent(
-                        TorrentSchema(
-                            infoHash = it.infoHash,
-                            magnet = it.magnet,
-                            name = it.name,
-                            userState = TorrentUserState.PAUSED
-                        )
+            if (torrentDataSource.getTorrent(currentTorrent.infoHash) == null) {
+                torrentDataSource.insertTorrent(
+                    TorrentSchema(
+                        infoHash = currentTorrent.infoHash,
+                        magnet = currentTorrent.magnet,
+                        name = currentTorrent.name,
+                        userState = TorrentUserState.PAUSED
                     )
-                    initiateFilePriority(it.infoHash, it.numFiles)
-                }
+                )
+                initiateFilePriority(currentTorrent.infoHash, currentTorrent.numFiles)
             }
+
             close()
         }
     }
