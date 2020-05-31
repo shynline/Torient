@@ -54,7 +54,6 @@ abstract class BaseFragment<CONTROLLER : BaseController> : Fragment() {
     }
 
     override fun onDestroyView() {
-        controller.unbind()
         super.onDestroyView()
         controller.onViewDestroy()
     }

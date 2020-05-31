@@ -63,9 +63,6 @@ class TorrentFilesController(
         return state
     }
 
-    override fun unbind() {
-        viewMvc = null
-    }
 
     override fun onStart() {
         viewMvc!!.registerListener(this)

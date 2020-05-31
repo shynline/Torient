@@ -129,12 +129,6 @@ class TorrentsListController(
         return null
     }
 
-    override fun unbind() {
-        viewMvc = null
-        fragmentRequestHelper = null
-        pageNavigationHelper = null
-    }
-
     private var queryingDataBaseJob: Job? = null
 
     override fun onStart() {

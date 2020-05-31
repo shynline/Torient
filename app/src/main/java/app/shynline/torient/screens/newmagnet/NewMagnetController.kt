@@ -46,11 +46,6 @@ class NewMagnetController(
         return null
     }
 
-    override fun unbind() {
-        viewMvc = null
-        pageNavigationHelper = null
-    }
-
     fun showTorrent(magnet: String) = controllerScope.launch {
         this@NewMagnetController.magnet = magnet
         currentMagnet = Magnet.parse(magnet)

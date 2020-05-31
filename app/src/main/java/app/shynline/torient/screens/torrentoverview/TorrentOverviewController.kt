@@ -30,10 +30,6 @@ class TorrentOverviewController(
         return null
     }
 
-    override fun unbind() {
-        viewMvc = null
-    }
-
     override fun onStart() {
         viewMvc!!.registerListener(this)
         periodicTimer = fixedRateTimer(

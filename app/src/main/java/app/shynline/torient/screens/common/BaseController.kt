@@ -14,8 +14,6 @@ abstract class BaseController(
 
     abstract fun loadState(state: HashMap<String, Any>?)
 
-    abstract fun unbind()
-
     fun onCreateView() {
         controllerScope = CoroutineScope(SupervisorJob() + coroutineDispatcher)
     }

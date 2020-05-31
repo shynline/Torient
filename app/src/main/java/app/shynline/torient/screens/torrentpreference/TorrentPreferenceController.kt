@@ -33,10 +33,6 @@ class TorrentPreferenceController(
         return null
     }
 
-    override fun unbind() {
-        viewMvc = null
-    }
-
     override fun onStart() {
         viewMvc!!.registerListener(this)
         viewMvc!!.addListeners()

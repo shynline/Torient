@@ -109,10 +109,4 @@ class NewTorrentController(
         return null
     }
 
-    override fun unbind() {
-        viewMvc = null
-        pageNavigationHelper = null
-        fragmentRequestHelper = null
-    }
-
 }

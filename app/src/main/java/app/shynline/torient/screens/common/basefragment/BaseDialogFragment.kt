@@ -65,7 +65,6 @@ abstract class BaseDialogFragment<CONTROLLER : BaseController> : DialogFragment(
     }
 
     override fun onDestroyView() {
-        controller.unbind()
         super.onDestroyView()
         controller.onViewDestroy()
     }

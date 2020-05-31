@@ -24,10 +24,6 @@ class PreferenceController(
         this.viewMvc = viewMvc
     }
 
-    override fun unbind() {
-        viewMvc = null
-    }
-
     override fun onStart() {
         viewMvc!!.registerListener(this)
         viewMvc!!.addListeners()
