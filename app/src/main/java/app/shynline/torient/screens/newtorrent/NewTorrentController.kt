@@ -19,9 +19,10 @@ class NewTorrentController(
     private val torrentDataSource: TorrentDataSource,
     private val torrentFilePriorityDataSource: TorrentFilePriorityDataSource
 ) : BaseController(coroutineDispatcher), NewTorrentViewMvc.Listener {
-    private var viewMvc: NewTorrentViewMvc? = null
-    private var pageNavigationHelper: PageNavigationHelper? = null
-    private var fragmentRequestHelper: FragmentRequestHelper? = null
+
+    private lateinit var viewMvc: NewTorrentViewMvc
+    private lateinit var pageNavigationHelper: PageNavigationHelper
+    private lateinit var fragmentRequestHelper: FragmentRequestHelper
     private lateinit var currentTorrent: TorrentModel
 
 
@@ -36,54 +37,48 @@ class NewTorrentController(
     }
 
     fun showTorrent(infoHash: String) = controllerScope.launch {
+        // Initiate currentTorrent and Update the UI if torrent model ( meta data ) exists
         torrentMediator.getTorrentModel(infoHash = infoHash)?.let {
             currentTorrent = it
-            viewMvc!!.showTorrent(currentTorrent)
+            viewMvc.showTorrent(currentTorrent)
             return@launch
         }
+        // Close this screen if meta data is not available
         close()
     }
 
     override fun onStart() {
-        viewMvc!!.registerListener(this)
+        viewMvc.registerListener(this)
     }
 
     override fun onStop() {
-        viewMvc!!.unRegisterListener(this)
+        viewMvc.unRegisterListener(this)
     }
 
     override fun downloadTorrent() {
         controllerScope.launch {
-            if (torrentDataSource.getTorrent(currentTorrent.infoHash) == null) {
-                torrentDataSource.insertTorrent(
-                    TorrentSchema(
-                        infoHash = currentTorrent.infoHash,
-                        name = currentTorrent.name,
-                        magnet = currentTorrent.magnet,
-                        userState = TorrentUserState.ACTIVE
-                    )
-                )
-                initiateFilePriority(currentTorrent.infoHash, currentTorrent.numFiles)
-
-            }
+            createAndInitiateIfDoesNotExists(TorrentUserState.ACTIVE)
             close()
+        }
+    }
+
+    private suspend fun createAndInitiateIfDoesNotExists(state: TorrentUserState) {
+        if (torrentDataSource.getTorrent(currentTorrent.infoHash) == null) {
+            torrentDataSource.insertTorrent(
+                TorrentSchema(
+                    infoHash = currentTorrent.infoHash,
+                    name = currentTorrent.name,
+                    magnet = currentTorrent.magnet,
+                    userState = state
+                )
+            )
+            initiateFilePriority(currentTorrent.infoHash, currentTorrent.numFiles)
         }
     }
 
     override fun addTorrent() {
         controllerScope.launch {
-            if (torrentDataSource.getTorrent(currentTorrent.infoHash) == null) {
-                torrentDataSource.insertTorrent(
-                    TorrentSchema(
-                        infoHash = currentTorrent.infoHash,
-                        magnet = currentTorrent.magnet,
-                        name = currentTorrent.name,
-                        userState = TorrentUserState.PAUSED
-                    )
-                )
-                initiateFilePriority(currentTorrent.infoHash, currentTorrent.numFiles)
-            }
-
+            createAndInitiateIfDoesNotExists(TorrentUserState.PAUSED)
             close()
         }
     }
@@ -99,7 +94,7 @@ class NewTorrentController(
     }
 
     private fun close() {
-        pageNavigationHelper!!.back()
+        pageNavigationHelper.back()
     }
 
     override fun loadState(state: HashMap<String, Any>?) {
