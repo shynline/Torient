@@ -2,16 +2,16 @@ package app.shynline.torient.screens.preference
 
 import app.shynline.torient.common.userpreference.UserPreference
 import app.shynline.torient.screens.common.BaseController
-import app.shynline.torient.torrent.mediator.TorrentMediator
+import app.shynline.torient.torrent.torrent.Torrent
 import kotlinx.coroutines.CoroutineDispatcher
 
 class PreferenceController(
     coroutineDispatcher: CoroutineDispatcher,
     private val userPreference: UserPreference,
-    private val torrentMediator: TorrentMediator
+    private val torrent: Torrent
 ) : BaseController(coroutineDispatcher), PreferenceViewMvc.Listener {
 
-    private var viewMvc: PreferenceViewMvc? = null
+    private lateinit var viewMvc: PreferenceViewMvc
 
     override fun saveState(): HashMap<String, Any>? {
         return null
@@ -25,17 +25,17 @@ class PreferenceController(
     }
 
     override fun onStart() {
-        viewMvc!!.registerListener(this)
+        viewMvc.registerListener(this)
         loadPreference()
     }
 
     override fun onStop() {
-        viewMvc!!.unRegisterListener(this)
-        torrentMediator.onUpdateGlobalPreference()
+        viewMvc.unRegisterListener(this)
+        torrent.onUpdateGlobalPreference()
     }
 
     private fun loadPreference() {
-        viewMvc!!.updateUi(userPreference)
+        viewMvc.updateUi(userPreference)
     }
 
     override fun onDownloadLimitChanged(rate: Int) {
