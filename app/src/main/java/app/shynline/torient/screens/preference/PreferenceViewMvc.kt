@@ -14,6 +14,4 @@ interface PreferenceViewMvc : ObservableViewMvc<PreferenceViewMvc.Listener> {
     }
 
     fun updateUi(userPreference: UserPreference)
-    fun addListeners()
-    fun removeListeners()
 }

@@ -78,10 +78,24 @@ class PreferenceViewMvcImpl(
         }
     }
 
-    override fun addListeners() {
-        downloadRateET.addTextChangedListener(downloadRateTextWatcher)
-        uploadRateET.addTextChangedListener(uploadRateTextWatcher)
-        maximumPeerET.addTextChangedListener(maximumPeerTextWatcher)
+    override fun onListenerRegistered() {
+        super.onListenerRegistered()
+        // Only add text change listeners if the first listener is registered
+        if (getListeners().size == 1) {
+            downloadRateET.addTextChangedListener(downloadRateTextWatcher)
+            uploadRateET.addTextChangedListener(uploadRateTextWatcher)
+            maximumPeerET.addTextChangedListener(maximumPeerTextWatcher)
+        }
+    }
+
+    override fun onListenerUnRegistered() {
+        super.onListenerUnRegistered()
+        // Remove the text change listeners if all listeners has been removed
+        if (getListeners().isEmpty()) {
+            downloadRateET.removeTextChangedListener(downloadRateTextWatcher)
+            uploadRateET.removeTextChangedListener(uploadRateTextWatcher)
+            maximumPeerET.removeTextChangedListener(maximumPeerTextWatcher)
+        }
     }
 
     override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
@@ -99,12 +113,6 @@ class PreferenceViewMvcImpl(
                 }
             }
         }
-    }
-
-    override fun removeListeners() {
-        downloadRateET.removeTextChangedListener(downloadRateTextWatcher)
-        uploadRateET.removeTextChangedListener(uploadRateTextWatcher)
-        maximumPeerET.removeTextChangedListener(maximumPeerTextWatcher)
     }
 
     override fun updateUi(userPreference: UserPreference) {

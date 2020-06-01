@@ -26,13 +26,11 @@ class PreferenceController(
 
     override fun onStart() {
         viewMvc!!.registerListener(this)
-        viewMvc!!.addListeners()
         loadPreference()
     }
 
     override fun onStop() {
         viewMvc!!.unRegisterListener(this)
-        viewMvc!!.removeListeners()
         torrentMediator.onUpdateGlobalPreference()
     }
 
