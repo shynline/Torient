@@ -41,35 +41,30 @@ class NewTorrentControllerTest {
     @Test
     fun navigate_back_when_torrent_model_does_not_exist() = runBlocking {
         // Arrange
-        coEvery { getTorrentModelUseCase.invoke(any()) }.returns(GetTorrentModelUseCase.Out(null))
+        metaDataNotExists()
         pageNavigationBackSuccess()
 
         // Act
         sut.showTorrent(INFO_HASH)
 
         // Assert
-        coVerify(exactly = 1) { getTorrentModelUseCase.invoke(GetTorrentModelUseCase.In(infoHash = INFO_HASH)) }
         coVerify(exactly = 1) { pageNavigationHelper.back() }
-
-        confirmVerified(getTorrentModelUseCase)
         confirmVerified(pageNavigationHelper)
     }
+
 
     @Test
     fun update_ui_when_torrent_model_exists() = runBlocking {
         // Arrange
         val model = TorrentModelUtils.getTorrentModel(INFO_HASH, NAME, MAGNET)
-        coEvery { getTorrentModelUseCase.invoke(any()) }.returns(GetTorrentModelUseCase.Out(model))
+        metaDataIsAvailable(model)
         coEvery { viewMvc.showTorrent(any()) }.returns(Unit)
 
         // Act
         sut.showTorrent(INFO_HASH)
 
         // Assert
-        coVerify(exactly = 1) { getTorrentModelUseCase.invoke(GetTorrentModelUseCase.In(infoHash = INFO_HASH)) }
         coVerify(exactly = 1) { viewMvc.showTorrent(model) }
-
-        confirmVerified(getTorrentModelUseCase)
         confirmVerified(viewMvc)
     }
 
@@ -163,6 +158,10 @@ class NewTorrentControllerTest {
 
     // region helper methods
 
+    private fun metaDataNotExists() {
+        coEvery { getTorrentModelUseCase.invoke(any()) }.returns(GetTorrentModelUseCase.Out(null))
+    }
+
     private fun pageNavigationBackSuccess() {
         coEvery { pageNavigationHelper.back() }.returns(Unit)
     }
@@ -170,10 +169,14 @@ class NewTorrentControllerTest {
     private fun setupCurrentTorrentModel(
         model: TorrentModel = TorrentModelUtils.getTorrentModel(INFO_HASH, NAME, MAGNET)
     ) {
-        coEvery { getTorrentModelUseCase.invoke(any()) }.returns(GetTorrentModelUseCase.Out(model))
+        metaDataIsAvailable(model)
         coEvery { viewMvc.showTorrent(any()) }.returns(Unit)
         sut.showTorrent(model.infoHash)
         clearAllMocks()
+    }
+
+    private fun metaDataIsAvailable(model: TorrentModel) {
+        coEvery { getTorrentModelUseCase.invoke(any()) }.returns(GetTorrentModelUseCase.Out(model))
     }
 
     private fun setUpAddTorrentToDataBaseUseCase() {
