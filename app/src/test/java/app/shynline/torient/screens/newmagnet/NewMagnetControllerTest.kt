@@ -1,7 +1,5 @@
 package app.shynline.torient.screens.newmagnet
 
-import app.shynline.torient.database.common.states.TorrentUserState
-import app.shynline.torient.model.TorrentIdentifier
 import app.shynline.torient.screens.common.navigationhelper.PageNavigationHelper
 import app.shynline.torient.torrent.mediator.usecases.AddTorrentToDataBaseUseCase
 import app.shynline.torient.torrent.mediator.usecases.GetTorrentModelUseCase
@@ -54,51 +52,36 @@ class NewMagnetControllerTest {
     @Test
     fun valid_magnet_meta_data_does_not_exist_update_ui() = runBlocking {
         // Arrange
-        coEvery { getTorrentModelUseCase(any()) }
-            .returns(GetTorrentModelUseCase.Out(null))
+        metadataIsNotAvailable()
         coEvery { viewMvc.showMagnet(any()) }.returns(Unit)
 
         // Act
         sut.showTorrent(MAGNET)
 
         // Assert
-        coVerify(exactly = 1) {
-            getTorrentModelUseCase(
-                GetTorrentModelUseCase.In(
-                    identifier = TorrentIdentifier(INFO_HASH, MAGNET)
-                )
-            )
-        }
         coVerify(exactly = 1) { viewMvc.showMagnet(MAGNET_OBJ) }
-        confirmVerified(getTorrentModelUseCase, viewMvc)
+        confirmVerified(viewMvc)
     }
 
     @Test
     fun valid_magnet_meta_data_exists_update_ui_navigate_back() = runBlocking {
         // Arrange
-        val model = TorrentModelUtils.getTorrentModel(INFO_HASH, NAME, MAGNET)
-        coEvery { getTorrentModelUseCase(any()) }
-            .returns(GetTorrentModelUseCase.Out(model))
-        coEvery { viewMvc.showMagnet(any()) }.returns(Unit)
+        metaDataIsAvailable()
         pageNavigationBackSuccess()
-        coEvery { pageNavigationHelper.showNewTorrentDialog(any()) }.returns(Unit)
+        navigationToNewTorrentDialogSucceed()
+        coEvery { viewMvc.showMagnet(any()) }.returns(Unit)
 
         // Act
         sut.showTorrent(MAGNET)
 
         // Assert
-        coVerify(exactly = 1) {
-            getTorrentModelUseCase(
-                GetTorrentModelUseCase.In(
-                    identifier = TorrentIdentifier(INFO_HASH, MAGNET)
-                )
-            )
-        }
+
         coVerify(exactly = 1) { viewMvc.showMagnet(MAGNET_OBJ) }
         coVerify(exactly = 1) { pageNavigationHelper.back() }
         coVerify(exactly = 1) { pageNavigationHelper.showNewTorrentDialog(INFO_HASH) }
-        confirmVerified(getTorrentModelUseCase, pageNavigationHelper, viewMvc)
+        confirmVerified(pageNavigationHelper, viewMvc)
     }
+
 
     @Test
     fun on_start_register_to_view() {
@@ -131,28 +114,17 @@ class NewMagnetControllerTest {
     @Test
     fun add_active_torrent_and_navigate_back() = runBlocking {
         // Arrange
-        val model = TorrentModelUtils.getTorrentModel(INFO_HASH, NAME, MAGNET)
         setupCurrentMagnet()
         pageNavigationBackSuccess()
-        coEvery { addTorrentToDataBaseUseCase(any()) }.returns(AddTorrentToDataBaseUseCase.Out(true))
+        addTorrentToDataBaseSucceed()
 
         // Act
         sut.onDownloadClicked()
 
         // Assert
         coVerify(exactly = 1) { pageNavigationHelper.back() }
-        coVerify(exactly = 1) {
-            addTorrentToDataBaseUseCase(
-                AddTorrentToDataBaseUseCase.In(
-                    model.infoHash, model.name, model.magnet,
-                    TorrentUserState.ACTIVE, false, 0
-                )
-            )
-        }
-
-        confirmVerified(pageNavigationHelper, addTorrentToDataBaseUseCase)
+        confirmVerified(pageNavigationHelper)
     }
-
 
     @After
     fun tearDown() {
@@ -161,12 +133,31 @@ class NewMagnetControllerTest {
 
     // region helper methods
 
-    private fun setupCurrentMagnet() {
+    private fun addTorrentToDataBaseSucceed() {
+        coEvery { addTorrentToDataBaseUseCase(any()) }.returns(AddTorrentToDataBaseUseCase.Out(true))
+    }
+
+
+    private fun metaDataIsAvailable() {
+        val model = TorrentModelUtils.getTorrentModel(INFO_HASH, NAME, MAGNET)
         coEvery { getTorrentModelUseCase(any()) }
-            .returns(GetTorrentModelUseCase.Out(null))
+            .returns(GetTorrentModelUseCase.Out(model))
+    }
+
+    private fun navigationToNewTorrentDialogSucceed() {
+        coEvery { pageNavigationHelper.showNewTorrentDialog(any()) }.returns(Unit)
+    }
+
+    private fun setupCurrentMagnet() {
+        metadataIsNotAvailable()
         coEvery { viewMvc.showMagnet(any()) }.returns(Unit)
         sut.showTorrent(MAGNET)
         clearAllMocks()
+    }
+
+    private fun metadataIsNotAvailable() {
+        coEvery { getTorrentModelUseCase(any()) }
+            .returns(GetTorrentModelUseCase.Out(null))
     }
 
     private fun pageNavigationBackSuccess() {
