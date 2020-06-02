@@ -6,6 +6,8 @@ import app.shynline.torient.common.di.viewfactory.ViewMvcFactory
 import app.shynline.torient.common.di.viewfactory.ViewMvcFactoryImpl
 import app.shynline.torient.common.userpreference.UserPreference
 import app.shynline.torient.common.userpreference.UserPreferenceImpl
+import app.shynline.torient.domain.helper.timer.TimerController
+import app.shynline.torient.domain.helper.timer.TimerControllerImpl
 import app.shynline.torient.torrent.mediator.SubscriptionMediator
 import app.shynline.torient.torrent.mediator.TorrentMediator
 import app.shynline.torient.torrent.torrent.Torrent
@@ -40,6 +42,9 @@ val mainModule = module {
     }
     single<UserPreference> {
         UserPreferenceImpl(get())
+    }
+    single<TimerController> {
+        TimerControllerImpl()
     }
 
 }

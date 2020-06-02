@@ -1,8 +1,6 @@
 package app.shynline.torient.common.di.koin
 
-import app.shynline.torient.torrent.mediator.usecases.AddTorrentToDataBaseUseCase
-import app.shynline.torient.torrent.mediator.usecases.GetTorrentModelUseCase
-import app.shynline.torient.torrent.mediator.usecases.InitiateFilePriorityUseCase
+import app.shynline.torient.torrent.mediator.usecases.*
 import org.koin.dsl.module
 
 val useCaseModule = module {
@@ -19,5 +17,14 @@ val useCaseModule = module {
             get(),
             get()
         )
+    }
+    single {
+        GetTorrentFilePriorityUseCase(get())
+    }
+    single {
+        GetTorrentSchemeUseCase(get())
+    }
+    single {
+        UpdateTorrentFilePriorityUseCase(get(), get())
     }
 }

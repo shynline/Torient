@@ -1,25 +1,25 @@
 package app.shynline.torient.screens.torrentfiles
 
-import app.shynline.torient.database.datasource.torrent.TorrentDataSource
-import app.shynline.torient.database.datasource.torrentfilepriority.TorrentFilePriorityDataSource
 import app.shynline.torient.database.entities.TorrentFilePrioritySchema
-import app.shynline.torient.database.entities.TorrentSchema
+import app.shynline.torient.domain.helper.timer.TimerController
 import app.shynline.torient.model.FilePriority
 import app.shynline.torient.model.TorrentModel
 import app.shynline.torient.screens.common.BaseController
 import app.shynline.torient.screens.common.requesthelper.FragmentRequestHelper
-import app.shynline.torient.torrent.mediator.TorrentMediator
+import app.shynline.torient.torrent.mediator.usecases.GetTorrentFilePriorityUseCase
+import app.shynline.torient.torrent.mediator.usecases.GetTorrentModelUseCase
+import app.shynline.torient.torrent.mediator.usecases.GetTorrentSchemeUseCase
+import app.shynline.torient.torrent.mediator.usecases.UpdateTorrentFilePriorityUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
-import java.util.*
-import kotlin.collections.HashMap
-import kotlin.concurrent.fixedRateTimer
 
 class TorrentFilesController(
     coroutineDispatcher: CoroutineDispatcher,
-    private val torrentMediator: TorrentMediator,
-    private val torrentDataSource: TorrentDataSource,
-    private val torrentFilePriorityDataSource: TorrentFilePriorityDataSource
+    private val getTorrentSchemeUseCase: GetTorrentSchemeUseCase,
+    private val updateTorrentFilePriorityUseCase: UpdateTorrentFilePriorityUseCase,
+    private val getTorrentFilePriorityUseCase: GetTorrentFilePriorityUseCase,
+    private val getTorrentModelUseCase: GetTorrentModelUseCase,
+    private val timerController: TimerController
 ) : BaseController(coroutineDispatcher), TorrentFilesViewMvc.Listener {
 
     companion object {
@@ -27,15 +27,15 @@ class TorrentFilesController(
         private const val VIEW_STATE = "viewstate"
     }
 
-    private var viewMvc: TorrentFilesViewMvc? = null
+    private lateinit var viewMvc: TorrentFilesViewMvc
     private lateinit var infoHash: String
-    private var periodicTimer: Timer? = null
     private var lastProgressHashCode = 0
     private var lastProgress: List<Long>? = null
     private var torrentModel: TorrentModel? = null
+    private lateinit var torrentPriority: TorrentFilePrioritySchema
     private var savedState: HashMap<String, Any>? = null
-    private var fragmentRequestHelper: FragmentRequestHelper? = null
-    private var isFileLoaded = false
+    private lateinit var fragmentRequestHelper: FragmentRequestHelper
+    private var isFilesLoaded = false
 
     fun bind(viewMvc: TorrentFilesViewMvc, fragmentRequestHelper: FragmentRequestHelper) {
         this.viewMvc = viewMvc
@@ -43,39 +43,37 @@ class TorrentFilesController(
     }
 
     override fun loadState(state: HashMap<String, Any>?) {
-        if (state != null) {
-            if (state[INFO_HASH] != infoHash)
+        state?.let {
+            if (it[INFO_HASH] != infoHash)
                 return
-            savedState = state
+            savedState = it
         }
     }
 
     private fun applyViewState() {
         @Suppress("UNCHECKED_CAST")
-        viewMvc!!.loadState(savedState?.get(VIEW_STATE) as? HashMap<String, Any>)
+        viewMvc.loadState(savedState?.get(VIEW_STATE) as? HashMap<String, Any>)
         savedState = null
     }
 
     override fun saveState(): HashMap<String, Any>? {
-        val state = HashMap<String, Any>()
-        state[INFO_HASH] = infoHash
-        state[VIEW_STATE] = viewMvc!!.saveState()
-        return state
+        return HashMap<String, Any>().apply {
+            put(INFO_HASH, infoHash)
+            put(VIEW_STATE, viewMvc.saveState())
+        }
     }
 
 
     override fun onStart() {
-        viewMvc!!.registerListener(this)
-        periodicTimer = fixedRateTimer(
-            name = "periodicTaskTorrentFiles",
-            initialDelay = 1000,
-            period = 1000
-        ) { periodicTask() }
+        viewMvc.registerListener(this)
+        timerController.schedule(this, 1000, 1000) {
+            periodicTask()
+        }
     }
 
     override fun onStop() {
-        viewMvc!!.unRegisterListener(this)
-        periodicTimer?.cancel()
+        viewMvc.unRegisterListener(this)
+        timerController.cancel(this)
     }
 
     fun setTorrent(infoHash: String) {
@@ -83,29 +81,30 @@ class TorrentFilesController(
         loadTorrentFiles()
     }
 
-    private lateinit var torrentPriority: TorrentFilePrioritySchema
 
     private fun loadTorrentFiles() = controllerScope.launch {
-        torrentModel = torrentMediator.getTorrentModel(infoHash = infoHash)
-        val torrentSchema = torrentDataSource.getTorrent(infoHash)!! // It's not null
-        torrentPriority = torrentFilePriorityDataSource.getPriority(infoHash)
+        torrentModel =
+            getTorrentModelUseCase(GetTorrentModelUseCase.In(infoHash = infoHash)).torrentModel
+        torrentPriority =
+            getTorrentFilePriorityUseCase(GetTorrentFilePriorityUseCase.In(infoHash)).torrentPriority
+
         if (torrentModel == null || torrentPriority.filePriority == null) {
             // Meta data is not available
             // And its loading if user state is Active
             return@launch
         }
-        isFileLoaded = true
-        viewMvc!!.showTorrent(torrentModel!!)
 
-        updateFileProgress(torrentSchema)
+        isFilesLoaded = true
+        viewMvc.showTorrent(torrentModel!!)
+
+        updateFileProgress()
         updateFilePriorityUi()
         applyViewState()
     }
 
     private fun periodicTask() = controllerScope.launch {
-        val torrentSchema = torrentDataSource.getTorrent(infoHash)!! // It's not null
-        if (isFileLoaded) {
-            updateFileProgress(torrentSchema)
+        if (isFilesLoaded) {
+            updateFileProgress()
         } else {
             loadTorrentFiles()
         }
@@ -113,14 +112,14 @@ class TorrentFilesController(
 
 
     private fun updateFilePriorityUi() {
-        viewMvc!!.updateFilePriority(torrentPriority.filePriority!!)
+        viewMvc.updateFilePriority(torrentPriority.filePriority!!)
     }
 
     override fun onDownloadCheckBoxClicked(index: Int, download: Boolean) {
         controllerScope.launch {
             if (torrentPriority.filePriority!![index].active != download) {
                 torrentPriority.filePriority!![index].active = download
-                applyPriorityToDataBaseAndTorrent(index)
+                updateTorrentFilePriority(index)
             }
         }
     }
@@ -141,14 +140,17 @@ class TorrentFilesController(
                     throw IllegalStateException("Files can not have mixed priority.")
                 }
             }
-            applyPriorityToDataBaseAndTorrent(index)
+            updateTorrentFilePriority(index)
             updateFilePriorityUi()
         }
     }
 
-    private suspend fun applyPriorityToDataBaseAndTorrent(index: Int) {
-        torrentFilePriorityDataSource.setPriority(torrentPriority)
-        torrentMediator.setFilePriority(infoHash, index, torrentPriority.filePriority!![index])
+    private suspend fun updateTorrentFilePriority(index: Int) {
+        updateTorrentFilePriorityUseCase(
+            UpdateTorrentFilePriorityUseCase.In(
+                infoHash, index, torrentPriority
+            )
+        )
     }
 
     override fun isFileCompleted(index: Int): Boolean {
@@ -161,20 +163,20 @@ class TorrentFilesController(
     override fun saveFile(index: Int) {
         if (torrentModel == null)
             return
-        fragmentRequestHelper!!.saveToDownload(
+        fragmentRequestHelper.saveToDownload(
             torrentModel!!.filesPath!![index],
             torrentModel!!.infoHash
         )
     }
 
-    private fun updateFileProgress(torrentSchema: TorrentSchema) {
-        torrentSchema.fileProgress?.let { fileProgress ->
+    private suspend fun updateFileProgress() {
+        getTorrentSchemeUseCase(GetTorrentSchemeUseCase.In(infoHash)).torrentScheme!!.fileProgress?.let { fileProgress ->
             val hash = fileProgress.hashCode()
             if (hash != lastProgressHashCode) {
-                viewMvc!!.updateFileProgress(fileProgress)
+                lastProgress = fileProgress
+                lastProgressHashCode = hash
+                viewMvc.updateFileProgress(fileProgress)
             }
-            lastProgress = fileProgress
-            lastProgressHashCode = hash
         }
     }
 }
