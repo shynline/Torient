@@ -1,23 +1,23 @@
 package app.shynline.torient.screens.torrentoverview
 
-import app.shynline.torient.database.datasource.torrent.TorrentDataSource
-import app.shynline.torient.model.TorrentOverview
+import app.shynline.torient.domain.helper.timer.TimerController
+import app.shynline.torient.model.defaultTorrentOverView
 import app.shynline.torient.screens.common.BaseController
-import app.shynline.torient.torrent.mediator.TorrentMediator
+import app.shynline.torient.torrent.mediator.usecases.GetTorrentSchemeUseCase
+import app.shynline.torient.torrent.torrent.Torrent
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 import java.util.*
-import kotlin.concurrent.fixedRateTimer
 
 class TorrentOverviewController(
     coroutineDispatcher: CoroutineDispatcher,
-    private val torrentMediator: TorrentMediator,
-    private val torrentDataSource: TorrentDataSource
+    private val timerController: TimerController,
+    private val getTorrentSchemeUseCase: GetTorrentSchemeUseCase,
+    private val torrent: Torrent
 ) : BaseController(coroutineDispatcher), TorrentOverviewViewMvc.Listener {
 
-    private var viewMvc: TorrentOverviewViewMvc? = null
+    private lateinit var viewMvc: TorrentOverviewViewMvc
     private lateinit var infoHash: String
-    private var periodicTimer: Timer? = null
 
     fun bind(viewMvc: TorrentOverviewViewMvc) {
         this.viewMvc = viewMvc
@@ -31,17 +31,15 @@ class TorrentOverviewController(
     }
 
     override fun onStart() {
-        viewMvc!!.registerListener(this)
-        periodicTimer = fixedRateTimer(
-            name = "periodicTaskTorrentOverview",
-            initialDelay = 1000,
-            period = 1000
-        ) { periodicTask() }
+        viewMvc.registerListener(this)
+        timerController.schedule(this, 100, 1000) {
+            periodicTask()
+        }
     }
 
     override fun onStop() {
-        viewMvc!!.unRegisterListener(this)
-        periodicTimer?.cancel()
+        viewMvc.unRegisterListener(this)
+        timerController.cancel(this)
     }
 
     fun setTorrent(infoHash: String) {
@@ -53,37 +51,22 @@ class TorrentOverviewController(
 
     private suspend fun update() {
         // If it returns null this torrent doesn't have meta data (added by magnet)
-        var torrentOverview = torrentMediator.torrentOverview(infoHash)
-        val torrentSchema = torrentDataSource.getTorrent(infoHash)
+        var torrentOverview = torrent.getTorrentOverview(infoHash)
+        val torrentSchema =
+            getTorrentSchemeUseCase(GetTorrentSchemeUseCase.In(infoHash)).torrentScheme ?: return
         if (torrentOverview != null) {
-            if (torrentSchema != null) {
-                torrentOverview.progress = if (torrentSchema.isFinished) {
-                    1f
-                } else {
-                    torrentSchema.progress
-                }
-                torrentOverview.lastSeenComplete = torrentSchema.lastSeenComplete
-                torrentOverview.name = torrentSchema.name
+            torrentOverview.progress = if (torrentSchema.isFinished) {
+                1f
+            } else {
+                torrentSchema.progress
             }
+            torrentOverview.lastSeenComplete = torrentSchema.lastSeenComplete
+            torrentOverview.name = torrentSchema.name
+
         } else {
-            if (torrentSchema != null) {
-                torrentOverview = TorrentOverview(
-                    name = torrentSchema.name,
-                    infoHash = infoHash,
-                    progress = 0f,
-                    numPiece = 0,
-                    pieceLength = 0,
-                    size = 0,
-                    userState = torrentSchema.userState,
-                    creator = "",
-                    comment = "",
-                    createdDate = 0,
-                    private = false,
-                    lastSeenComplete = torrentSchema.lastSeenComplete
-                )
-            }
+            torrentOverview = defaultTorrentOverView(infoHash, torrentOverview, torrentSchema)
         }
-        torrentOverview?.let { viewMvc!!.updateUi(it) }
+        torrentOverview?.let { viewMvc.updateUi(it) }
     }
 
     private fun periodicTask() = controllerScope.launch {
