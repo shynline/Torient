@@ -2,24 +2,25 @@ package app.shynline.torient.screens.torrentpreference
 
 import app.shynline.torient.database.datasource.torrentpreference.TorrentPreferenceDataSource
 import app.shynline.torient.database.entities.TorrentPreferenceSchema
+import app.shynline.torient.domain.helper.timer.TimerController
 import app.shynline.torient.screens.common.BaseController
-import app.shynline.torient.torrent.mediator.TorrentMediator
+import app.shynline.torient.torrent.torrent.Torrent
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 import java.util.*
-import kotlin.concurrent.fixedRateTimer
 
 class TorrentPreferenceController(
     coroutineDispatcher: CoroutineDispatcher,
-    private val torrentMediator: TorrentMediator,
-    private val torrentPreferenceDataSource: TorrentPreferenceDataSource
+    private val torrent: Torrent,
+    private val torrentPreferenceDataSource: TorrentPreferenceDataSource,
+    private val timerController: TimerController
 ) : BaseController(coroutineDispatcher), TorrentPreferenceViewMvc.Listener {
 
-    private var viewMvc: TorrentPreferenceViewMvc? = null
+    private lateinit var viewMvc: TorrentPreferenceViewMvc
     private lateinit var infoHash: String
-    private var torrentPreference: TorrentPreferenceSchema? = null
+    private lateinit var torrentPreference: TorrentPreferenceSchema
     private var preferenceHash: Int = 0
-    private var periodicTimer: Timer? = null
+    private var preferenceLoaded = false
 
     fun bind(viewMvc: TorrentPreferenceViewMvc) {
         this.viewMvc = viewMvc
@@ -34,23 +35,19 @@ class TorrentPreferenceController(
     }
 
     override fun onStart() {
-        viewMvc!!.registerListener(this)
-        viewMvc!!.addListeners()
+        viewMvc.registerListener(this)
         retrievePreference()
-        periodicTimer = fixedRateTimer(
-            name = "periodicTaskTorrentPreference",
-            initialDelay = 500,
-            period = 500
-        ) { savePreference() }
+        timerController.schedule(this, 500, 500) {
+            savePreference()
+        }
     }
 
     override fun onStop() {
-        viewMvc!!.removeListeners()
-        viewMvc!!.unRegisterListener(this)
-        periodicTimer?.cancel()
+        viewMvc.unRegisterListener(this)
         controllerScope.launch {
             savePreference()
         }
+        timerController.cancel(this)
     }
 
     fun setTorrent(infoHash: String) {
@@ -60,33 +57,39 @@ class TorrentPreferenceController(
     private fun retrievePreference() = controllerScope.launch {
         torrentPreference = torrentPreferenceDataSource.getTorrentPreference(infoHash)
         preferenceHash = torrentPreference.hashCode()
-        viewMvc!!.updateUi(torrentPreference!!)
+        viewMvc.updateUi(torrentPreference)
+        preferenceLoaded = true
     }
 
     private fun savePreference() = controllerScope.launch {
-        if (torrentPreference == null || torrentPreference.hashCode() == preferenceHash)
+        // Preference has not loaded yet
+        if (!preferenceLoaded)
             return@launch
-        torrentPreferenceDataSource.updateTorrentPreference(torrentPreference!!)
-        torrentMediator.updateTorrentPreference(infoHash)
+        // No change has been made to preference
+        if (torrentPreference.hashCode() == preferenceHash) {
+            return@launch
+        }
+        torrentPreferenceDataSource.updateTorrentPreference(torrentPreference)
+        torrent.updateTorrentPreference(infoHash)
     }
 
     override fun onDownloadLimitChanged(rate: Int) {
-        torrentPreference!!.downloadRate = rate
+        torrentPreference.downloadRate = rate
     }
 
     override fun onUploadLimitChanged(rate: Int) {
-        torrentPreference!!.uploadRate = rate
+        torrentPreference.uploadRate = rate
     }
 
     override fun onHonorGlobalLimitChanged(checked: Boolean) {
-        torrentPreference!!.honorGlobalRate = checked
+        torrentPreference.honorGlobalRate = checked
     }
 
     override fun onLimitDownloadRateChanged(checked: Boolean) {
-        torrentPreference!!.downloadRateLimit = checked
+        torrentPreference.downloadRateLimit = checked
     }
 
     override fun onLimitUploadRateChanged(checked: Boolean) {
-        torrentPreference!!.uploadRateLimit = checked
+        torrentPreference.uploadRateLimit = checked
     }
 }

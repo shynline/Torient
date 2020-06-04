@@ -13,6 +13,4 @@ interface TorrentPreferenceViewMvc : ObservableViewMvc<TorrentPreferenceViewMvc.
     }
 
     fun updateUi(preferenceSchema: TorrentPreferenceSchema)
-    fun addListeners()
-    fun removeListeners()
 }

@@ -45,7 +45,7 @@ val controllerModule = module {
     }
     scope<TorrentPreferenceFragment> {
         scoped {
-            TorrentPreferenceController(get(named("main")), get(), get())
+            TorrentPreferenceController(get(named("main")), get(), get(), get())
         }
     }
 

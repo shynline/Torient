@@ -66,7 +66,8 @@ class TorrentPreferenceViewMvcImpl(
         }
     }
 
-    override fun addListeners() {
+    override fun onListenerRegistered() {
+        super.onListenerRegistered()
         downloadRateET.addTextChangedListener(downloadRateTextWatcher)
         uploadRateET.addTextChangedListener(uploadRateTextWatcher)
     }
@@ -93,11 +94,11 @@ class TorrentPreferenceViewMvcImpl(
         }
     }
 
-    override fun removeListeners() {
+    override fun onListenerUnRegistered() {
+        super.onListenerUnRegistered()
         downloadRateET.removeTextChangedListener(downloadRateTextWatcher)
         uploadRateET.removeTextChangedListener(uploadRateTextWatcher)
     }
-
 
     override fun updateUi(preferenceSchema: TorrentPreferenceSchema) {
         honorGlobalSpeed.isChecked = preferenceSchema.honorGlobalRate
