@@ -13,11 +13,9 @@ data class TorrentOverview(
 
 fun defaultTorrentOverView(
     infoHash: String,
-    torrentOverview: TorrentOverview?,
     torrentSchema: TorrentSchema
 ): TorrentOverview? {
-    var torrentOverview1 = torrentOverview
-    torrentOverview1 = TorrentOverview(
+    return TorrentOverview(
         name = torrentSchema.name,
         infoHash = infoHash,
         progress = 0f,
@@ -31,5 +29,4 @@ fun defaultTorrentOverView(
         private = false,
         lastSeenComplete = torrentSchema.lastSeenComplete
     )
-    return torrentOverview1
 }

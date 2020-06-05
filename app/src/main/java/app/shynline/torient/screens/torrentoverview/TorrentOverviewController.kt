@@ -64,7 +64,7 @@ class TorrentOverviewController(
             torrentOverview.name = torrentSchema.name
 
         } else {
-            torrentOverview = defaultTorrentOverView(infoHash, torrentOverview, torrentSchema)
+            torrentOverview = defaultTorrentOverView(infoHash, torrentSchema)
         }
         torrentOverview?.let { viewMvc.updateUi(it) }
     }
