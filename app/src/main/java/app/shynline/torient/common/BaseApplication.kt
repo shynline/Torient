@@ -1,6 +1,8 @@
 package app.shynline.torient.common
 
 import android.app.Application
+import android.util.Log
+import app.shynline.torient.BuildConfig
 import app.shynline.torient.common.di.koin.controllerModule
 import app.shynline.torient.common.di.koin.databaseModule
 import app.shynline.torient.common.di.koin.mainModule
@@ -28,5 +30,11 @@ class BaseApplication : Application() {
                 useCaseModule
             )
         }
+    }
+}
+
+fun logTorrent(str: String, secondaryTag: String? = null) {
+    if (BuildConfig.DEBUG) {
+        Log.d("torientTorrentLog", " $str -> $secondaryTag")
     }
 }
