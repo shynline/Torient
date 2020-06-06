@@ -16,9 +16,9 @@ class NewTorrentController(
     val addTorrentToDataBaseUseCase: AddTorrentToDataBaseUseCase
 ) : BaseController(coroutineDispatcher), NewTorrentViewMvc.Listener {
 
-    private lateinit var viewMvc: NewTorrentViewMvc
-    private lateinit var pageNavigationHelper: PageNavigationHelper
-    private lateinit var fragmentRequestHelper: FragmentRequestHelper
+    private var viewMvc: NewTorrentViewMvc? = null
+    private var pageNavigationHelper: PageNavigationHelper? = null
+    private var fragmentRequestHelper: FragmentRequestHelper? = null
     private lateinit var currentTorrent: TorrentModel
 
 
@@ -32,11 +32,17 @@ class NewTorrentController(
         this.fragmentRequestHelper = fragmentRequestHelper
     }
 
+    override fun cleanUp() {
+        viewMvc = null
+        pageNavigationHelper = null
+        fragmentRequestHelper = null
+    }
+
     fun showTorrent(infoHash: String) = controllerScope.launch {
         // Initiate currentTorrent and Update the UI if torrent model ( meta data ) exists
         getTorrentModelUseCase(GetTorrentModelUseCase.In(infoHash = infoHash)).torrentModel?.let {
             currentTorrent = it
-            viewMvc.showTorrent(currentTorrent)
+            viewMvc!!.showTorrent(currentTorrent)
             return@launch
         }
         // Close this screen if meta data is not available
@@ -44,11 +50,11 @@ class NewTorrentController(
     }
 
     override fun onStart() {
-        viewMvc.registerListener(this)
+        viewMvc!!.registerListener(this)
     }
 
     override fun onStop() {
-        viewMvc.unRegisterListener(this)
+        viewMvc!!.unRegisterListener(this)
     }
 
     override fun downloadTorrent() {
@@ -84,7 +90,7 @@ class NewTorrentController(
     }
 
     private fun close() {
-        pageNavigationHelper.back()
+        pageNavigationHelper!!.back()
     }
 
     override fun loadState(state: HashMap<String, Any>?) {

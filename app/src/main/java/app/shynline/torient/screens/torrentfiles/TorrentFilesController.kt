@@ -27,19 +27,24 @@ class TorrentFilesController(
         private const val VIEW_STATE = "viewstate"
     }
 
-    private lateinit var viewMvc: TorrentFilesViewMvc
+    private var viewMvc: TorrentFilesViewMvc? = null
     private lateinit var infoHash: String
     private var lastProgressHashCode = 0
     private var lastProgress: List<Long>? = null
     private var torrentModel: TorrentModel? = null
     private lateinit var torrentPriority: TorrentFilePrioritySchema
     private var savedState: HashMap<String, Any>? = null
-    private lateinit var fragmentRequestHelper: FragmentRequestHelper
+    private var fragmentRequestHelper: FragmentRequestHelper? = null
     private var isFilesLoaded = false
 
     fun bind(viewMvc: TorrentFilesViewMvc, fragmentRequestHelper: FragmentRequestHelper) {
         this.viewMvc = viewMvc
         this.fragmentRequestHelper = fragmentRequestHelper
+    }
+
+    override fun cleanUp() {
+        viewMvc = null
+        fragmentRequestHelper = null
     }
 
     override fun loadState(state: HashMap<String, Any>?) {
@@ -52,27 +57,27 @@ class TorrentFilesController(
 
     private fun applyViewState() {
         @Suppress("UNCHECKED_CAST")
-        viewMvc.loadState(savedState?.get(VIEW_STATE) as? HashMap<String, Any>)
+        viewMvc!!.loadState(savedState?.get(VIEW_STATE) as? HashMap<String, Any>)
         savedState = null
     }
 
     override fun saveState(): HashMap<String, Any>? {
         return HashMap<String, Any>().apply {
             put(INFO_HASH, infoHash)
-            put(VIEW_STATE, viewMvc.saveState())
+            put(VIEW_STATE, viewMvc!!.saveState())
         }
     }
 
 
     override fun onStart() {
-        viewMvc.registerListener(this)
+        viewMvc!!.registerListener(this)
         timerController.schedule(this, 1000, 1000) {
             periodicTask()
         }
     }
 
     override fun onStop() {
-        viewMvc.unRegisterListener(this)
+        viewMvc!!.unRegisterListener(this)
         timerController.cancel(this)
     }
 
@@ -95,7 +100,7 @@ class TorrentFilesController(
         }
 
         isFilesLoaded = true
-        viewMvc.showTorrent(torrentModel!!)
+        viewMvc!!.showTorrent(torrentModel!!)
 
         updateFileProgress()
         updateFilePriorityUi()
@@ -112,7 +117,7 @@ class TorrentFilesController(
 
 
     private fun updateFilePriorityUi() {
-        viewMvc.updateFilePriority(torrentPriority.filePriority!!)
+        viewMvc!!.updateFilePriority(torrentPriority.filePriority!!)
     }
 
     override fun onDownloadCheckBoxClicked(index: Int, download: Boolean) {
@@ -163,7 +168,7 @@ class TorrentFilesController(
     override fun saveFile(index: Int) {
         if (torrentModel == null)
             return
-        fragmentRequestHelper.saveToDownload(
+        fragmentRequestHelper!!.saveToDownload(
             torrentModel!!.filesPath!![index],
             torrentModel!!.infoHash
         )
@@ -175,7 +180,7 @@ class TorrentFilesController(
             if (hash != lastProgressHashCode) {
                 lastProgress = fileProgress
                 lastProgressHashCode = hash
-                viewMvc.updateFileProgress(fileProgress)
+                viewMvc!!.updateFileProgress(fileProgress)
             }
         }
     }

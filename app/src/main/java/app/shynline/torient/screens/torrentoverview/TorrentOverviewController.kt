@@ -16,11 +16,15 @@ class TorrentOverviewController(
     private val torrent: Torrent
 ) : BaseController(coroutineDispatcher), TorrentOverviewViewMvc.Listener {
 
-    private lateinit var viewMvc: TorrentOverviewViewMvc
+    private var viewMvc: TorrentOverviewViewMvc? = null
     private lateinit var infoHash: String
 
     fun bind(viewMvc: TorrentOverviewViewMvc) {
         this.viewMvc = viewMvc
+    }
+
+    override fun cleanUp() {
+        viewMvc = null
     }
 
     override fun loadState(state: HashMap<String, Any>?) {
@@ -31,14 +35,14 @@ class TorrentOverviewController(
     }
 
     override fun onStart() {
-        viewMvc.registerListener(this)
+        viewMvc!!.registerListener(this)
         timerController.schedule(this, 100, 1000) {
             periodicTask()
         }
     }
 
     override fun onStop() {
-        viewMvc.unRegisterListener(this)
+        viewMvc!!.unRegisterListener(this)
         timerController.cancel(this)
     }
 
@@ -66,7 +70,7 @@ class TorrentOverviewController(
         } else {
             torrentOverview = defaultTorrentOverView(infoHash, torrentSchema)
         }
-        torrentOverview?.let { viewMvc.updateUi(it) }
+        torrentOverview?.let { viewMvc!!.updateUi(it) }
     }
 
     private fun periodicTask() = controllerScope.launch {

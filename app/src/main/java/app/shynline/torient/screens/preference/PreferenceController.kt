@@ -11,7 +11,7 @@ class PreferenceController(
     private val torrent: Torrent
 ) : BaseController(coroutineDispatcher), PreferenceViewMvc.Listener {
 
-    private lateinit var viewMvc: PreferenceViewMvc
+    private var viewMvc: PreferenceViewMvc? = null
 
     override fun saveState(): HashMap<String, Any>? {
         return null
@@ -24,18 +24,22 @@ class PreferenceController(
         this.viewMvc = viewMvc
     }
 
+    override fun cleanUp() {
+        viewMvc = null
+    }
+
     override fun onStart() {
-        viewMvc.registerListener(this)
+        viewMvc!!.registerListener(this)
         loadPreference()
     }
 
     override fun onStop() {
-        viewMvc.unRegisterListener(this)
+        viewMvc!!.unRegisterListener(this)
         torrent.onUpdateGlobalPreference()
     }
 
     private fun loadPreference() {
-        viewMvc.updateUi(userPreference)
+        viewMvc!!.updateUi(userPreference)
     }
 
     override fun onDownloadLimitChanged(rate: Int) {

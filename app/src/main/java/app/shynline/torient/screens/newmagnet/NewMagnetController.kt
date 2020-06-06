@@ -16,8 +16,8 @@ class NewMagnetController(
     private val addTorrentToDataBaseUseCase: AddTorrentToDataBaseUseCase
 ) : BaseController(coroutineDispatcher), NewMagnetViewMvc.Listener {
 
-    private lateinit var viewMvc: NewMagnetViewMvc
-    private lateinit var pageNavigationHelper: PageNavigationHelper
+    private var viewMvc: NewMagnetViewMvc? = null
+    private var pageNavigationHelper: PageNavigationHelper? = null
     private lateinit var currentMagnet: Magnet
     private lateinit var magnet: String
 
@@ -29,13 +29,17 @@ class NewMagnetController(
         this.pageNavigationHelper = pageNavigationHelper
     }
 
+    override fun cleanUp() {
+        viewMvc = null
+        pageNavigationHelper = null
+    }
 
     override fun onStart() {
-        viewMvc.registerListener(this)
+        viewMvc!!.registerListener(this)
     }
 
     override fun onStop() {
-        viewMvc.unRegisterListener(this)
+        viewMvc!!.unRegisterListener(this)
     }
 
     override fun loadState(state: HashMap<String, Any>?) {
@@ -50,7 +54,7 @@ class NewMagnetController(
         Magnet.parse(magnet)?.let {
             currentMagnet = it
 
-            viewMvc.showMagnet(currentMagnet)
+            viewMvc!!.showMagnet(currentMagnet)
             // Attempting to get the torrent metaData
             getTorrentModelUseCase(
                 GetTorrentModelUseCase.In(
@@ -62,7 +66,7 @@ class NewMagnetController(
             ).torrentModel?.let { torrentModel ->
                 // If we found the metadata we navigate to NewTorrentFragment
                 close()
-                pageNavigationHelper.showNewTorrentDialog(torrentModel.infoHash)
+                pageNavigationHelper!!.showNewTorrentDialog(torrentModel.infoHash)
             }
             return@launch
         }
@@ -84,7 +88,7 @@ class NewMagnetController(
     }
 
     private fun close() {
-        pageNavigationHelper.back()
+        pageNavigationHelper!!.back()
     }
 
 }

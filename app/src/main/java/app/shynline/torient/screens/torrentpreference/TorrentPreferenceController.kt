@@ -16,7 +16,7 @@ class TorrentPreferenceController(
     private val timerController: TimerController
 ) : BaseController(coroutineDispatcher), TorrentPreferenceViewMvc.Listener {
 
-    private lateinit var viewMvc: TorrentPreferenceViewMvc
+    private var viewMvc: TorrentPreferenceViewMvc? = null
     private lateinit var infoHash: String
     private lateinit var torrentPreference: TorrentPreferenceSchema
     private var preferenceHash: Int = 0
@@ -26,6 +26,9 @@ class TorrentPreferenceController(
         this.viewMvc = viewMvc
     }
 
+    override fun cleanUp() {
+        viewMvc = null
+    }
 
     override fun loadState(state: HashMap<String, Any>?) {
     }
@@ -35,7 +38,7 @@ class TorrentPreferenceController(
     }
 
     override fun onStart() {
-        viewMvc.registerListener(this)
+        viewMvc!!.registerListener(this)
         retrievePreference()
         timerController.schedule(this, 500, 500) {
             savePreference()
@@ -43,7 +46,7 @@ class TorrentPreferenceController(
     }
 
     override fun onStop() {
-        viewMvc.unRegisterListener(this)
+        viewMvc!!.unRegisterListener(this)
         controllerScope.launch {
             savePreference()
         }
@@ -57,7 +60,7 @@ class TorrentPreferenceController(
     private fun retrievePreference() = controllerScope.launch {
         torrentPreference = torrentPreferenceDataSource.getTorrentPreference(infoHash)
         preferenceHash = torrentPreference.hashCode()
-        viewMvc.updateUi(torrentPreference)
+        viewMvc!!.updateUi(torrentPreference)
         preferenceLoaded = true
     }
 

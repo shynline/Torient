@@ -22,8 +22,11 @@ abstract class BaseController(
 
     abstract fun onStop()
 
+    abstract fun cleanUp()
+
     fun onViewDestroy() {
         controllerScope.cancel()
+        cleanUp()
     }
 
 }
