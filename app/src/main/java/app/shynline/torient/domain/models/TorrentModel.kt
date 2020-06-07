@@ -10,7 +10,7 @@ data class TorrentModel(
     var name: String,
     var magnet: String
 ) {
-    var hexHash: Long = 0L
+    var hexHash: Long = infoHash.hashCode().toLong()
     var author: String = ""
     var comment: String = ""
     var totalSize: Long = 0L
@@ -53,7 +53,6 @@ data class TorrentModel(
                 filesPath = torrentFileData.filesPath
                 numFiles = torrentInfo.numFiles()
                 author = torrentInfo.creator()
-                hexHash = torrentInfo.infoHash().toHex().hashCode().toLong()
             }
         }
     }
