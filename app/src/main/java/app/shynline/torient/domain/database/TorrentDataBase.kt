@@ -3,6 +3,7 @@ package app.shynline.torient.domain.database
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import app.shynline.torient.domain.database.common.typeconverter.DateConverter
 import app.shynline.torient.domain.database.common.typeconverter.FilePriorityConverter
 import app.shynline.torient.domain.database.common.typeconverter.TorrentStateConverter
 import app.shynline.torient.domain.database.dao.TorrentDao
@@ -23,7 +24,8 @@ import app.shynline.torient.domain.database.entities.TorrentSchema
 )
 @TypeConverters(
     TorrentStateConverter::class,
-    FilePriorityConverter::class
+    FilePriorityConverter::class,
+    DateConverter::class
 )
 abstract class TorrentDataBase : RoomDatabase() {
     abstract fun torrentDao(): TorrentDao

@@ -172,14 +172,16 @@ class TorrentsListController(
                     name = it.name,
                     magnet = it.magnet
                 )
+                torrentModel.apply {
+                    userState = it.userState
+                    finished = it.isFinished
+                    progress = it.progress
+                    dateAdded = it.dateAdded
+                }
                 // It's not managed by controller
                 if (!managedTorrents.containsKey(it.infoHash)) {
                     // We add it to our managed list
-                    managedTorrents[it.infoHash] = torrentModel.apply {
-                        userState = it.userState
-                        progress = it.progress
-                        finished = it.isFinished
-                    }
+                    managedTorrents[it.infoHash] = torrentModel
 
                     // If it's active torrent
                     if (it.userState == TorrentUserState.ACTIVE) {
@@ -203,11 +205,7 @@ class TorrentsListController(
                     removedTorrents.remove(it.infoHash)
                     // Replace the model, it covers cases which metadata updated outside of
                     // this controller active state ( after onStop ) when it's waiting for metadata
-                    managedTorrents[it.infoHash] = torrentModel.apply {
-                        userState = it.userState
-                        finished = it.isFinished
-                        progress = it.progress
-                    }
+                    managedTorrents[it.infoHash] = torrentModel
 
                     // Check if torrent is not managed by torrent manager
                     if (!serviceManagedTorrents.contains(it.infoHash)) {

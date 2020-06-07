@@ -3,6 +3,7 @@ package app.shynline.torient.domain.models
 import app.shynline.torient.domain.database.common.states.TorrentUserState
 import app.shynline.torient.domain.torrentmanager.common.states.TorrentDownloadingState
 import com.frostwire.jlibtorrent.TorrentInfo
+import java.util.*
 
 data class TorrentModel(
     val infoHash: String,
@@ -24,6 +25,7 @@ data class TorrentModel(
     var finished = false
     var maxPeers = 0
     var connectedPeers = 0
+    var dateAdded = Date()
     var filePriority: List<TorrentFilePriority>? = null
     var filesSize: List<Long>? = null
     var filesPath: List<String>? = null

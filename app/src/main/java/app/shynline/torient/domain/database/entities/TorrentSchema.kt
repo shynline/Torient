@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 import app.shynline.torient.domain.database.common.states.TorrentUserState
 import app.shynline.torient.domain.database.common.typeconverter.LongArrayConverter
 import app.shynline.torient.domain.models.TorrentIdentifier
+import java.util.*
 
 @Entity(tableName = "torrent")
 data class TorrentSchema(
@@ -23,7 +24,9 @@ data class TorrentSchema(
     @ColumnInfo(name = "last_seen_complete")
     var lastSeenComplete: Long = 0L,
     @ColumnInfo(name = "file_progress")
-    var _fileProgress: String? = null
+    var _fileProgress: String? = null,
+    @ColumnInfo(name = "date_added")
+    var dateAdded: Date = Date()
 ) {
 
     val isFinished: Boolean
