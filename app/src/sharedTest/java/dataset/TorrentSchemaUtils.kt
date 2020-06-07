@@ -1,8 +1,8 @@
 package dataset
 
-import app.shynline.torient.database.common.states.TorrentUserState
-import app.shynline.torient.database.entities.TorrentSchema
-import app.shynline.torient.model.TorrentModel
+import app.shynline.torient.domain.database.common.states.TorrentUserState
+import app.shynline.torient.domain.database.entities.TorrentSchema
+import app.shynline.torient.domain.models.TorrentModel
 import java.util.*
 
 object TorrentSchemaUtils {

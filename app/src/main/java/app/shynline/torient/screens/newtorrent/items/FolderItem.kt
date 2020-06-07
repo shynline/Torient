@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import app.shynline.torient.R
-import app.shynline.torient.model.TorrentFile
+import app.shynline.torient.domain.models.TorrentFile
 import app.shynline.torient.utils.FileIcon
 import app.shynline.torient.utils.FileType
 import app.shynline.torient.utils.MetricsUtil

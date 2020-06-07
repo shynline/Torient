@@ -1,8 +1,8 @@
 package dataset
 
-import app.shynline.torient.database.entities.TorrentFilePrioritySchema
-import app.shynline.torient.model.FilePriority
-import app.shynline.torient.model.TorrentFilePriority
+import app.shynline.torient.domain.database.entities.TorrentFilePrioritySchema
+import app.shynline.torient.domain.models.FilePriority
+import app.shynline.torient.domain.models.TorrentFilePriority
 import java.util.*
 
 object TorrentFilePrioritySchemaUtils {

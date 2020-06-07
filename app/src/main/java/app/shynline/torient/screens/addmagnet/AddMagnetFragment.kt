@@ -10,8 +10,8 @@ import androidx.fragment.app.DialogFragment
 import androidx.navigation.fragment.findNavController
 import app.shynline.torient.common.di.viewfactory.ViewMvcFactory
 import app.shynline.torient.screens.common.navigationhelper.PageNavigationHelper
-import app.shynline.torient.torrent.mediator.TorrentMediator
-import app.shynline.torient.torrent.utils.Magnet
+import app.shynline.torient.domain.mediator.TorrentMediator
+import app.shynline.torient.domain.torrentmanager.utils.Magnet
 import org.koin.android.ext.android.inject
 
 class AddMagnetFragment : DialogFragment(), AddMagnetViewMvc.Listener {

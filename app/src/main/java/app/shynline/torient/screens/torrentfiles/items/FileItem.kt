@@ -6,9 +6,9 @@ import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
 import app.shynline.torient.R
-import app.shynline.torient.model.FilePriority
-import app.shynline.torient.model.TorrentFile
-import app.shynline.torient.model.TorrentFilePriority
+import app.shynline.torient.domain.models.FilePriority
+import app.shynline.torient.domain.models.TorrentFile
+import app.shynline.torient.domain.models.TorrentFilePriority
 import app.shynline.torient.screens.torrentfiles.TorrentFilesViewMvcImpl
 import app.shynline.torient.utils.FileIcon
 import app.shynline.torient.utils.MetricsUtil

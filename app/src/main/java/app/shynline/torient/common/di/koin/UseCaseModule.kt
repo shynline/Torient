@@ -1,6 +1,6 @@
 package app.shynline.torient.common.di.koin
 
-import app.shynline.torient.torrent.mediator.usecases.*
+import app.shynline.torient.domain.mediator.usecases.*
 import org.koin.dsl.module
 
 val useCaseModule = module {

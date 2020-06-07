@@ -1,6 +1,6 @@
 package dataset
 
-import app.shynline.torient.database.entities.TorrentPreferenceSchema
+import app.shynline.torient.domain.database.entities.TorrentPreferenceSchema
 
 object TorrentPreferenceUtils {
     fun getSchema(): TorrentPreferenceSchema {

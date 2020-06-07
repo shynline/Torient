@@ -2,7 +2,7 @@ package app.shynline.torient.screens.preference
 
 import app.shynline.torient.common.userpreference.UserPreference
 import app.shynline.torient.screens.common.BaseController
-import app.shynline.torient.torrent.torrent.Torrent
+import app.shynline.torient.domain.torrentmanager.torrent.Torrent
 import kotlinx.coroutines.CoroutineDispatcher
 
 class PreferenceController(

@@ -1,7 +1,7 @@
 package app.shynline.torient.screens.preference
 
 import app.shynline.torient.common.userpreference.UserPreference
-import app.shynline.torient.torrent.torrent.Torrent
+import app.shynline.torient.domain.torrentmanager.torrent.Torrent
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import org.junit.After

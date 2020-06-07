@@ -1,10 +1,10 @@
 package app.shynline.torient.screens.torrentpreference
 
-import app.shynline.torient.database.datasource.torrentpreference.TorrentPreferenceDataSource
-import app.shynline.torient.database.entities.TorrentPreferenceSchema
-import app.shynline.torient.domain.helper.timer.TimerController
+import app.shynline.torient.domain.database.datasource.torrentpreference.TorrentPreferenceDataSource
+import app.shynline.torient.domain.database.entities.TorrentPreferenceSchema
+import app.shynline.torient.domain.helpers.timer.TimerController
 import app.shynline.torient.screens.common.BaseController
-import app.shynline.torient.torrent.torrent.Torrent
+import app.shynline.torient.domain.torrentmanager.torrent.Torrent
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 import java.util.*

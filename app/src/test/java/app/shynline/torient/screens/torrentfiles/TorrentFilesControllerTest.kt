@@ -1,16 +1,16 @@
 package app.shynline.torient.screens.torrentfiles
 
-import app.shynline.torient.database.common.states.TorrentUserState
-import app.shynline.torient.database.entities.TorrentFilePrioritySchema
-import app.shynline.torient.database.entities.TorrentSchema
-import app.shynline.torient.domain.helper.timer.TimerController
-import app.shynline.torient.model.TorrentFilePriority
-import app.shynline.torient.model.TorrentModel
+import app.shynline.torient.domain.database.common.states.TorrentUserState
+import app.shynline.torient.domain.database.entities.TorrentFilePrioritySchema
+import app.shynline.torient.domain.database.entities.TorrentSchema
+import app.shynline.torient.domain.helpers.timer.TimerController
+import app.shynline.torient.domain.models.TorrentFilePriority
+import app.shynline.torient.domain.models.TorrentModel
 import app.shynline.torient.screens.common.requesthelper.FragmentRequestHelper
-import app.shynline.torient.torrent.mediator.usecases.GetTorrentFilePriorityUseCase
-import app.shynline.torient.torrent.mediator.usecases.GetTorrentModelUseCase
-import app.shynline.torient.torrent.mediator.usecases.GetTorrentSchemeUseCase
-import app.shynline.torient.torrent.mediator.usecases.UpdateTorrentFilePriorityUseCase
+import app.shynline.torient.domain.mediator.usecases.GetTorrentFilePriorityUseCase
+import app.shynline.torient.domain.mediator.usecases.GetTorrentModelUseCase
+import app.shynline.torient.domain.mediator.usecases.GetTorrentSchemeUseCase
+import app.shynline.torient.domain.mediator.usecases.UpdateTorrentFilePriorityUseCase
 import com.google.common.truth.Truth.assertThat
 import dataset.TorrentModelUtils
 import dataset.TorrentSchemaUtils

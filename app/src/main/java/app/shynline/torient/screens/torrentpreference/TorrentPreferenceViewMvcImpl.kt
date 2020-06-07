@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.CompoundButton
 import app.shynline.torient.R
 import app.shynline.torient.common.DefaultTextWatcher
-import app.shynline.torient.database.entities.TorrentPreferenceSchema
+import app.shynline.torient.domain.database.entities.TorrentPreferenceSchema
 import app.shynline.torient.screens.common.view.BaseObservableViewMvc
 import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.textfield.TextInputEditText
