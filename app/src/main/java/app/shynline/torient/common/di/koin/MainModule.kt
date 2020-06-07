@@ -10,6 +10,9 @@ import app.shynline.torient.domain.helper.timer.TimerController
 import app.shynline.torient.domain.helper.timer.TimerControllerImpl
 import app.shynline.torient.torrent.mediator.SubscriptionMediator
 import app.shynline.torient.torrent.mediator.TorrentMediator
+import app.shynline.torient.torrent.service.ActivityCycle
+import app.shynline.torient.torrent.service.SessionController
+import app.shynline.torient.torrent.service.SessionControllerImpl
 import app.shynline.torient.torrent.torrent.Torrent
 import app.shynline.torient.torrent.torrent.TorrentImpl
 import kotlinx.coroutines.CoroutineDispatcher
@@ -23,7 +26,16 @@ val mainModule = module {
         ViewMvcFactoryImpl()
     }
     single<Torrent> {
-        TorrentImpl(androidContext(), get(named("io")), get(), get(), get(), get())
+        TorrentImpl(androidContext(), get(named("io")), get(), get(), get(), get(), get())
+    }
+    single {
+        SessionControllerImpl(androidContext())
+    }
+    single<ActivityCycle> {
+        get<SessionControllerImpl>()
+    }
+    single<SessionController> {
+        get<SessionControllerImpl>()
     }
     single {
         SubscriptionMediator(get())
@@ -46,5 +58,4 @@ val mainModule = module {
     single<TimerController> {
         TimerControllerImpl()
     }
-
 }

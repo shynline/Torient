@@ -13,6 +13,7 @@ import app.shynline.torient.torrent.events.TorrentMetaDataEvent
 import app.shynline.torient.torrent.events.TorrentProgressEvent
 import app.shynline.torient.torrent.mediator.SubscriptionMediator
 import app.shynline.torient.torrent.mediator.TorrentMediator
+import app.shynline.torient.torrent.mediator.usecases.CalculateTorrentModelFilesProgressUseCase
 import app.shynline.torient.torrent.states.TorrentDownloadingState
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
@@ -24,7 +25,8 @@ class TorrentsListController(
     private val subscriptionMediator: SubscriptionMediator,
     private val torrentDataSource: TorrentDataSource,
     private val torrentMediator: TorrentMediator,
-    private val torrentFilePriorityDataSource: TorrentFilePriorityDataSource
+    private val torrentFilePriorityDataSource: TorrentFilePriorityDataSource,
+    private val calculateTorrentModelFilesProgressUseCase: CalculateTorrentModelFilesProgressUseCase
 ) : BaseController(coroutineDispatcher), TorrentListViewMvc.Listener,
     SubscriptionMediator.Listener {
 
@@ -42,15 +44,14 @@ class TorrentsListController(
         this.pageNavigationHelper = pageNavigationHelper
     }
 
+    override fun cleanUp() {
+        viewMvc = null
+        fragmentRequestHelper = null
+        pageNavigationHelper = null
+    }
+
     override fun onStatReceived(torrentEvent: TorrentEvent) {
         controllerScope.launch {
-            // View Mvc might be null here
-            // In case of calling onStatReceived right before destroying view
-            // because this coroutine is called and it might be still active( if the app is open and
-            // onDestroyView was called due to screen change )
-            // the rest of the coroutine processes right after clearing viewMvc
-            // It's a rare case and It's safe
-            // That's why I used kotlin null safety for updating the view
             when (torrentEvent) {
                 is TorrentProgressEvent -> {
                     managedTorrents[torrentEvent.infoHash]?.let { torrent ->
@@ -59,16 +60,16 @@ class TorrentsListController(
                             }
                             TorrentDownloadingState.ALLOCATING -> {
                                 torrent.downloadingState = torrentEvent.state
-                                viewMvc?.notifyItemUpdate(torrent.infoHash)
+                                viewMvc!!.notifyItemUpdate(torrent.infoHash)
                             }
                             TorrentDownloadingState.CHECKING_FILES -> {
                                 torrent.downloadingState = torrentEvent.state
                                 torrent.progress = torrentEvent.progress
-                                viewMvc?.notifyItemUpdate(torrent.infoHash)
+                                viewMvc!!.notifyItemUpdate(torrent.infoHash)
                             }
                             TorrentDownloadingState.CHECKING_RESUME_DATA -> {
                                 torrent.downloadingState = torrentEvent.state
-                                viewMvc?.notifyItemUpdate(torrent.infoHash)
+                                viewMvc!!.notifyItemUpdate(torrent.infoHash)
                             }
                             TorrentDownloadingState.DOWNLOADING -> {
                                 torrent.downloadingState = torrentEvent.state
@@ -77,18 +78,22 @@ class TorrentsListController(
                                 torrent.progress = torrentEvent.progress
                                 torrent.connectedPeers = torrentEvent.connectedPeers
                                 torrent.maxPeers = torrentEvent.maxPeers
-                                calculateProgressData(torrent, torrentEvent.fileProgress)
-                                viewMvc?.notifyItemUpdate(torrent.infoHash)
+                                calculateTorrentModelFilesProgressUseCase(
+                                    CalculateTorrentModelFilesProgressUseCase.In(
+                                        torrent, torrentEvent.fileProgress
+                                    )
+                                )
+                                viewMvc!!.notifyItemUpdate(torrent.infoHash)
                             }
                             TorrentDownloadingState.DOWNLOADING_METADATA -> {
                                 torrent.downloadingState = torrentEvent.state
-                                viewMvc?.notifyItemUpdate(torrent.infoHash)
+                                viewMvc!!.notifyItemUpdate(torrent.infoHash)
                             }
                             // It's less likely we catch this stat if torrent is going to seed
                             TorrentDownloadingState.FINISHED -> {
                                 torrent.downloadingState = torrentEvent.state
                                 torrent.finished = true
-                                viewMvc?.notifyItemUpdate(torrent.infoHash)
+                                viewMvc!!.notifyItemUpdate(torrent.infoHash)
                             }
                             TorrentDownloadingState.SEEDING -> {
                                 torrent.finished = true
@@ -97,7 +102,7 @@ class TorrentsListController(
                                 torrent.uploadRate = torrentEvent.uploadRate
                                 torrent.connectedPeers = torrentEvent.connectedPeers
                                 torrent.maxPeers = torrentEvent.maxPeers
-                                viewMvc?.notifyItemUpdate(torrent.infoHash)
+                                viewMvc!!.notifyItemUpdate(torrent.infoHash)
                             }
                         }
                     }
@@ -115,7 +120,11 @@ class TorrentsListController(
                         // File priority should not be null here
                         it.filePriority =
                             torrentFilePriorityDataSource.getPriority(it.infoHash).filePriority!!
-                        calculateProgressData(it, schema.fileProgress)
+                        calculateTorrentModelFilesProgressUseCase(
+                            CalculateTorrentModelFilesProgressUseCase.In(
+                                it, schema.fileProgress
+                            )
+                        )
                     }
                 }
             }
@@ -236,40 +245,16 @@ class TorrentsListController(
             managedTorrents.values.forEach { torrentModel ->
                 torrentModel.filePriority =
                     torrentFilePriorityDataSource.getPriority(torrentModel.infoHash).filePriority
-                calculateProgressData(torrentModel, torrentFilesProgress[torrentModel.infoHash])
+                calculateTorrentModelFilesProgressUseCase(
+                    CalculateTorrentModelFilesProgressUseCase.In(
+                        torrentModel, torrentFilesProgress[torrentModel.infoHash]
+                    )
+                )
             }
             viewMvc!!.showTorrents(managedTorrents.values.toList())
         }
     }
 
-    private fun calculateProgressData(
-        torrentModel: TorrentModel,
-        fileProgress: List<Long>?
-    ) {
-        val filePriority = torrentModel.filePriority
-        if (torrentModel.torrentFile == null || filePriority == null) { // Meta data is not available
-            torrentModel.selectedFilesBytesDone = 0f
-            torrentModel.selectedFilesSize = torrentModel.totalSize
-            return
-        }
-        var selectedBytesDone = 0f
-        var selectedSize = 0L
-        var numCompletedSize = 0
-        filePriority.forEachIndexed { index, torrentFilePriority ->
-            val fileSize = torrentModel.filesSize!![index]
-            val progress = fileProgress?.get(index) ?: 0
-            if (fileSize == progress) {
-                numCompletedSize += 1
-            }
-            if (torrentFilePriority.active) {
-                selectedSize += fileSize
-                selectedBytesDone += progress
-            }
-        }
-        torrentModel.selectedFilesSize = selectedSize
-        torrentModel.selectedFilesBytesDone = selectedBytesDone
-        torrentModel.numCompletedFiles = numCompletedSize
-    }
 
     override fun addTorrentMagnet() {
         pageNavigationHelper!!.showAddMagnetDialog()
@@ -340,7 +325,6 @@ class TorrentsListController(
                     // Requesting the service
                     torrentMediator.addTorrent(torrentModel.toIdentifier())
                     // notifying the view
-                    viewMvc!!.notifyItemUpdate(torrentModel.infoHash)
                 }
                 TorrentUserState.ACTIVE -> {
                     torrentModel.userState = TorrentUserState.PAUSED
@@ -359,9 +343,9 @@ class TorrentsListController(
                     if (!torrentMediator.removeTorrent(torrentModel.infoHash)) {
                         // no handler found so no request has been made
                     }
-                    viewMvc!!.notifyItemUpdate(torrentModel.infoHash)
                 }
             }
+            viewMvc!!.notifyItemUpdate(torrentModel.infoHash)
         }
     }
 

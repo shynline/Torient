@@ -1,25 +1,24 @@
 package app.shynline.torient.torrent.torrent
 
-import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
-import android.os.IBinder
 import app.shynline.torient.common.downloadDir
 import app.shynline.torient.common.logTorrent
-import app.shynline.torient.common.observable.Observable
+import app.shynline.torient.common.observable.BaseObservable
 import app.shynline.torient.common.torrentDir
 import app.shynline.torient.common.userpreference.UserPreference
 import app.shynline.torient.database.common.states.TorrentUserState
 import app.shynline.torient.database.datasource.torrent.InternalTorrentDataSource
-import app.shynline.torient.database.datasource.torrentfilepriority.TorrentFilePriorityDataSource
 import app.shynline.torient.database.datasource.torrentpreference.TorrentPreferenceDataSource
 import app.shynline.torient.model.*
 import app.shynline.torient.torrent.events.TorrentMetaDataEvent
 import app.shynline.torient.torrent.events.TorrentProgressEvent
-import app.shynline.torient.torrent.service.TorientService
+import app.shynline.torient.torrent.mediator.usecases.GetFilePriorityUseCase
+import app.shynline.torient.torrent.service.SessionController
 import app.shynline.torient.torrent.states.TorrentDownloadingState
-import com.frostwire.jlibtorrent.*
+import com.frostwire.jlibtorrent.Priority
+import com.frostwire.jlibtorrent.TorrentHandle
+import com.frostwire.jlibtorrent.TorrentInfo
+import com.frostwire.jlibtorrent.TorrentStatus
 import com.frostwire.jlibtorrent.alerts.AddTorrentAlert
 import com.frostwire.jlibtorrent.alerts.MetadataReceivedAlert
 import kotlinx.coroutines.*
@@ -27,144 +26,47 @@ import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.File
 import java.util.*
-import kotlin.concurrent.fixedRateTimer
 
 class TorrentImpl(
     private val context: Context,
     private val ioDispatcher: CoroutineDispatcher,
     private val userPreference: UserPreference,
+    private val sessionController: SessionController,
     private val torrentPreferenceDataSource: TorrentPreferenceDataSource,
-    override val internalTorrentDataSource: InternalTorrentDataSource,
-    override val torrentFilePriorityDataSource: TorrentFilePriorityDataSource
-) : BaseTorrent(internalTorrentDataSource, torrentFilePriorityDataSource),
-    ServiceConnection,
-    TorrentController,
-    Observable<Torrent.Listener> {
-    private val session: SessionManager = SessionManager(false)
-    private var isActivityRunning = false
-    private val sessionParams: SessionParams = SessionParams(
-        SettingsPack()
-            .enableDht(true)
-            .activeDownloads(5)
-            .activeSeeds(5)
-            .connectionsLimit(50)
-    )
-    private var service: TorientService? = null
-    private val intent: Intent = Intent(context, TorientService::class.java)
+    private val internalTorrentDataSource: InternalTorrentDataSource,
+    private val getFilePriorityUseCase: GetFilePriorityUseCase
+) : BaseObservable<Torrent.Listener>(),
+    SessionController.SessionControllerInterface, Torrent {
 
     private val torrentModels: MutableMap<String, TorrentModel> = hashMapOf()
-
-    private var periodicTimer: Timer? = null
-
-    private fun periodicTask() = torrentScope.launch {
-        logTorrent(
-            "isPaused:${session.isPaused} / isDhtRunning:${session.isDhtRunning} / isFirewalled:${session.isFirewalled} / isRunning:${session.isRunning}",
-            "torrentSessionInstanceState"
-        )
-        requestTorrentStats()
-        if (!isActivityRunning) {
-            service?.updateNotification(
-                managedTorrents.size,
-                session.stats().downloadRate(),
-                session.stats().uploadRate()
-            )
-        }
-    }
+    private lateinit var torrentScope: CoroutineScope
 
     init {
-        start()
+        sessionController.setInterface(this)
+    }
+
+    override fun onStart() {
+        torrentScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    }
+
+    override fun onStop() {
+        torrentScope.cancel()
+    }
+
+    override fun periodic() {
+        periodicTask()
+    }
+
+    private fun periodicTask() = torrentScope.launch {
+        requestTorrentStats()
     }
 
     private suspend fun handleTorrentProgress(handle: TorrentHandle) {
         val status = handle.status()
         val infoHash = handle.infoHash().toHex()
-        val event: TorrentProgressEvent? = when (status.state()) {
-            TorrentStatus.State.CHECKING_FILES -> TorrentProgressEvent(
-                handle.infoHash().toHex(),
-                TorrentDownloadingState.CHECKING_FILES,
-                progress = status.progress()
-            )
-            TorrentStatus.State.DOWNLOADING_METADATA -> TorrentProgressEvent(
-                handle.infoHash().toHex(),
-                TorrentDownloadingState.DOWNLOADING_METADATA
-            )
-            TorrentStatus.State.DOWNLOADING -> {
-                val fileProgress = handle.fileProgress()
-                val tpe = TorrentProgressEvent(
-                    infoHash,
-                    TorrentDownloadingState.DOWNLOADING,
-                    progress = status.progress(),
-                    downloadRate = status.downloadRate(),
-                    uploadRate = status.uploadRate(),
-                    maxPeers = status.listPeers(),
-                    connectedPeers = status.numPeers(),
-                    fileProgress = fileProgress.toList()
-                )
-                internalTorrentDataSource.setTorrentProgress(
-                    infoHash,
-                    tpe.progress,
-                    lastSeenComplete = status.lastSeenComplete(),
-                    fileProgress = fileProgress
-                )
-                // If the last state was Downloading meta data
-                // It means we have the meta data now
-                // and we have to show it to user
-                checkIfMetaDataDownloaded(infoHash, handle.torrentFile())
-                tpe
-            }
-            TorrentStatus.State.FINISHED -> {
-                internalTorrentDataSource.setTorrentFinished(
-                    infoHash, true,
-                    fileProgress = handle.fileProgress()
-                )
-                // This is a rare case when the file is so small
-                // Also it happens when whole downloading process being done
-                // in background process
-                checkIfMetaDataDownloaded(infoHash, handle.torrentFile())
-                val tpe = TorrentProgressEvent(
-                    handle.infoHash().toHex(),
-                    TorrentDownloadingState.FINISHED
-                )
-                tpe
-            }
-            TorrentStatus.State.SEEDING -> {
-                internalTorrentDataSource.setTorrentFinished(
-                    infoHash,
-                    true,
-                    fileProgress = handle.fileProgress()
-                )
-                // This is a rare case when the file is so small
-                // Also it happens when whole downloading process being done
-                // in background process
-                checkIfMetaDataDownloaded(infoHash, handle.torrentFile())
-                TorrentProgressEvent(
-                    handle.infoHash().toHex(),
-                    TorrentDownloadingState.SEEDING,
-                    downloadRate = status.downloadRate(),
-                    uploadRate = status.uploadRate(),
-                    maxPeers = status.listPeers(),
-                    connectedPeers = status.numPeers()
-                )
-            }
-            TorrentStatus.State.ALLOCATING -> TorrentProgressEvent(
-                handle.infoHash().toHex(),
-                TorrentDownloadingState.ALLOCATING
-            )
-            TorrentStatus.State.CHECKING_RESUME_DATA -> TorrentProgressEvent(
-                handle.infoHash().toHex(),
-                TorrentDownloadingState.CHECKING_RESUME_DATA
-            )
-            TorrentStatus.State.UNKNOWN -> TorrentProgressEvent(
-                handle.infoHash().toHex(),
-                TorrentDownloadingState.UNKNOWN
-            )
-            null -> {
-                null
-            }
-        }
-        event?.let { ev ->
-            if (ev.state != TorrentDownloadingState.UNKNOWN) {
-                managedTorrents[infoHash] = status.state()
+        handleTorrentState(infoHash, handle, status, status.state())?.let { event ->
+            if (event.state != TorrentDownloadingState.UNKNOWN) {
+                sessionController.setManageTorrentState(infoHash, status.state())
                 getListeners().forEach { listener ->
                     listener.onStatReceived(event)
                 }
@@ -172,132 +74,112 @@ class TorrentImpl(
         }
     }
 
-    override fun onAlertAddTorrentAlert(addTorrentAlert: AddTorrentAlert) {
-        val infoHash = addTorrentAlert.handle().infoHash()
-        val handle = findHandle(infoHash) ?: return
-        if (!addTorrentAlert.error().isError) {
-            logTorrent("onAlertAddTorrentAlert resumed", infoHash.toHex())
-            handle.resume()
-            applyPreference(infoHash.toHex())
-            GlobalScope.launch {
-                val p = torrentFilePriorityDataSource.getPriority(infoHash.toHex())
-                if (handle.torrentFile()?.isValid == true) { // Torrent meta data is present
-                    if (p.filePriority == null) {
-                        // Generate default priorities
-                        p.filePriority = MutableList(
-                            handle.torrentFile().numFiles()
-                        ) { TorrentFilePriority.default() }
-                        // Update database with generated priorities
-                        torrentFilePriorityDataSource.setPriority(p)
-                    }
-                    setFilesPriority(infoHash.toHex(), p.filePriority!!)
-                }
+
+    private suspend fun handleTorrentState(
+        infoHash: String,
+        handle: TorrentHandle,
+        status: TorrentStatus,
+        state: TorrentStatus.State?
+    ): TorrentProgressEvent? =
+        when (state) {
+            TorrentStatus.State.CHECKING_FILES -> {
+                TorrentProgressEvent.checkingFileEvent(infoHash, status.progress())
             }
-        } else {
+            TorrentStatus.State.DOWNLOADING_METADATA -> {
+                TorrentProgressEvent.downloadingMetaDataEvent(infoHash)
+            }
+            TorrentStatus.State.DOWNLOADING -> {
+                val fileProgress = handle.fileProgress()
+                val progress = status.progress()
+                internalTorrentDataSource.setTorrentProgress(
+                    infoHash, progress, lastSeenComplete = status.lastSeenComplete(),
+                    fileProgress = fileProgress
+                )
+                dispatchStatsIfNecessary(infoHash, handle.torrentFile())
+                TorrentProgressEvent.downloadingEvent(
+                    infoHash, progress, status.downloadRate(), status.uploadRate(),
+                    status.listPeers(), status.numPeers(), fileProgress.toList()
+                )
+            }
+            TorrentStatus.State.FINISHED -> {
+                internalTorrentDataSource.setTorrentFinished(
+                    infoHash, true, fileProgress = handle.fileProgress()
+                )
+                // This is a rare case when the file is so small
+                // Also it happens when whole downloading process being done
+                // in background process
+                dispatchStatsIfNecessary(infoHash, handle.torrentFile())
+                TorrentProgressEvent.finishedEvent(infoHash)
+            }
+            TorrentStatus.State.SEEDING -> {
+                internalTorrentDataSource.setTorrentFinished(
+                    infoHash, true, fileProgress = handle.fileProgress()
+                )
+                // This is a rare case when the file is so small
+                // Also it happens when whole downloading process being done
+                // in background process
+                dispatchStatsIfNecessary(infoHash, handle.torrentFile())
+                TorrentProgressEvent.seedingEvent(
+                    infoHash, status.downloadRate(), status.uploadRate(),
+                    status.listPeers(), status.numPeers()
+                )
+            }
+            TorrentStatus.State.ALLOCATING -> TorrentProgressEvent.allocatingEvent(infoHash)
+            TorrentStatus.State.CHECKING_RESUME_DATA -> {
+                TorrentProgressEvent.checkingResumeDateEvent(infoHash)
+            }
+            TorrentStatus.State.UNKNOWN -> TorrentProgressEvent.unknownEvent(infoHash)
+            null -> null
+        }
+
+    override fun onAlertAddTorrentAlert(addTorrentAlert: AddTorrentAlert) {
+        val infoHash = addTorrentAlert.handle().infoHash().toHex()
+        if (addTorrentAlert.error().isError) {
+            // TODO this case have to be handled
             logTorrent(
                 "onAlertAddTorrentAlert Error: ${addTorrentAlert.error().message()}",
-                infoHash.toHex()
+                infoHash
             )
+            return
+        }
+        val handle = sessionController.findHandle(infoHash) ?: return
+        logTorrent("onAlertAddTorrentAlert resumed", infoHash)
+        handle.resume()
+        torrentScope.launch {
+            applyPreference(handle, infoHash)
+            handle.torrentFile()?.let { torrentInfo ->
+                getFilePriorityUseCase(GetFilePriorityUseCase.In(torrentInfo)).filePriority?.let { fp ->
+                    setFilesPriority(infoHash, fp)
+                }
+            }
         }
     }
 
     override fun onAlertMetaDataReceived(metadataReceivedAlert: MetadataReceivedAlert) {
-        val torrentInfo: TorrentInfo? = TorrentInfo(metadataReceivedAlert.torrentData())
-        torrentInfo?.let {
-            val infoHash = it.infoHash().toHex()
-            logTorrent("onAlertMetaDataReceived", infoHash)
-            // Cache it in torrent storage
-            GlobalScope.launch {
-                val p = torrentFilePriorityDataSource.getPriority(infoHash)
-                if (p.filePriority == null) {
-                    // Generate default priorities
-                    p.filePriority = MutableList(
-                        it.numFiles()
-                    ) { TorrentFilePriority.default() }
-                    // Update database with generated priorities
-                    torrentFilePriorityDataSource.setPriority(p)
-                }
-                setFilesPriority(infoHash, p.filePriority!!)
-
-                checkIfMetaDataDownloaded(infoHash, it)
+        val torrentInfo = TorrentInfo(metadataReceivedAlert.torrentData())
+        val infoHash = torrentInfo.infoHash().toHex()
+        logTorrent("onAlertMetaDataReceived", infoHash)
+        torrentScope.launch {
+            getFilePriorityUseCase(GetFilePriorityUseCase.In(torrentInfo)).filePriority?.let { fp ->
+                setFilesPriority(infoHash, fp)
             }
+            // Cache it in torrent storage
+            saveTorrentFileToCache(infoHash, torrentInfo.bencode())
         }
     }
 
-    private fun checkIfMetaDataDownloaded(infoHash: String, torrentInfo: TorrentInfo) {
-        if (managedTorrents[infoHash] == TorrentStatus.State.DOWNLOADING_METADATA) {
+    private fun dispatchStatsIfNecessary(infoHash: String, torrentInfo: TorrentInfo) {
+        if (sessionController.getManageTorrentState(infoHash) == TorrentStatus.State.DOWNLOADING_METADATA) {
             val metaDataEvent = TorrentMetaDataEvent(
                 infoHash,
                 TorrentModel.from(torrentInfo)
             )
-            // Cache it in torrent storage
-            saveTorrentFileToCache(infoHash, torrentInfo.bencode())
             getListeners().forEach {
                 it.onStatReceived(metaDataEvent)
             }
         }
     }
 
-    override fun onActivityStart() {
-        isActivityRunning = true
-        handleServiceState()
-    }
-
-    override fun onActivityStop() {
-        isActivityRunning = false
-        handleServiceState()
-    }
-
-    override fun start() {
-        super.start()
-        session.addListener(this)
-        session.start(sessionParams)
-        periodicTimer = fixedRateTimer(
-            name = "periodicTaskTorrentsList",
-            initialDelay = 1000,
-            period = 1000
-        ) { periodicTask() }
-    }
-
-    override fun stop() {
-        periodicTimer?.cancel()
-        super.stop()
-        session.stop() //blocking
-        session.removeListener(this@TorrentImpl)
-    }
-
-    private fun handleServiceState() = GlobalScope.launch {
-        if (isActivityRunning) {
-            if (service != null) {
-                service!!.background()
-            } else {
-                if (!session.isRunning) {
-                    start()
-                }
-            }
-        } else {
-            if (managedTorrents.isEmpty()) {
-                stop()
-                unbindService()
-                context.stopService(intent)
-            } else {
-                if (service != null) {
-                    service!!.foreground(
-                        managedTorrents.size,
-                        session.downloadRate(),
-                        session.uploadRate()
-                    )
-                } else {
-                    bindService()
-                    context.startService(intent)
-                }
-            }
-        }
-    }
-
-    override fun onServiceDisconnected(name: ComponentName?) {
-        service = null
-    }
 
     override fun updateTorrentPreference(infoHash: String) {
         applyPreference(infoHash)
@@ -307,15 +189,14 @@ class TorrentImpl(
         applyPreference(null)
     }
 
-    override fun applyPreference(infoHash: String?) {
+    private fun applyPreference(infoHash: String?) = torrentScope.launch {
         // If infoHash is null all managed torrents will be updated
-        GlobalScope.launch {
-            val torrents = if (infoHash != null) listOf(infoHash) else managedTorrents.keys
-            torrents.forEach { ih ->
-                session.find(Sha1Hash(ih))?.let { handle ->
-                    if (handle.isValid) {
-                        applyPreference(handle, ih)
-                    }
+        val torrents =
+            if (infoHash != null) listOf(infoHash) else sessionController.getAllManagedTorrent()
+        torrents.forEach { ih ->
+            sessionController.findHandle(ih)?.let { handle ->
+                if (handle.isValid) {
+                    applyPreference(handle, ih)
                 }
             }
         }
@@ -334,15 +215,28 @@ class TorrentImpl(
             handle.downloadLimit =
                 if (torrentPreference.downloadRateLimit) torrentPreference.downloadRate * 1024 else 0
         }
-        session.maxConnections(userPreference.globalMaxConnection)
+        sessionController.applyPreference(
+            SessionController.PreferenceParams(
+                maxConnection = userPreference.globalMaxConnection
+            )
+        )
+    }
+
+    override suspend fun getAllManagedTorrents(): List<String> {
+        return sessionController.getAllManagedTorrent()
     }
 
     override suspend fun setFilePriority(
         infoHash: String,
         index: Int,
-        torrentFilePriority: TorrentFilePriority
+        torrentFilePriority: TorrentFilePriority,
+        torrentHandle: TorrentHandle?
     ) {
-        session.find(Sha1Hash(infoHash))?.let { handle ->
+        var handle = torrentHandle
+        if (handle == null) {
+            handle = sessionController.findHandle(infoHash)
+        }
+        if (handle != null) {
             if (handle.isValid) {
                 val p = if (!torrentFilePriority.active) {
                     Priority.IGNORE
@@ -366,136 +260,67 @@ class TorrentImpl(
         infoHash: String,
         torrentFilePriorities: List<TorrentFilePriority>
     ) {
-        session.find(Sha1Hash(infoHash))?.let { handle ->
+        sessionController.findHandle(infoHash)?.let { handle ->
             if (handle.isValid) {
                 torrentFilePriorities.forEachIndexed { index, torrentFilePriority ->
-                    val p = if (!torrentFilePriority.active) {
-                        Priority.IGNORE
-                    } else {
-                        when (torrentFilePriority.priority) {
-                            FilePriority.NORMAL -> Priority.FOUR
-                            FilePriority.HIGH -> Priority.SIX
-                            FilePriority.LOW -> Priority.NORMAL
-                            FilePriority.MIXED -> {
-                                throw IllegalStateException("Files can not have mixed priority.")
-                            }
-                        }
-                    }
-                    handle.filePriority(index, p)
+                    setFilePriority(infoHash, index, torrentFilePriority, handle)
                 }
             }
         }
     }
 
     private fun requestTorrentStats() {
-        GlobalScope.launch {
-            managedTorrents.forEach {
-                val handle: TorrentHandle? = session.find(Sha1Hash(it.key))
+        torrentScope.launch {
+            sessionController.getAllManagedTorrent().forEach {
+                val handle: TorrentHandle? = sessionController.findHandle(it)
+                // TODO: if handle is not valid we have to do remove it from session if necessary
+                // TODO: and remove it from managed torrents also need to report to UI they decide to add it if they want
                 if (handle != null) {
                     if (handle.isValid)
                         handleTorrentProgress(handle)
-                    else
-                        logTorrent("found handler is not valid!", it.key)
+                    else {
+                        logTorrent("found handler is not valid!", it)
+                    }
                 } else {
-                    logTorrent("couldn't find handler!", it.key)
+                    logTorrent("couldn't find handler!", it)
                 }
-//                session.find(Sha1Hash(it.key))?.let { handle ->
-//                    if (handle.isValid)
-//                        handleTorrentProgress(handle)
-//                }
             }
         }
     }
 
     override suspend fun getTorrentOverview(infoHash: String): TorrentOverview? {
-        session.find(Sha1Hash(infoHash))?.let { handle ->
+        sessionController.findHandle(infoHash)?.let { handle ->
             if (handle.isValid) {
                 val state = handle.status()
-                val info = handle.torrentFile() ?: null
+                val info = handle.torrentFile()
                 return TorrentOverview(
-                    name = handle.name(),
-                    infoHash = infoHash,
-                    progress = state.progress(),
-                    numPiece = info?.numPieces() ?: 0,
-                    pieceLength = info?.pieceLength() ?: 0,
-                    size = info?.totalSize() ?: 0,
-                    userState = TorrentUserState.ACTIVE,
-                    creator = info?.creator() ?: "",
-                    comment = info?.comment() ?: "",
-                    createdDate = (info?.creationDate() ?: 0) * 1000,
-                    private = info?.isPrivate ?: false,
-                    lastSeenComplete = state.lastSeenComplete()
+                    handle.name(), infoHash, info?.totalSize() ?: 0,
+                    info?.numPieces() ?: 0, info?.pieceLength() ?: 0,
+                    state.progress(), TorrentUserState.ACTIVE, info?.creator() ?: "",
+                    info?.comment() ?: "", (info?.creationDate() ?: 0) * 1000,
+                    info?.isPrivate ?: false, state.lastSeenComplete()
                 )
             }
         }
         readTorrentFileFromCache(infoHash)?.let {
             val info = TorrentInfo(it)
             return TorrentOverview(
-                name = info.name(),
-                infoHash = infoHash,
-                progress = 0f,
-                numPiece = info.numPieces(),
-                pieceLength = info.pieceLength(),
-                size = info.totalSize(),
-                userState = TorrentUserState.PAUSED,
-                creator = info.creator(),
-                comment = info.comment(),
-                createdDate = info.creationDate() * 1000,
-                private = info.isPrivate,
-                lastSeenComplete = 0
+                info.name(), infoHash, info.totalSize(), info.numPieces(),
+                info.pieceLength(), 0f, TorrentUserState.PAUSED, info.creator(),
+                info.comment(), info.creationDate() * 1000, info.isPrivate, 0
             )
         }
 
         return null
     }
 
-    override fun findHandle(sha1: Sha1Hash): TorrentHandle? {
-        session.find(sha1)?.let {
-            if (it.isValid)
-                return it
-        }
-        return null
-    }
 
-    override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-        this.service = (service as? TorientService.TorientBinder)?.service
-        handleServiceState()
-    }
-
-    private fun unbindService() {
-        if (service != null) {
-            context.unbindService(this)
-            service = null
-        }
-    }
-
-    private fun bindService() {
-        if (service == null) {
-            context.bindService(intent, this, Context.BIND_AUTO_CREATE)
-        }
-    }
-
-    ///////////////////////////////////////////////////////////////
-    // Torrent interface impl
-
-    /**
-     * Add a torrent to service via magnet
-     * it requires a valid magnet
-     *
-     * @param identifier
-     */
     override suspend fun addTorrent(identifier: TorrentIdentifier) {
-        // Return if the torrent is already being managed by session
-        if (managedTorrents.containsKey(identifier.infoHash))
-            return
-        managedTorrents[identifier.infoHash] = null
+        var torrentInfo: TorrentInfo? = null
         readTorrentFileFromCache(identifier.infoHash)?.let {
-            logTorrent("add to session by torrent", identifier.infoHash)
-            session.download(getTorrentInfo(it), context.downloadDir)
-            return
+            torrentInfo = getTorrentInfo(it)
         }
-        logTorrent("add to session by magnet!", identifier.infoHash)
-        session.download(identifier.magnet, context.downloadDir)
+        sessionController.addTorrent(identifier.infoHash, identifier.magnet, torrentInfo)
     }
 
 
@@ -554,15 +379,15 @@ class TorrentImpl(
             // Waiting for at most 10 seconds to find at least 10 dht nodes if doesn't exist
             var times = 0
 
-            while (session.stats().dhtNodes() < 10 && times < 100) {
+            while (sessionController.stats().dhtNodes() < 10 && times < 100) {
                 delay(100)
                 times += 1
             }
-            val bytes: ByteArray? = session.fetchMagnet(magnet, 30)
+            val bytes: ByteArray? = sessionController.fetchMagnet(magnet, 30)
             return@withContext getTorrentModel(bytes)
         }
 
-    private suspend fun getTorrentInfo(data: ByteArray): TorrentInfo {
+    private fun getTorrentInfo(data: ByteArray): TorrentInfo {
         return TorrentInfo(data)
     }
 
@@ -592,7 +417,7 @@ class TorrentImpl(
             return@withContext torrentDetail
         }
 
-    override fun saveTorrentFileToCache(infoHash: String, data: ByteArray) {
+    private fun saveTorrentFileToCache(infoHash: String, data: ByteArray) {
         val file = File(context.torrentDir, "${infoHash.toLowerCase(Locale.ROOT)}.torrent")
         if (!file.exists()) {
             try {
@@ -617,12 +442,7 @@ class TorrentImpl(
      * @return true if there is any torrent to be removed false otherwise
      */
     override suspend fun removeTorrent(infoHash: String): Boolean {
-        managedTorrents.remove(infoHash)
-        session.find(Sha1Hash(infoHash))?.let {
-            session.remove(it)
-            return true
-        }
-        return false
+        return sessionController.removeTorrent(infoHash)
     }
 
     override suspend fun removeTorrentFiles(name: String): Boolean {

@@ -6,6 +6,7 @@ import app.shynline.torient.model.TorrentIdentifier
 import app.shynline.torient.model.TorrentModel
 import app.shynline.torient.model.TorrentOverview
 import app.shynline.torient.torrent.events.TorrentEvent
+import com.frostwire.jlibtorrent.TorrentHandle
 
 interface Torrent :
     Observable<Torrent.Listener> {
@@ -26,7 +27,8 @@ interface Torrent :
     suspend fun setFilePriority(
         infoHash: String,
         index: Int,
-        torrentFilePriority: TorrentFilePriority
+        torrentFilePriority: TorrentFilePriority,
+        torrentHandle: TorrentHandle? = null
     )
 
     suspend fun setFilesPriority(infoHash: String, torrentFilePriorities: List<TorrentFilePriority>)

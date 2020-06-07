@@ -12,4 +12,11 @@ data class TorrentFilePrioritySchema(
     var infoHash: String,
     @ColumnInfo(name = "file_priority")
     var filePriority: List<TorrentFilePriority>? = null
-)
+) {
+    fun defaultFilePriority(numFile: Int) {
+        // Generate default priorities
+        filePriority = MutableList(
+            numFile
+        ) { TorrentFilePriority.default() }
+    }
+}

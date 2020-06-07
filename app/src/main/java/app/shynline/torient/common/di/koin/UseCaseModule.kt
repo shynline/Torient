@@ -27,4 +27,10 @@ val useCaseModule = module {
     single {
         UpdateTorrentFilePriorityUseCase(get(), get())
     }
+    single {
+        CalculateTorrentModelFilesProgressUseCase()
+    }
+    single {
+        GetFilePriorityUseCase(get())
+    }
 }

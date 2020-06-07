@@ -12,13 +12,11 @@ import androidx.navigation.ui.NavigationUI
 import app.shynline.torient.R
 import app.shynline.torient.screens.common.navigationhelper.PageNavigationHelper
 import app.shynline.torient.torrent.mediator.TorrentMediator
-import app.shynline.torient.torrent.torrent.Torrent
-import app.shynline.torient.torrent.torrent.TorrentController
+import app.shynline.torient.torrent.service.ActivityCycle
 import app.shynline.torient.torrent.utils.Magnet
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import java.io.BufferedInputStream
 
@@ -26,7 +24,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
 
     data class LastTorrentArgs(val infoHash: String, val name: String)
 
-    private lateinit var torrentController: TorrentController
+    private val torrentController by inject<ActivityCycle>()
     private val torrentMediator by inject<TorrentMediator>()
     private lateinit var bottomNavigation: BottomNavigationView
     private lateinit var lastTorrentArgs: LastTorrentArgs
@@ -42,7 +40,6 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setupToolbar()
-        torrentController = get<Torrent>() as TorrentController
         handleIntent()
 
 
