@@ -1,11 +1,11 @@
 package app.shynline.torient.screens.newtorrent
 
-import app.shynline.torient.database.common.states.TorrentUserState
-import app.shynline.torient.model.TorrentModel
+import app.shynline.torient.domain.database.common.states.TorrentUserState
+import app.shynline.torient.domain.models.TorrentModel
 import app.shynline.torient.screens.common.navigationhelper.PageNavigationHelper
 import app.shynline.torient.screens.common.requesthelper.FragmentRequestHelper
-import app.shynline.torient.torrent.mediator.usecases.AddTorrentToDataBaseUseCase
-import app.shynline.torient.torrent.mediator.usecases.GetTorrentModelUseCase
+import app.shynline.torient.domain.mediator.usecases.AddTorrentToDataBaseUseCase
+import app.shynline.torient.domain.mediator.usecases.GetTorrentModelUseCase
 import dataset.TorrentModelUtils
 import io.mockk.*
 import kotlinx.coroutines.Dispatchers

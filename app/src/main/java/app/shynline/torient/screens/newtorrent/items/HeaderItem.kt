@@ -3,7 +3,7 @@ package app.shynline.torient.screens.newtorrent.items
 import android.view.View
 import android.widget.TextView
 import app.shynline.torient.R
-import app.shynline.torient.model.TorrentModel
+import app.shynline.torient.domain.models.TorrentModel
 import app.shynline.torient.utils.toByteRepresentation
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.items.AbstractItem

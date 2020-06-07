@@ -6,7 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import app.shynline.torient.transfer.TransferService
+import app.shynline.torient.domain.filetransfer.TransferService
 
 const val REQUEST_ID_OPEN_TORRENT_FILE = 100
 

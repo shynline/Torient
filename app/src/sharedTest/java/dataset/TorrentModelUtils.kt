@@ -1,6 +1,6 @@
 package dataset
 
-import app.shynline.torient.model.TorrentModel
+import app.shynline.torient.domain.models.TorrentModel
 
 object TorrentModelUtils {
     fun getTorrentModel(infoHash: String, name: String, magnet: String): TorrentModel {

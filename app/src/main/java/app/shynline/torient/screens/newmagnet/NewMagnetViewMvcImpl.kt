@@ -6,7 +6,7 @@ import android.widget.Button
 import android.widget.TextView
 import app.shynline.torient.R
 import app.shynline.torient.screens.common.view.BaseObservableViewMvc
-import app.shynline.torient.torrent.utils.Magnet
+import app.shynline.torient.domain.torrentmanager.utils.Magnet
 
 class NewMagnetViewMvcImpl(
     inflater: LayoutInflater,

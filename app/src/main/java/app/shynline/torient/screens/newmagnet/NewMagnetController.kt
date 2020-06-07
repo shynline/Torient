@@ -1,12 +1,12 @@
 package app.shynline.torient.screens.newmagnet
 
-import app.shynline.torient.database.common.states.TorrentUserState
-import app.shynline.torient.model.TorrentIdentifier
+import app.shynline.torient.domain.database.common.states.TorrentUserState
+import app.shynline.torient.domain.models.TorrentIdentifier
 import app.shynline.torient.screens.common.BaseController
 import app.shynline.torient.screens.common.navigationhelper.PageNavigationHelper
-import app.shynline.torient.torrent.mediator.usecases.AddTorrentToDataBaseUseCase
-import app.shynline.torient.torrent.mediator.usecases.GetTorrentModelUseCase
-import app.shynline.torient.torrent.utils.Magnet
+import app.shynline.torient.domain.mediator.usecases.AddTorrentToDataBaseUseCase
+import app.shynline.torient.domain.mediator.usecases.GetTorrentModelUseCase
+import app.shynline.torient.domain.torrentmanager.utils.Magnet
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 

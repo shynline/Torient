@@ -1,15 +1,15 @@
 package app.shynline.torient.screens.torrentfiles
 
-import app.shynline.torient.database.entities.TorrentFilePrioritySchema
-import app.shynline.torient.domain.helper.timer.TimerController
-import app.shynline.torient.model.FilePriority
-import app.shynline.torient.model.TorrentModel
+import app.shynline.torient.domain.database.entities.TorrentFilePrioritySchema
+import app.shynline.torient.domain.mediator.usecases.GetTorrentFilePriorityUseCase
+import app.shynline.torient.domain.mediator.usecases.GetTorrentModelUseCase
+import app.shynline.torient.domain.mediator.usecases.GetTorrentSchemeUseCase
+import app.shynline.torient.domain.mediator.usecases.UpdateTorrentFilePriorityUseCase
+import app.shynline.torient.domain.models.FilePriority
+import app.shynline.torient.domain.models.TorrentModel
 import app.shynline.torient.screens.common.BaseController
 import app.shynline.torient.screens.common.requesthelper.FragmentRequestHelper
-import app.shynline.torient.torrent.mediator.usecases.GetTorrentFilePriorityUseCase
-import app.shynline.torient.torrent.mediator.usecases.GetTorrentModelUseCase
-import app.shynline.torient.torrent.mediator.usecases.GetTorrentSchemeUseCase
-import app.shynline.torient.torrent.mediator.usecases.UpdateTorrentFilePriorityUseCase
+import app.shynline.torient.utils.helpers.timer.TimerController
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 

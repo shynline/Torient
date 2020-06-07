@@ -11,9 +11,9 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import app.shynline.torient.R
 import app.shynline.torient.screens.common.navigationhelper.PageNavigationHelper
-import app.shynline.torient.torrent.mediator.TorrentMediator
-import app.shynline.torient.torrent.service.ActivityCycle
-import app.shynline.torient.torrent.utils.Magnet
+import app.shynline.torient.domain.mediator.TorrentMediator
+import app.shynline.torient.domain.torrentmanager.service.ActivityCycle
+import app.shynline.torient.domain.torrentmanager.utils.Magnet
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

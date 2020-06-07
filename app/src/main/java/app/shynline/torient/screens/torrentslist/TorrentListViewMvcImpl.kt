@@ -7,8 +7,8 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import app.shynline.torient.R
-import app.shynline.torient.database.common.states.TorrentUserState
-import app.shynline.torient.model.TorrentModel
+import app.shynline.torient.domain.database.common.states.TorrentUserState
+import app.shynline.torient.domain.models.TorrentModel
 import app.shynline.torient.screens.common.view.BaseObservableViewMvc
 import app.shynline.torient.screens.torrentslist.items.TorrentItem
 import com.cheekiat.fabmenu.FabMenu

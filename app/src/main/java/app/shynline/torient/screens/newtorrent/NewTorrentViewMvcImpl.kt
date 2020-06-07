@@ -6,8 +6,8 @@ import android.widget.Button
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import app.shynline.torient.R
-import app.shynline.torient.model.TorrentFile
-import app.shynline.torient.model.TorrentModel
+import app.shynline.torient.domain.models.TorrentFile
+import app.shynline.torient.domain.models.TorrentModel
 import app.shynline.torient.screens.common.view.BaseObservableViewMvc
 import app.shynline.torient.screens.newtorrent.items.FileItem
 import app.shynline.torient.screens.newtorrent.items.FolderItem

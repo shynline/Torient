@@ -1,6 +1,6 @@
 package app.shynline.torient.screens.torrentslist
 
-import app.shynline.torient.model.TorrentModel
+import app.shynline.torient.domain.models.TorrentModel
 import app.shynline.torient.screens.common.view.ObservableViewMvc
 
 interface TorrentListViewMvc : ObservableViewMvc<TorrentListViewMvc.Listener> {

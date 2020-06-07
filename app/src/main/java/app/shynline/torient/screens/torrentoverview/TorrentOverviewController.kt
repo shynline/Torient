@@ -1,10 +1,10 @@
 package app.shynline.torient.screens.torrentoverview
 
-import app.shynline.torient.domain.helper.timer.TimerController
-import app.shynline.torient.model.defaultTorrentOverView
+import app.shynline.torient.domain.mediator.usecases.GetTorrentSchemeUseCase
+import app.shynline.torient.domain.models.defaultTorrentOverView
+import app.shynline.torient.domain.torrentmanager.torrent.Torrent
 import app.shynline.torient.screens.common.BaseController
-import app.shynline.torient.torrent.mediator.usecases.GetTorrentSchemeUseCase
-import app.shynline.torient.torrent.torrent.Torrent
+import app.shynline.torient.utils.helpers.timer.TimerController
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 import java.util.*

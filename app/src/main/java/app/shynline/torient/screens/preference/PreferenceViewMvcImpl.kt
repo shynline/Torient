@@ -5,9 +5,9 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.CompoundButton
 import app.shynline.torient.R
-import app.shynline.torient.common.DefaultTextWatcher
-import app.shynline.torient.common.userpreference.UserPreference
+import app.shynline.torient.domain.userpreference.UserPreference
 import app.shynline.torient.screens.common.view.BaseObservableViewMvc
+import app.shynline.torient.utils.DefaultTextWatcher
 import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.textfield.TextInputEditText
 

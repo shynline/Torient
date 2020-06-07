@@ -1,6 +1,6 @@
 package app.shynline.torient.screens.preference
 
-import app.shynline.torient.common.userpreference.UserPreference
+import app.shynline.torient.domain.userpreference.UserPreference
 import app.shynline.torient.screens.common.view.ObservableViewMvc
 
 interface PreferenceViewMvc : ObservableViewMvc<PreferenceViewMvc.Listener> {

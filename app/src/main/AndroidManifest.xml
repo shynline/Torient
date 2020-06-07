@@ -74,9 +74,9 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".torrent.service.TorientService" />
+        <service android:name="app.shynline.torient.domain.torrentmanager.service.TorientService" />
         <service
-            android:name=".transfer.TransferService"
+            android:name="app.shynline.torient.domain.filetransfer.TransferService"
             android:exported="false" />
     </application>
 
