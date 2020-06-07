@@ -3,18 +3,18 @@ package app.shynline.torient.screens.torrentslist
 import app.shynline.torient.domain.database.common.states.TorrentUserState
 import app.shynline.torient.domain.database.datasource.torrent.TorrentDataSource
 import app.shynline.torient.domain.database.datasource.torrentfilepriority.TorrentFilePriorityDataSource
+import app.shynline.torient.domain.mediator.SubscriptionMediator
+import app.shynline.torient.domain.mediator.TorrentMediator
+import app.shynline.torient.domain.mediator.usecases.CalculateTorrentModelFilesProgressUseCase
 import app.shynline.torient.domain.models.TorrentModel
+import app.shynline.torient.domain.torrentmanager.common.events.TorrentEvent
+import app.shynline.torient.domain.torrentmanager.common.events.TorrentMetaDataEvent
+import app.shynline.torient.domain.torrentmanager.common.events.TorrentProgressEvent
+import app.shynline.torient.domain.torrentmanager.common.states.TorrentDownloadingState
 import app.shynline.torient.screens.common.BaseController
 import app.shynline.torient.screens.common.navigationhelper.PageNavigationHelper
 import app.shynline.torient.screens.common.requesthelper.FragmentRequestHelper
 import app.shynline.torient.screens.common.requesthelper.REQUEST_ID_OPEN_TORRENT_FILE
-import app.shynline.torient.domain.torrentmanager.common.events.TorrentEvent
-import app.shynline.torient.domain.torrentmanager.common.events.TorrentMetaDataEvent
-import app.shynline.torient.domain.torrentmanager.common.events.TorrentProgressEvent
-import app.shynline.torient.domain.mediator.SubscriptionMediator
-import app.shynline.torient.domain.mediator.TorrentMediator
-import app.shynline.torient.domain.mediator.usecases.CalculateTorrentModelFilesProgressUseCase
-import app.shynline.torient.domain.torrentmanager.common.states.TorrentDownloadingState
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
@@ -60,16 +60,16 @@ class TorrentsListController(
                             }
                             TorrentDownloadingState.ALLOCATING -> {
                                 torrent.downloadingState = torrentEvent.state
-                                viewMvc!!.notifyItemUpdate(torrent.infoHash)
+                                viewMvc?.notifyItemUpdate(torrent.infoHash)
                             }
                             TorrentDownloadingState.CHECKING_FILES -> {
                                 torrent.downloadingState = torrentEvent.state
                                 torrent.progress = torrentEvent.progress
-                                viewMvc!!.notifyItemUpdate(torrent.infoHash)
+                                viewMvc?.notifyItemUpdate(torrent.infoHash)
                             }
                             TorrentDownloadingState.CHECKING_RESUME_DATA -> {
                                 torrent.downloadingState = torrentEvent.state
-                                viewMvc!!.notifyItemUpdate(torrent.infoHash)
+                                viewMvc?.notifyItemUpdate(torrent.infoHash)
                             }
                             TorrentDownloadingState.DOWNLOADING -> {
                                 torrent.downloadingState = torrentEvent.state
@@ -83,17 +83,17 @@ class TorrentsListController(
                                         torrent, torrentEvent.fileProgress
                                     )
                                 )
-                                viewMvc!!.notifyItemUpdate(torrent.infoHash)
+                                viewMvc?.notifyItemUpdate(torrent.infoHash)
                             }
                             TorrentDownloadingState.DOWNLOADING_METADATA -> {
                                 torrent.downloadingState = torrentEvent.state
-                                viewMvc!!.notifyItemUpdate(torrent.infoHash)
+                                viewMvc?.notifyItemUpdate(torrent.infoHash)
                             }
                             // It's less likely we catch this stat if torrent is going to seed
                             TorrentDownloadingState.FINISHED -> {
                                 torrent.downloadingState = torrentEvent.state
                                 torrent.finished = true
-                                viewMvc!!.notifyItemUpdate(torrent.infoHash)
+                                viewMvc?.notifyItemUpdate(torrent.infoHash)
                             }
                             TorrentDownloadingState.SEEDING -> {
                                 torrent.finished = true
@@ -102,7 +102,7 @@ class TorrentsListController(
                                 torrent.uploadRate = torrentEvent.uploadRate
                                 torrent.connectedPeers = torrentEvent.connectedPeers
                                 torrent.maxPeers = torrentEvent.maxPeers
-                                viewMvc!!.notifyItemUpdate(torrent.infoHash)
+                                viewMvc?.notifyItemUpdate(torrent.infoHash)
                             }
                         }
                     }
@@ -125,6 +125,7 @@ class TorrentsListController(
                                 it, schema.fileProgress
                             )
                         )
+                        viewMvc?.notifyItemUpdate(it.infoHash)
                     }
                 }
             }
@@ -164,29 +165,33 @@ class TorrentsListController(
             // Traversing through torrents in database
             torrentSchemas.forEach {
                 torrentFilesProgress[it.infoHash] = it.fileProgress
-                val torrentDetail = torrentMediator.getTorrentModel(
+                val torrentModel = torrentMediator.getTorrentModel(
                     infoHash = it.infoHash
                 ) ?: TorrentModel(
                     infoHash = it.infoHash,
                     name = it.name,
                     magnet = it.magnet
                 )
+                // It's not managed by controller
                 if (!managedTorrents.containsKey(it.infoHash)) {
                     // We add it to our managed list
-                    managedTorrents[it.infoHash] = torrentDetail.apply {
+                    managedTorrents[it.infoHash] = torrentModel.apply {
                         userState = it.userState
                         progress = it.progress
                         finished = it.isFinished
                     }
 
+                    // If it's active torrent
                     if (it.userState == TorrentUserState.ACTIVE) {
                         // Subscribe to the service for this torrent
                         subscriptionMediator.addTorrent(
                             this@TorrentsListController,
                             it.infoHash
                         )
+                        // Add it to torrent manager
                         torrentMediator.addTorrent(it.toIdentifier())
                     } else if (it.userState == TorrentUserState.PAUSED) {
+                        // Safety remove and unsubscribe
                         torrentMediator.removeTorrent(it.infoHash)
                         subscriptionMediator.removeTorrent(
                             this@TorrentsListController,
@@ -196,31 +201,26 @@ class TorrentsListController(
                 } else {
                     // We have the torrent so we remove it from our removedTorrent
                     removedTorrents.remove(it.infoHash)
-                    managedTorrents[it.infoHash] = torrentDetail
-                    // Update state if we have it in our managed cache
-                    torrentDetail.apply {
+                    // Replace the model, it covers cases which metadata updated outside of
+                    // this controller active state ( after onStop ) when it's waiting for metadata
+                    managedTorrents[it.infoHash] = torrentModel.apply {
                         userState = it.userState
                         finished = it.isFinished
                         progress = it.progress
                     }
 
-                    // Check if torrent is not in our managed cache
+                    // Check if torrent is not managed by torrent manager
                     if (!serviceManagedTorrents.contains(it.infoHash)) {
-                        // The torrent is not being manage by the service
-                        // If user wants it active
-                        // We notify service for adding it
+                        // The torrent is not being manage by torrent manager
                         if (it.userState == TorrentUserState.ACTIVE) {
                             // Subscribe to the service for this torrent
                             subscriptionMediator.addTorrent(
-                                this@TorrentsListController,
-                                it.infoHash
+                                this@TorrentsListController, it.infoHash
                             )
                             torrentMediator.addTorrent(it.toIdentifier())
                         }
                     } else {
-                        // If the torrent is managed by service
-                        // but it's not suppose to be active
-                        // We remove it from the service
+                        // torrent manager is managing this torrent and torrent need to be stopped
                         if (it.userState == TorrentUserState.PAUSED) {
                             torrentMediator.removeTorrent(it.infoHash)
                             subscriptionMediator.removeTorrent(
@@ -234,6 +234,7 @@ class TorrentsListController(
             }
             // If any torrent were removed in other screens it appear here
             // They might be already removed from torrent service in that screen
+            // But we still check for making sure
             removedTorrents.forEach {
                 managedTorrents.remove(it)
                 if (serviceManagedTorrents.contains(it)) {
@@ -242,6 +243,8 @@ class TorrentsListController(
                     torrentMediator.removeTorrent(it)
                 }
             }
+            // Managed torrent now is updated
+            // For each managed torrent calculate progress
             managedTorrents.values.forEach { torrentModel ->
                 torrentModel.filePriority =
                     torrentFilePriorityDataSource.getPriority(torrentModel.infoHash).filePriority
