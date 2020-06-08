@@ -7,8 +7,8 @@ import app.shynline.torient.common.di.koin.controllerModule
 import app.shynline.torient.common.di.koin.databaseModule
 import app.shynline.torient.common.di.koin.mainModule
 import app.shynline.torient.common.di.koin.useCaseModule
-import app.shynline.torient.domain.torrentmanager.service.TorientService
 import app.shynline.torient.domain.filetransfer.TransferService
+import app.shynline.torient.domain.torrentmanager.service.TorientService
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -35,6 +35,6 @@ class BaseApplication : Application() {
 
 fun logTorrent(str: String, secondaryTag: String? = null) {
     if (BuildConfig.DEBUG) {
-        Log.d("torientTorrentLog", " $str -> $secondaryTag")
+        Log.d("torientTorrentLog", " $str${if (secondaryTag == null) "" else "-> $secondaryTag"}")
     }
 }
