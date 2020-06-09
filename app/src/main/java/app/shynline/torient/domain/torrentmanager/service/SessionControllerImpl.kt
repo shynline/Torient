@@ -175,31 +175,36 @@ class SessionControllerImpl(
                             // Reset only if it haven't been restarted for more than a certain
                             // amount configured in Config file
                             if (now.time - torrentActivities[infoHash]!!.lastReset.time > Config.TORRENT_RESET_BACKOFF_PERIOD) {
-                                // Saving magnet and torrent info if exists
-                                // to be able to add the torrent again
-                                val magnet = magnets[infoHash]!!
-                                var torrentInfo: TorrentInfo? = null
-                                handle.torrentFile()?.let {
-                                    if (it.isValid) {
-                                        torrentInfo = it
-                                    }
-                                }
-                                // Save the last activity date
-                                // Because it will be cleared in remove process
-                                val lastActive = torrentActivities[infoHash]!!.lastActivity
-                                removeTorrent(infoHash)
-                                addTorrent(infoHash, magnet, torrentInfo)
-                                // Update the torrent activity
-                                torrentActivities[infoHash]?.apply {
-                                    lastReset = now
-                                    lastCheck = now
-                                    lastActivity = lastActive
-                                }
+                                restartTorrent(infoHash, handle)
                             }
                         }
                     }
                 }
             }
+        }
+    }
+
+    private fun restartTorrent(infoHash: String, handle: TorrentHandle?) {
+        // Saving magnet and torrent info if exists
+        // to be able to add the torrent again
+        val magnet = magnets[infoHash]!!
+        var torrentInfo: TorrentInfo? = null
+        handle?.torrentFile()?.let {
+            if (it.isValid) {
+                torrentInfo = it
+            }
+        }
+        // Save the last activity date
+        // Because it will be cleared in remove process
+        val lastActive = torrentActivities[infoHash]!!.lastActivity
+        removeTorrent(infoHash)
+        addTorrent(infoHash, magnet, torrentInfo)
+        // Update the torrent activity
+        val now = Date()
+        torrentActivities[infoHash]?.apply {
+            lastReset = now
+            lastCheck = now
+            lastActivity = lastActive
         }
     }
 
